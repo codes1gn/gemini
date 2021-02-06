@@ -1,0 +1,8 @@
+numpy==1.16.6
+funcsigs==1.0.2
+ninja==1.9.0
+setuptools==44.1.1
+
+# comment cmake, this may align with sw stack
+# cmake==3.14.4
+
