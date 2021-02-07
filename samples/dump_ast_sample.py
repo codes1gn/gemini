@@ -1,4 +1,5 @@
 from gemini.compiler import *
+from gemini.utils import *
 import tensorflow.compat.v1 as tf
 
 def model(input1, input2):
@@ -24,6 +25,9 @@ def model(input1, input2):
 
 try:
   f = GeminiCompiler().parse_function(model)
+  print(ast.dump(f))
+  print('----------------------\n')
+  _f = ast_to_dot(f, 'try')
 finally:
   # print(fe.ir_module.to_asm(debug_info=True))
   print("")
