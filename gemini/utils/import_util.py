@@ -1,5 +1,6 @@
 from sys import version_info
 
+
 # unify functions
 if version_info[0] == 2:
     from itertools import izip as zip, imap as map, ifilter as filter

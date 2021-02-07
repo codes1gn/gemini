@@ -1,4 +1,5 @@
 import os
+import ast
 
 __all__ = [
     'vlog'
