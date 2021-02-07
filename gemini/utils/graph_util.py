@@ -8,6 +8,7 @@ __all__ = [
 # def transformed_ast(ast_root):
 
 def ast_to_dot(ast_root):
+    assert(isinstance(ast_root, ast.AST))
     # transformed_ast = transform_as(ast_root)
     return 'pass'
 

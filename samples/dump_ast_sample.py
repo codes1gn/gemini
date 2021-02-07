@@ -23,7 +23,7 @@ def model(input1, input2):
 # logits = _local['logits']
 
 try:
-  f = GeminiCompiler().import_source(model)
+  f = GeminiCompiler().parse_function(model)
 finally:
   # print(fe.ir_module.to_asm(debug_info=True))
   print("")
