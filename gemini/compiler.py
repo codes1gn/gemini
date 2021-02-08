@@ -13,19 +13,35 @@ __all__ = [
 class GeminiCompiler:
 
   __slots__ = [
-      '_py_module'
+      '_ast_root',
+      '_source_code',
+      '_initialized'
   ]
 
   def __init__(self):
-    self._py_module = None
+    self._ast_root = None
+    self._source_code = None
+    self._initialized = False
 
   @property
-  def py_module(self):
-    return self._py_module
+  def ast(self):
+    return self._ast_root
 
+  @property
+  def src(self):
+    return self._source_code
+
+  @property
+  def inited(self):
+    return self._initialized
+
+
+  # TODO add pretty dump
+
+  # TODO set classmethdo
   def parse_function(self, func):
     # python2 not support typing hint, thus leave a TODO here
-    # type: (Callable[..., Any]) -> ast.AST
+    # type: (Callable[..., Any]) -> None
     assert(isinstance(func, Callable))
 
     src_filename = inspect.getsourcefile(func)
@@ -41,12 +57,13 @@ class GeminiCompiler:
     vlog('src_code without indent = ', src_code)
 
     ast_root = ast.parse(src_code, filename=src_filename)
-    # adjust start_lineno starting from 0 as file header
     ast.increment_lineno(ast_root, n=start_lineno-1)
     vlog('dump ast_root = ', ast.dump(ast_root))
 
     assert(isinstance(ast_root, ast.AST))
-    return ast_root
+    self._ast_root = ast_root
+    self._initialized = True
+    return
 
     # # get module body
     # ast_fdef = ast_root.body[0]
