@@ -37,10 +37,26 @@ class GeminiCompiler:
 
 
   # TODO add pretty dump
+  @classmethod
+  def dump(cls, pretty=False):
+    # type: (Bool) -> None
+
+    # do sanity check
+    assert(cls._initialized)
+    assert(cls._ast_root is not None)
+    assert(isinstance(cls._ast_root, ast.AST))
+
+    # dump with raw or formatted way
+    if pretty:
+      astunparse.dump(cls._ast_root)
+    else:
+      ast.dump(cls._ast_root)
+    return
+
 
   # TODO set classmethdo
+  # python2 not support typing hint, thus leave a TODO here
   def parse_function(self, func):
-    # python2 not support typing hint, thus leave a TODO here
     # type: (Callable[..., Any]) -> None
     assert(isinstance(func, Callable))
 
