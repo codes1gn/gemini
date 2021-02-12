@@ -1,7 +1,8 @@
+import tensorflow.compat.v1 as tf
+
 from gemini.compiler import *
 from gemini.utils import *
 from gemini.transformer import *
-import tensorflow.compat.v1 as tf
 
 
 def model(input1, input2):
