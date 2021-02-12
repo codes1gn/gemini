@@ -2,6 +2,7 @@ import ast
 
 __all__ = ['Transformer']
 
+
 class Transformer(ast.NodeTransformer):
 
     # hahaa

@@ -11,7 +11,7 @@ zip = zip
 if version_info[0] == 3:
     from functools import reduce
 reduce = reduce
-range = xrange if version_info[0] == 2 else  range
+range = xrange if version_info[0] == 2 else range
 
 # unify itertools and functools
 if version_info[0] == 2:
