@@ -11,6 +11,6 @@ uninstall:
 	xargs rm -rf < build/install_tmp/dependencies.txt
 
 test:
-	py.test tests
+	./scripts/run_unittest.sh
 
-.PHONY: init install uninstall
+.PHONY: init install uninstall test lint
