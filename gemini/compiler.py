@@ -4,8 +4,10 @@ import textwrap
 import ast
 import astunparse
 
-from .utils import *
 from typing import Callable
+
+from .utils import *
+from .transformer import *
 
 __all__ = [
     'GeminiCompiler',
@@ -38,6 +40,12 @@ class GeminiCompiler:
         return self._initialized
 
     # TODO add pretty dump
+
+    def apply_transformer(self, transformer):
+        # type: (BaseTransformer) -> None
+        assert(isinstance(transformer, BaseTransformer))
+        self._ast_root = transformer.visit(self._ast_root)
+        return
 
     def dump(self, pretty=True):
         # type: (Bool) -> None

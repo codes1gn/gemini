@@ -33,7 +33,6 @@ try:
     print('dump with ast.dump\n')
     print(compiler.dump())
     print('----------------------\n')
-    assert(0)
 
     # TODO add to test, test visual functionality
     # wrap it wilogging_util functions., not use env vars
@@ -50,8 +49,7 @@ try:
     # print(astunparse.dump(ast.parse(inspect.getsource(model))))
     print('before dump')
     print(astunparse.dump(compiler.ast))
-    _trans = ShardingLeastDimTransformer()
-    code_ast_transformed = _trans.visit(compiler.ast)
+    compiler.apply_transformer(ShardingLeastDimTransformer())
     print('after dump')
     print(astunparse.dump(compiler.ast))
 
