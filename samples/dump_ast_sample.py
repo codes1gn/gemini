@@ -30,14 +30,10 @@ def model(input1, input2):
 try:
     compiler = GeminiCompiler()
     compiler.parse_function(model)
-    import time
-    while not compiler.inited:
-        time.sleep(10)
-    code_ast = compiler.ast
-    code_src = compiler.src
     print('dump with ast.dump\n')
-    print(ast.dump(compiler.ast))
+    print(compiler.dump())
     print('----------------------\n')
+    assert(0)
 
     # TODO add to test, test visual functionality
     # wrap it wilogging_util functions., not use env vars
@@ -53,11 +49,11 @@ try:
     import inspect
     # print(astunparse.dump(ast.parse(inspect.getsource(model))))
     print('before dump')
-    print(astunparse.dump(code_ast))
+    print(astunparse.dump(compiler.ast))
     _trans = ShardingLeastDimTransformer()
     code_ast_transformed = _trans.visit(compiler.ast)
     print('after dump')
-    print(astunparse.dump(code_ast))
+    print(astunparse.dump(compiler.ast))
 
     # TODO test pretty dump
 

@@ -1,8 +1,10 @@
-import ast
+import os
 import inspect
 import textwrap
+import ast
+import astunparse
+
 from .utils import *
-import os
 from typing import Callable
 
 __all__ = [
@@ -37,23 +39,21 @@ class GeminiCompiler:
 
     # TODO add pretty dump
 
-    @classmethod
-    def dump(cls, pretty=False):
+    def dump(self, pretty=True):
         # type: (Bool) -> None
 
         # do sanity check
-        assert(cls._initialized)
-        assert(cls._ast_root is not None)
-        assert(isinstance(cls._ast_root, ast.AST))
+        # assert(self._initialized)
+        # assert(self._ast_root is not None)
+        # assert(isinstance(self._ast_root, ast.AST))
 
         # dump with raw or formatted way
         if pretty:
-            astunparse.dump(cls._ast_root)
+            return astunparse.dump(self._ast_root)
         else:
-            ast.dump(cls._ast_root)
-        return
+            return ast.dump(self._ast_root)
 
-    # TODO set classmethdo
+    # TODO set classmethod
     # python2 not support typing hint, thus leave a TODO here
 
     def parse_function(self, func):
