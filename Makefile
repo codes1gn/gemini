@@ -13,4 +13,8 @@ uninstall:
 test:
 	./scripts/run_unittest.sh
 
-.PHONY: init install uninstall test lint
+sample:
+	./scripts/run_dump_ast_sample.sh
+
+.PHONY: init install uninstall test lint sample
+

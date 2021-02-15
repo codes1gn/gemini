@@ -36,7 +36,7 @@ try:
     code_ast = compiler.ast
     code_src = compiler.src
     print('dump with ast.dump\n')
-    print(ast.dump(code_ast))
+    print(ast.dump(compiler.ast))
     print('----------------------\n')
 
     # TODO add to test, test visual functionality
@@ -45,16 +45,18 @@ try:
 
     # use NodeTransformer()
     # TODO add to test
-    tsf = Transformer()
-    code_ast_transformed = tsf.visit(code_ast)
-    print('dump ast_transformed with ast.dump\n')
-    print(ast.dump(code_ast_transformed))
-    print('----------------------\n')
+    # print('dump ast_transformed with ast.dump\n')
+    # print(ast.dump(code_ast_transformed))
+    # print('----------------------\n')
 
     import astunparse
     import inspect
     # print(astunparse.dump(ast.parse(inspect.getsource(model))))
-    print('pretty dump')
+    print('before dump')
+    print(astunparse.dump(code_ast))
+    _trans = ShardingLeastDimTransformer()
+    code_ast_transformed = _trans.visit(compiler.ast)
+    print('after dump')
     print(astunparse.dump(code_ast))
 
     # TODO test pretty dump
