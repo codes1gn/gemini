@@ -48,7 +48,7 @@ class GeminiCompiler:
         return
 
     def dump(self, pretty=True):
-        # type: (Bool) -> None
+        # type: (Bool) -> str
 
         # do sanity check
         # assert(self._initialized)
@@ -64,29 +64,42 @@ class GeminiCompiler:
     # TODO set classmethod
     # python2 not support typing hint, thus leave a TODO here
 
-    def parse_function(self, func):
+    def parse(self, func_or_src):
         # type: (Callable[..., Any]) -> None
-        assert(isinstance(func, Callable))
+        assert(
+            isinstance(
+                func_or_src,
+                Callable) or isinstance(
+                func_or_src,
+                basestring))
+        # for python3.x, do assert(isinstance(func, Callable) or
+        # isinstance(func, str))
 
-        src_filename = inspect.getsourcefile(func)
-        vlog('src_filename = ', src_filename)
+        if isinstance(func_or_src, Callable):
+            func = func_or_src
+            src_filename = inspect.getsourcefile(func)
+            vlog('src_filename = ', src_filename)
 
-        src_lines, start_lineno = inspect.getsourcelines(func)
-        vlog('src_lines = ', src_lines)
-        vlog('start_lineno = ', start_lineno)
+            src_lines, start_lineno = inspect.getsourcelines(func)
+            vlog('src_lines = ', src_lines)
+            vlog('start_lineno = ', start_lineno)
 
-        src_code = "".join(src_lines)
-        vlog('src_code with indent = ', src_code)
-        src_code = textwrap.dedent(src_code)
-        vlog('src_code without indent = ', src_code)
-
-        ast_root = ast.parse(src_code, filename=src_filename)
-        ast.increment_lineno(ast_root, n=start_lineno - 1)
-        vlog('dump ast_root = ', ast.dump(ast_root))
+            src_code = "".join(src_lines)
+            vlog('src_code with indent = ', src_code)
+            src_code = textwrap.dedent(src_code)
+            vlog('src_code without indent = ', src_code)
+            ast_root = ast.parse(src_code, filename=src_filename)
+            ast.increment_lineno(ast_root, n=start_lineno - 1)
+        elif isinstance(func_or_src, basestring):
+            src_filename = "dummy.py"
+            src_code = func_or_src
+            ast_root = ast.parse(src_code, filename=src_filename)
+            ast.increment_lineno(ast_root, n=0)
 
         assert(isinstance(ast_root, ast.AST))
         self._ast_root = ast_root
         self._initialized = True
+        vlog('dump ast_root = ', self.dump())
         return
 
         # # get module body

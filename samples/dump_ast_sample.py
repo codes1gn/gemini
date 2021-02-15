@@ -29,7 +29,7 @@ def model(input1, input2):
 
 try:
     compiler = GeminiCompiler()
-    compiler.parse_function(model)
+    compiler.parse(model)
     print('dump with ast.dump\n')
     print(compiler.dump())
     print('----------------------\n')
@@ -47,13 +47,11 @@ try:
     import astunparse
     import inspect
     # print(astunparse.dump(ast.parse(inspect.getsource(model))))
-    print('before dump')
-    print(astunparse.dump(compiler.ast))
+    print('\nbefore dump')
+    print(compiler.dump())
     compiler.apply_transformer(ShardingLeastDimTransformer())
-    print('after dump')
-    print(astunparse.dump(compiler.ast))
-
-    # TODO test pretty dump
+    print('\nafter dump')
+    print(compiler.dump())
 
     # TODO test round_trip
 
