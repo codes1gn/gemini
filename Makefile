@@ -10,11 +10,11 @@ install:
 uninstall:
 	xargs rm -rf < build/install_tmp/dependencies.txt
 
-test:
+tests:
 	./scripts/run_unittest.sh
 
 sample:
 	./scripts/run_dump_ast_sample.sh
 
-.PHONY: init install uninstall test lint sample
+.PHONY: init install uninstall tests lint sample
 

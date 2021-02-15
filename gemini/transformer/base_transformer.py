@@ -10,7 +10,9 @@ class BaseTransformer(ast.NodeTransformer):
         printing visit messages
         """
         super(ast.NodeTransformer, self).generic_visit(node)
-        print("anchor BaseTransformer do generic visit -- " + node.__class__.__name__)
+        print(
+            "anchor BaseTransformer do generic visit -- " +
+            node.__class__.__name__)
         return node
 
     def visit_Assign(self, node):
@@ -26,4 +28,3 @@ class BaseTransformer(ast.NodeTransformer):
     def visit_Call(self, node):
         print('anchor BaseTransformer visit_Call', ast.dump(node))
         return node
-

@@ -1,7 +1,6 @@
 #!/bin/sh
 
 path=`dirname $0`'/..'
-echo $path
 
 PATH_BAK=$PYTHONPATH
 

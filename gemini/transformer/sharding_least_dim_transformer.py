@@ -19,4 +19,3 @@ class ShardingLeastDimTransformer(BaseTransformer):
     def visit_Call(self, node):
         print('anchor ShardingLeastDimTransformer visit_Call', ast.dump(node))
         return node
-
