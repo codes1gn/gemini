@@ -41,3 +41,4 @@ echo "success to push to gitlab ~~"
 echo "try to push to github ~~"
 git push github master
 echo "success to push to github ~~"
+
