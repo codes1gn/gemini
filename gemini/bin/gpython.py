@@ -19,7 +19,7 @@ def main(argv=sys.argv[1:]):
     filename = argv[0]
     arguments = argv[1:]
     compiler = _get_compiler(filename, arguments)
-    print(compiler.dump())
+    dump_to_file('dump_1.ast', compiler.dump())
     # exec(src_code, globals())
     # # exec(src_code) in globals()
     # print('global ', globals().keys())

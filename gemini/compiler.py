@@ -47,7 +47,7 @@ class GeminiCompiler:
         self._ast_root = transformer.visit(self._ast_root)
         return
 
-    def dump(self, pretty=True):
+    def dump(self, pretty=True, dump_file=""):
         # type: (Bool) -> str
 
         # do sanity check
