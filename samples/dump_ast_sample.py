@@ -11,21 +11,6 @@ def model(input1, input2):
     mul_1 = tf.multiply(add_1, sub_1)
     return mul_1
 
-# import inspect
-# # source_code = model
-# source_code = inspect.getsource(model)
-# source_code += "logits = model(input1, input2)\n"
-# print(source_code)
-# _a = tf.constant(1, shape=[2, 2])
-# _b = tf.constant(2, shape=[2, 2])
-#
-#
-# # error, how to run??
-# _local = {'input1':_a, 'input2':_b, 'logits': 0}
-# _global = {}
-# exec(source_code, _global, _local)
-# logits = _local['logits']
-
 
 try:
     compiler = GeminiCompiler()
@@ -38,12 +23,6 @@ try:
     # wrap it wilogging_util functions., not use env vars
     # _f = ast_to_dot(f, 'try')
 
-    # use NodeTransformer()
-    # TODO add to test
-    # print('dump ast_transformed with ast.dump\n')
-    # print(ast.dump(code_ast_transformed))
-    # print('----------------------\n')
-
     import astunparse
     import inspect
     # print(astunparse.dump(ast.parse(inspect.getsource(model))))
@@ -52,6 +31,27 @@ try:
     compiler.apply_transformer(ShardingLeastDimTransformer())
     print('\nafter dump')
     print(compiler.dump())
+
+    # test run with src code
+    compiler.run(globals(), use_ast=False)
+    print(model)
+    _a = tf.constant(1, shape=[2, 2])
+    _b = tf.constant(2, shape=[2, 2])
+    logits = model(_a, _b)
+    with tf.Session() as sess:
+        _ = sess.run(logits)
+        print(_)
+
+
+    # # test run with ast
+    # compiler.run(use_ast=True)
+    # print(model)
+    # _a = tf.constant(4, shape=[2, 2])
+    # _b = tf.constant(5, shape=[2, 2])
+    # logits = model(_a, _b)
+    # with tf.Session() as sess:
+    #     _ = sess.run(logits)
+    #     print(_)
 
     # TODO test round_trip
 

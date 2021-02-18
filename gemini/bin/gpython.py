@@ -20,10 +20,13 @@ def main(argv=sys.argv[1:]):
     arguments = argv[1:]
     compiler = _get_compiler(filename, arguments)
     dump_to_file('dump_1.ast', compiler.dump())
-    # exec(src_code, globals())
-    # # exec(src_code) in globals()
-    # print('global ', globals().keys())
-    # print('local ', locals().keys())
+
+    # lastly, run source codes
+    print('try run')
+    compiler.run(globals(), use_ast=False)
+
+    #  exec(compiler.src, globals())
+    #  print(globals().keys())
 
 
 if __name__ == '__main__':

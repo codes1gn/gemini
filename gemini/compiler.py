@@ -43,17 +43,32 @@ class GeminiCompiler:
 
     def apply_transformer(self, transformer):
         # type: (BaseTransformer) -> None
+        assert(self._initialized)
         assert(isinstance(transformer, BaseTransformer))
         self._ast_root = transformer.visit(self._ast_root)
         return
+
+    def run(self, environment, use_ast=False):
+        # print('global keys have\n')
+        # print(globals().keys())
+        # TODO defaultly, use src to run, rather than ast
+        assert(self._initialized)
+        print(environment.keys())
+        print(globals().keys())
+        assert(0)
+        if use_ast:
+            exec(self._ast_root, environment)
+        else:
+            exec(self._source_code, environment)
+        pass
 
     def dump(self, pretty=True, dump_file=""):
         # type: (Bool) -> str
 
         # do sanity check
-        # assert(self._initialized)
-        # assert(self._ast_root is not None)
-        # assert(isinstance(self._ast_root, ast.AST))
+        assert(self._initialized)
+        assert(self._ast_root is not None)
+        assert(isinstance(self._ast_root, ast.AST))
 
         # dump with raw or formatted way
         if pretty:
@@ -98,10 +113,11 @@ class GeminiCompiler:
                 src_filename = "dummy.py"
             src_code = func_or_src
             ast_root = ast.parse(src_code, filename=src_filename)
-            ast.increment_lineno(ast_root, n=0)
+            # ast.increment_lineno(ast_root, n=0)
 
         assert(isinstance(ast_root, ast.AST))
         self._ast_root = ast_root
+        self._source_code = src_code
         self._initialized = True
         vlog('dump ast_root = ', self.dump())
         return
