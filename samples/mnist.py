@@ -12,9 +12,18 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 tf.app.flags.DEFINE_string("device", "dtu", "cpu|gpu|dtu|xla_cpu|xla_gpu")
 tf.app.flags.DEFINE_integer("max_step", 10, "max training steps")
-tf.app.flags.DEFINE_integer("display_step", 1, "display loss every several steps")
-tf.app.flags.DEFINE_boolean('display_loss', True, 'whether to show loss and train accuracy')
-tf.app.flags.DEFINE_integer('batch_size', 64, """Number of images to process in a batch.""")
+tf.app.flags.DEFINE_integer(
+    "display_step",
+    1,
+    "display loss every several steps")
+tf.app.flags.DEFINE_boolean(
+    'display_loss',
+    True,
+    'whether to show loss and train accuracy')
+tf.app.flags.DEFINE_integer(
+    'batch_size',
+    64,
+    """Number of images to process in a batch.""")
 tf.app.flags.DEFINE_float('learning_rate', 1e-3, "learning rate")
 tf.app.flags.DEFINE_string("dtype", "fp32", "fp32|bf16|fp16")
 
@@ -85,30 +94,40 @@ def mnist_model(x, keep_prob, dtype=tf.float32):
 
     with tf.device('/device:XLA_DTU:17'):
         with tf.name_scope("Conv1") as scope:
-            w_conv1 = weight_variable([5, 5, 1, 32], dtype=dtype, name='weight_for_Conv_Layer_1')
-            b_conv1 = bias_variable([32], dtype=dtype, name='bias_for_Conv_Layer_1')
+            w_conv1 = weight_variable(
+                [5, 5, 1, 32], dtype=dtype, name='weight_for_Conv_Layer_1')
+            b_conv1 = bias_variable(
+                [32], dtype=dtype, name='bias_for_Conv_Layer_1')
             h_conv1 = tf.nn.relu(conv2d(x_image, w_conv1) + b_conv1)
             h_pool1 = max_pool_2x2(h_conv1)
 
     with tf.device('/device:XLA_DTU:8'):
         with tf.name_scope("Conv2") as scope:
-            W_conv2 = weight_variable([5, 5, 32, 64], dtype=dtype, name='weight_for_Conv_Layer_2')
-            b_conv2 = bias_variable([64], dtype=dtype, name='bias_for_Conv_Layer_2')
+            W_conv2 = weight_variable(
+                [5, 5, 32, 64], dtype=dtype, name='weight_for_Conv_Layer_2')
+            b_conv2 = bias_variable(
+                [64], dtype=dtype, name='bias_for_Conv_Layer_2')
             h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
             h_pool2 = max_pool_2x2(h_conv2)
 
     with tf.device('/device:XLA_DTU:13'):
         with tf.name_scope("Fully_Connected1") as scope:
             h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
-            W_fc1 = weight_variable([7 * 7 * 64, 1024], dtype=dtype, name='weight_for_Fully_Connected_layer_1')
-            b_fc1 = bias_variable([1024], dtype=dtype, name='bias_for_Fully_Connected_Layer_1')
+            W_fc1 = weight_variable(
+                [7 * 7 * 64, 1024], dtype=dtype, name='weight_for_Fully_Connected_layer_1')
+            b_fc1 = bias_variable(
+                [1024],
+                dtype=dtype,
+                name='bias_for_Fully_Connected_Layer_1')
             h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
             h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 
     with tf.device('/device:XLA_DTU:32'):
         with tf.name_scope("Fully_Connected2") as scope:
-            W_fc2 = weight_variable([1024, 10], dtype=dtype, name='weight_for_Fully_Connected_layer_2')
-            b_fc2 = bias_variable([10], dtype=dtype, name='bias_for_Fully_Connected_Layer_2')
+            W_fc2 = weight_variable(
+                [1024, 10], dtype=dtype, name='weight_for_Fully_Connected_layer_2')
+            b_fc2 = bias_variable(
+                [10], dtype=dtype, name='bias_for_Fully_Connected_Layer_2')
             net = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
     return net
 
@@ -116,7 +135,7 @@ def mnist_model(x, keep_prob, dtype=tf.float32):
 def create_config():
     config = tf.ConfigProto(allow_soft_placement=True,
                             log_device_placement=True,
-                            device_count={'CPU':8},
+                            device_count={'CPU': 8},
                             inter_op_parallelism_threads=1,
                             intra_op_parallelism_threads=1)
     ## config.dtu_options.visible_device_list = str(local_rank)
@@ -126,14 +145,17 @@ def create_config():
     config.graph_options.rewrite_options.memory_optimization = off
     return config
 
+
 def mnist_test():
-    mnist = input_data.read_data_sets(train_dir="{}/dataset".format(ROOT_PATH), one_hot=True)
+    mnist = input_data.read_data_sets(
+        train_dir="{}/dataset".format(ROOT_PATH), one_hot=True)
     x = tf.placeholder(training_type, shape=[None, 784])
     y_ = tf.placeholder(training_type, shape=[None, 10])
     keep_prob = tf.placeholder(training_type, shape=[])
     global_step = tf.train.get_or_create_global_step()
 
     total_dtu_duration = 0.0
+
     def build_net():
         # with tf.device(device_name):
         with tf.device('/device:CPU:0'):
@@ -142,13 +164,22 @@ def mnist_test():
                 logits = tf.cast(logits, tf.float32)
 
         # with tf.device('/device:CPU:0'):
-        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y_))
+        cross_entropy = tf.reduce_mean(
+            tf.nn.softmax_cross_entropy_with_logits_v2(
+                logits=logits, labels=y_))
         tf.summary.scalar('cross_entropy', cross_entropy)
 
-        train_op = tf.train.AdamOptimizer(FLAGS.learning_rate).minimize(cross_entropy, global_step)
+        train_op = tf.train.AdamOptimizer(
+            FLAGS.learning_rate).minimize(
+            cross_entropy, global_step)
         # train_op = tf.train.AdamOptimizer(FLAGS.learning_rate, use_resource=use_resource).minimize(cross_entropy, global_step)
 
-        accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(tf.nn.softmax(logits), 1), tf.argmax(y_, 1)), tf.float32))
+        accuracy = tf.reduce_mean(
+            tf.cast(
+                tf.equal(
+                    tf.argmax(
+                        tf.nn.softmax(logits), 1), tf.argmax(
+                        y_, 1)), tf.float32))
         tf.summary.scalar('accuracy', accuracy)
         return cross_entropy, train_op, accuracy
 
@@ -162,7 +193,8 @@ def mnist_test():
             train_x, train_y = mnist.train.next_batch(FLAGS.batch_size)
 
             step_start = time.time()
-            _, loss = sess.run([_train_op, _cross_entropy], feed_dict={x: train_x, y_: train_y, keep_prob: 0.5})
+            _, loss = sess.run([_train_op, _cross_entropy], feed_dict={
+                               x: train_x, y_: train_y, keep_prob: 0.5})
             step_duration = time.time() - step_start
             total_dtu_duration += step_duration
 
@@ -174,7 +206,6 @@ def mnist_test():
                 print("{}, global_step={}, train_accuracy={}, loss={}, step_duration={}".format(
                     datetime.now().strftime('%Y-%m-%d,%H:%M:%S'), step, train_accuracy, loss, step_duration))
         print("total_dtu_duration: {}s".format(total_dtu_duration))
-
 
 
 if __name__ == '__main__':
