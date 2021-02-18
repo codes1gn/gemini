@@ -22,4 +22,9 @@ setup(
     tests_require=[
         # 'unittest',
     ],
+    entry_points={
+        "console_scripts": [
+            "gpython=gemini.bin.gpython:main",
+        ]
+    }
 )
