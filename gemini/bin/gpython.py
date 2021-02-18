@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-import tensorflow.compat.v1 as tf
+# import tensorflow.compat.v1 as tf
 
 from gemini.compiler import *
 from gemini.utils import *
@@ -20,10 +20,11 @@ def main(argv=sys.argv[1:]):
     src_code = read_src(filename)
     print(filename)
     print(arguments)
-    print(src_code)
-    if len(arguments) == 2:
-        print('args are one pair')
-        # exec()
+    print('exec src_code')
+    exec(src_code, globals())
+    # exec(src_code) in globals()
+    print('global ', globals().keys())
+    print('local ', locals().keys())
 
 
 if __name__ == '__main__':
