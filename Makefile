@@ -16,5 +16,8 @@ tests:
 sample:
 	./scripts/run_dump_ast_sample.sh
 
-.PHONY: init install uninstall tests lint sample
+mnist:
+	./scripts/run_mnist.sh
+
+.PHONY: init install uninstall tests lint sample mnist
 
