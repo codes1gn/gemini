@@ -26,6 +26,7 @@ class GeminiCompiler:
         self._ast_root = None
         self._source_code = None
         self._initialized = False
+        self._src_file = None
 
     @property
     def ast(self):
@@ -38,6 +39,10 @@ class GeminiCompiler:
     @property
     def inited(self):
         return self._initialized
+
+    @property
+    def src_file(self):
+        return self._src_file
 
     # TODO add pretty dump
 
@@ -53,11 +58,8 @@ class GeminiCompiler:
         # print(globals().keys())
         # TODO defaultly, use src to run, rather than ast
         assert(self._initialized)
-        print(environment.keys())
-        print(globals().keys())
-        assert(0)
         if use_ast:
-            exec(self._ast_root, environment)
+            exec(compile(self._ast_root, filename=self._src_file, mode='exec'), environment)
         else:
             exec(self._source_code, environment)
         pass
@@ -93,6 +95,7 @@ class GeminiCompiler:
         if isinstance(func_or_src, Callable):
             func = func_or_src
             src_filename = inspect.getsourcefile(func)
+            self._src_file = src_filename
             vlog('src_filename = ', src_filename)
 
             src_lines, start_lineno = inspect.getsourcelines(func)
@@ -111,6 +114,7 @@ class GeminiCompiler:
                 src_filename = filename
             else:
                 src_filename = "dummy.py"
+            self._src_file = src_filename
             src_code = func_or_src
             ast_root = ast.parse(src_code, filename=src_filename)
             # ast.increment_lineno(ast_root, n=0)

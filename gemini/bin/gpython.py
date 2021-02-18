@@ -22,8 +22,10 @@ def main(argv=sys.argv[1:]):
     dump_to_file('dump_1.ast', compiler.dump())
 
     # lastly, run source codes
-    print('try run')
-    compiler.run(globals(), use_ast=False)
+    # print('try run with src code')
+    # compiler.run(globals(), use_ast=False)
+    print('try run with ast')
+    compiler.run(globals(), use_ast=True)
 
     #  exec(compiler.src, globals())
     #  print(globals().keys())

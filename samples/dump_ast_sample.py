@@ -43,15 +43,15 @@ try:
         print(_)
 
 
-    # # test run with ast
-    # compiler.run(use_ast=True)
-    # print(model)
-    # _a = tf.constant(4, shape=[2, 2])
-    # _b = tf.constant(5, shape=[2, 2])
-    # logits = model(_a, _b)
-    # with tf.Session() as sess:
-    #     _ = sess.run(logits)
-    #     print(_)
+    # test run with ast
+    compiler.run(globals(), use_ast=True)
+    print(model)
+    _a = tf.constant(4, shape=[2, 2])
+    _b = tf.constant(5, shape=[2, 2])
+    logits = model(_a, _b)
+    with tf.Session() as sess:
+        _ = sess.run(logits)
+        print(_)
 
     # TODO test round_trip
 
