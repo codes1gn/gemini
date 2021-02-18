@@ -8,6 +8,12 @@ PATH_BAK=$PYTHONPATH
 export PYTHONPATH=$PYTHONPATH:$rpath && export DEBUG_MODE=false && \
   python $rpath/tests/test_compiler_dump.py
 
+export PYTHONPATH=$PYTHONPATH:$rpath && export DEBUG_MODE=false && \
+  python $rpath/tests/test_mnist_src.py
+
+export PYTHONPATH=$PYTHONPATH:$rpath && export DEBUG_MODE=false && \
+  python $rpath/tests/test_mnist_ast.py
+
 unset PYTHONPATH
 export PYTHONPATH=$PATH_BAK
 

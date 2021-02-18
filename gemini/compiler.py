@@ -81,7 +81,7 @@ class GeminiCompiler:
     # TODO set classmethod
     # python2 not support typing hint, thus leave a TODO here
 
-    def parse(self, func_or_src, filename=""):
+    def parse(self, func_or_src, filename="dummy.py"):
         # type: (Callable[..., Any]) -> None
         assert(
             isinstance(
@@ -109,11 +109,7 @@ class GeminiCompiler:
             ast_root = ast.parse(src_code, filename=src_filename)
             ast.increment_lineno(ast_root, n=start_lineno - 1)
         elif isinstance(func_or_src, basestring):
-            src_filename = ""
-            if src_filename is not "":
-                src_filename = filename
-            else:
-                src_filename = "dummy.py"
+            src_filename = filename
             self._src_file = src_filename
             src_code = func_or_src
             ast_root = ast.parse(src_code, filename=src_filename)
