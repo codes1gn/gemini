@@ -14,6 +14,7 @@ def _get_compiler(filename, arguments):
     compiler.parse(src_code, filename=filename)
     return compiler
 
+
 def main(argv=sys.argv[1:]):
     print('gemini compiler entry point')
     filename = argv[0]

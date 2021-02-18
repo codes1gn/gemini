@@ -42,7 +42,6 @@ try:
         _ = sess.run(logits)
         print(_)
 
-
     # test run with ast
     compiler.run(globals(), use_ast=True)
     print(model)

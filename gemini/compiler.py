@@ -59,7 +59,12 @@ class GeminiCompiler:
         # TODO defaultly, use src to run, rather than ast
         assert(self._initialized)
         if use_ast:
-            exec(compile(self._ast_root, filename=self._src_file, mode='exec'), environment)
+            exec(
+                compile(
+                    self._ast_root,
+                    filename=self._src_file,
+                    mode='exec'),
+                environment)
         else:
             exec(self._source_code, environment)
         pass

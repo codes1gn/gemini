@@ -18,7 +18,6 @@ class TestGeminiCompilerDump(unittest.TestCase):
         self.code_str = read_src(self.filename)
         self.compiler.parse(self.code_str, filename=self.filename)
 
-
     def tearDown(self):
         del self.compiler
         del self.code_str
