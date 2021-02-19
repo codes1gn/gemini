@@ -46,6 +46,13 @@ class GeminiCompiler:
 
     # TODO add pretty dump
 
+    def apply_postprocess_transformer(self, transformer):
+        if isinstance(transformer, ShardingLeastDimTransformer):
+            postproc_transformer = ShardingLeastDimPostTransformer(transformer)
+            self._ast_root = postproc_transformer.visit(self._ast_root)
+        # TODO(albert) remember to add exception handles
+        return
+
     def apply_transformer(self, transformer):
         # type: (BaseTransformer) -> None
         assert(self._initialized)

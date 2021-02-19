@@ -6,7 +6,7 @@ import numpy as np
 
 import tensorflow.compat.v1 as tf
 
-from gemini.compiler import *
+from gemini.gemini_compiler import *
 from gemini.utils import *
 
 
@@ -37,7 +37,6 @@ def model(input1, input2):
         del self.func
         del self.code_str
 
-
     def test_run_with_src(self):
         self.compiler.parse(self.code_str)
         # TODO change to optional of python
@@ -49,10 +48,10 @@ def model(input1, input2):
             _ = sess.run(logits)
             array1 = _
             array2 = np.array([
-                    [-9, -9, -9],
-                    [-9, -9, -9],
-                    [-9, -9, -9]
-                ])
+                [-9, -9, -9],
+                [-9, -9, -9],
+                [-9, -9, -9]
+            ])
             self.assertTrue(np.array_equal(array1, array2))
 
     def test_run_with_ast(self):
@@ -66,10 +65,10 @@ def model(input1, input2):
             _ = sess.run(logits)
             array1 = _
             array2 = np.array([
-                    [-3, -3, -3],
-                    [-3, -3, -3],
-                    [-3, -3, -3]
-                ])
+                [-3, -3, -3],
+                [-3, -3, -3],
+                [-3, -3, -3]
+            ])
             self.assertTrue(np.array_equal(array1, array2))
 
 

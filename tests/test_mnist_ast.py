@@ -5,7 +5,7 @@ import time
 
 from absl import flags
 
-from gemini.compiler import *
+from gemini.gemini_compiler import *
 from gemini.utils import *
 
 

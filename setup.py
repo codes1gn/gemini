@@ -24,7 +24,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "gpython=gemini.bin.gpython:main",
+            "gemini_python=gemini.bin.gemini_python:main",
         ]
     }
 )

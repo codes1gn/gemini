@@ -3,7 +3,7 @@ import sys
 
 # import tensorflow.compat.v1 as tf
 
-from gemini.compiler import *
+from gemini.gemini_compiler import *
 from gemini.utils import *
 from gemini.transformer import *
 

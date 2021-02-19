@@ -1,10 +1,11 @@
 import tensorflow.compat.v1 as tf
 
-from gemini.compiler import *
+from gemini.gemini_compiler import *
 from gemini.utils import *
 from gemini.transformer import *
 
 #mul_1 = tf.multiply(add_1, sub_1)
+
 
 def model(input1, input2):
     add_1 = tf.add(input1, input2)

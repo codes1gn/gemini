@@ -35,7 +35,8 @@ class ShardingLeastDimTransformer(BaseTransformer):
             return node
 
         # situation one, tf.matmul(a, b) + c
-        if isinstance(node.left, ast.Call) and hasattr(node.left.func, 'attr') and (node.left.func.attr == "matmul"):
+        if isinstance(node.left, ast.Call) and hasattr(
+                node.left.func, 'attr') and (node.left.func.attr == "matmul"):
             print('visiting ' + node.left.func.attr)
             lhs_id = node.left.args[0].id
             rhs_id = node.left.args[1].id
@@ -44,7 +45,7 @@ class ShardingLeastDimTransformer(BaseTransformer):
             self._split_weights.append(rhs_id)
             print('lhs id = ' + lhs_id)
             print('rhs id = ' + rhs_id)
-            func_attr=ast.Attribute(
+            func_attr = ast.Attribute(
                 value=ast.Name(
                     id='tf',
                     ctx=ast.Load()
@@ -52,7 +53,7 @@ class ShardingLeastDimTransformer(BaseTransformer):
                 attr='matmul',
                 ctx=ast.Load()
             )
-            reduce_attr=ast.Attribute(
+            reduce_attr = ast.Attribute(
                 value=ast.Name(
                     id='tf',
                     ctx=ast.Load()
@@ -63,7 +64,7 @@ class ShardingLeastDimTransformer(BaseTransformer):
             _tmp = []
             for i in range(self._sharding_size):
                 lhs_op = ast.Name(id=lhs_id, ctx=ast.Load())
-                rhs_op = ast.Name(id=rhs_id+'_{}'.format(i), ctx=ast.Load())
+                rhs_op = ast.Name(id=rhs_id + '_{}'.format(i), ctx=ast.Load())
                 _tmp.append(ast.Call(
                     func=func_attr,
                     args=[
@@ -80,4 +81,3 @@ class ShardingLeastDimTransformer(BaseTransformer):
             print(astunparse.dump(node))
 
         return node
-

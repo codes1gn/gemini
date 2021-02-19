@@ -19,5 +19,8 @@ sample:
 mnist:
 	./scripts/run_mnist.sh
 
+clean:
+	rm -rf ./build && rm -rf ./dist && rm -rf dump_ast && rm -rf dump_graph && rm -f log* && rm -rf *.egg-info
+
 .PHONY: init install uninstall tests lint sample mnist
 
