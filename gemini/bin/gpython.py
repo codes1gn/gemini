@@ -21,8 +21,10 @@ def main(argv=sys.argv[1:]):
     arguments = argv[1:]
     compiler = _get_compiler(filename, arguments)
     dump_to_file('dump_1.ast', compiler.dump())
-    compiler.apply_transformer(ShardingLeastDimTransformer())
+    pass1 = ShardingLeastDimTransformer(sharding_size=2)
+    compiler.apply_transformer(pass1)
     dump_to_file('dump_2.ast', compiler.dump())
+    print('split_weights = ' + str(pass1.split_weights))
 
     # lastly, run source codes
     # print('try run with src code')

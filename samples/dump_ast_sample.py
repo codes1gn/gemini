@@ -4,11 +4,12 @@ from gemini.compiler import *
 from gemini.utils import *
 from gemini.transformer import *
 
+#mul_1 = tf.multiply(add_1, sub_1)
 
 def model(input1, input2):
     add_1 = tf.add(input1, input2)
     sub_1 = input1 - input2
-    mul_1 = tf.multiply(add_1, sub_1)
+    mul_1 = tf.add_n([add_1, sub_1, input1, input2])
     return mul_1
 
 
