@@ -13,7 +13,7 @@ __all__ = [
 
 
 def ast_to_dot(ast_root, dot_label):
-    assert(isinstance(ast_root, ast.AST))
+    assert isinstance(ast_root, ast.AST), "compiler.ast is not of type ast.AST"
     ast_transformed = transform_ast(ast_root)
     renderer = GraphRenderer()
     renderer.render(ast_transformed, label=dot_label)

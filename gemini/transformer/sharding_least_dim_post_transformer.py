@@ -18,7 +18,8 @@ class ShardingLeastDimPostTransformer(BaseTransformer):
     ]
 
     def __init__(self, tfr):
-        assert(isinstance(tfr, ShardingLeastDimTransformer))
+        assert isinstance(tfr, ShardingLeastDimTransformer),\
+            "call __init__ of ShardingLeastDimPostTransformer; transformer is not of type ShardingLeastDimTransformer"
         self._sharding_size = tfr.sharding_size
         self._split_weights = tfr.split_weights
         super(BaseTransformer, self).__init__()
@@ -39,7 +40,7 @@ class ShardingLeastDimPostTransformer(BaseTransformer):
             shape_list = node.value.args[0]
             shape_elements = shape_list.elts
             # TODO check if weights are 2 dims, only handles matmul 2d
-            assert(len(shape_elements) == 2)
+            assert len(shape_elements) == 2, "yet, support matmul 2d only"
             shape_node_to_split = node.value.args[0].elts[0]
             (astunparse.dump(shape_node_to_split))
             shape_node_to_split = ast.BinOp(

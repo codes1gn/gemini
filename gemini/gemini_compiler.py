@@ -55,8 +55,8 @@ class GeminiCompiler:
 
     def apply_transformer(self, transformer):
         # type: (BaseTransformer) -> None
-        assert(self._initialized)
-        assert(isinstance(transformer, BaseTransformer))
+        assert self._initialized, "compiler not inited"
+        assert isinstance(transformer, BaseTransformer), "given arg is not of type BaseTransformer"
         self._ast_root = transformer.visit(self._ast_root)
         self.apply_postprocess_transformer(transformer)
         return
@@ -65,7 +65,7 @@ class GeminiCompiler:
         # print('global keys have\n')
         # print(globals().keys())
         # TODO defaultly, use src to run, rather than ast
-        assert(self._initialized)
+        assert self._initialized, "compiler not inited"
         if use_ast:
             exec(
                 compile(
@@ -81,9 +81,9 @@ class GeminiCompiler:
         # type: (Bool) -> str
 
         # do sanity check
-        assert(self._initialized)
-        assert(self._ast_root is not None)
-        assert(isinstance(self._ast_root, ast.AST))
+        assert self._initialized, "compiler not inited"
+        assert self._ast_root is not None, "compiler.ast is None"
+        assert isinstance(self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
 
         # dump with raw or formatted way
         if pretty:
@@ -96,12 +96,9 @@ class GeminiCompiler:
 
     def parse(self, func_or_src, filename="dummy.py"):
         # type: (Callable[..., Any]) -> None
-        assert(
-            isinstance(
+        assert isinstance(func_or_src, Callable) or isinstance(
                 func_or_src,
-                Callable) or isinstance(
-                func_or_src,
-                basestring))
+                basestring), "object to parse is not in type Callable or source code string"
         # for python3.x, do assert(isinstance(func, Callable) or
         # isinstance(func, str))
 
@@ -128,7 +125,7 @@ class GeminiCompiler:
             ast_root = ast.parse(src_code, filename=src_filename)
             # ast.increment_lineno(ast_root, n=0)
 
-        assert(isinstance(ast_root, ast.AST))
+        assert isinstance(ast_root, ast.AST), "compiler.ast is not of type ast.AST"
         self._ast_root = ast_root
         self._source_code = src_code
         self._initialized = True
