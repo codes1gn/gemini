@@ -58,6 +58,7 @@ class GeminiCompiler:
         assert(self._initialized)
         assert(isinstance(transformer, BaseTransformer))
         self._ast_root = transformer.visit(self._ast_root)
+        self.apply_postprocess_transformer(transformer)
         return
 
     def run(self, environment, use_ast=False):
