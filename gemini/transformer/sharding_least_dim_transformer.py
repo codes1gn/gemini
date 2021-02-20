@@ -15,7 +15,7 @@ class ShardingLeastDimTransformer(BaseTransformer):
 
     def __init__(self, sharding_size=1):
         self._sharding_size = sharding_size
-        self._split_weights = {'left':[], 'right':[]}
+        self._split_weights = {'left': [], 'right': []}
         super(BaseTransformer, self).__init__()
 
     @property

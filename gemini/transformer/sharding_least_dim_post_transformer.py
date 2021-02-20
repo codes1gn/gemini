@@ -45,7 +45,7 @@ class ShardingLeastDimPostTransformer(ast.NodeVisitor):
             # print('after')
             # print(astunparse.dump(parent_node))
             # print('-----------------------\n')
-            
+
         if hasattr(node.targets[0], 'id') and \
                 node.targets[0].id in self._split_weights['right']:
             # print('before')
@@ -61,9 +61,9 @@ class ShardingLeastDimPostTransformer(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-
     # this method add split op after node, taking node id as input
     # split on axis=split_axis, default split on last dim
+
     def insert_split_op(self, node, parent_node, split_axis=-1):
 
         func_attr = ast.Attribute(
@@ -78,18 +78,22 @@ class ShardingLeastDimPostTransformer(ast.NodeVisitor):
         func_keywds = []
         func_keywds.append(
             ast.keyword(
-                arg='num_or_size_splits', 
+                arg='num_or_size_splits',
                 value=ast.Num(n=self.sharding_size)
             )
         )
         # bet the reduce dim is the last dim
-        func_keywds.append(ast.keyword(arg='axis', value=ast.Num(n=split_axis)))
+        func_keywds.append(
+            ast.keyword(
+                arg='axis',
+                value=ast.Num(
+                    n=split_axis)))
 
         node_value = ast.Call(
-            func=func_attr, 
-            args=func_args, 
-            keywords=func_keywds, 
-            starargs=None, 
+            func=func_attr,
+            args=func_args,
+            keywords=func_keywds,
+            starargs=None,
             kwargs=None
         )
 
@@ -108,7 +112,6 @@ class ShardingLeastDimPostTransformer(ast.NodeVisitor):
         parent_node.body.insert(old_index + 1, new_node)
         setattr(new_node, 'gemini_parent', parent_node)
         ast.fix_missing_locations(parent_node)
-
 
     def split_dim_0_2d(self, node):
         # TODO check if weights are 2 dims, only handles matmul 2d

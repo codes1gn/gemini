@@ -21,7 +21,6 @@ def main(argv=sys.argv[1:]):
     arguments = argv[1:]
     compiler = _get_compiler(filename, arguments)
 
-
     dump_to_file('dump_0_src.ast', compiler.dump())
     dump_to_file('dump_0_src.src', compiler.dump_src())
     compiler.apply_transformer(SetParentTransformer())
@@ -33,7 +32,7 @@ def main(argv=sys.argv[1:]):
     dump_to_file('dump_2_shardingleastdim.ast', compiler.dump())
     dump_to_file('dump_2_shardingleastdim.src', compiler.dump_src())
 
-    use_ast = False 
+    use_ast = False
     if not use_ast:
         try:
             compiler.run(globals(), use_ast=False)

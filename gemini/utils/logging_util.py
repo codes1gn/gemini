@@ -7,6 +7,7 @@ __all__ = [
     'ast_analysis'
 ]
 
+
 def ast_analysis(ast_node):
     print(astunparse.dump(ast_node))
     print(astunparse.unparse(ast_node))

@@ -83,8 +83,12 @@ class GeminiCompiler:
         # TODO defaultly, use src to run, rather than ast
         assert self._initialized, "compiler not inited"
         if use_ast:
-            assert isinstance(self._ast_root, ast.AST), "expected ast.AST, but got " + str(type(self._ast_root))
-            co_obj = compile(self._ast_root, filename=self._src_file, mode='exec')
+            assert isinstance(
+                self._ast_root, ast.AST), "expected ast.AST, but got " + str(type(self._ast_root))
+            co_obj = compile(
+                self._ast_root,
+                filename=self._src_file,
+                mode='exec')
             exec(co_obj, environment)
         else:
             exec(self._source_code, environment)
