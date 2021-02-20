@@ -69,7 +69,9 @@ class GeminiCompiler:
         # type: (BaseTransformer) -> None
         assert self._initialized, "compiler not inited"
         assert isinstance(
-            transformer, BaseTransformer), "given arg is not of type BaseTransformer"
+            transformer, ast.NodeTransformer) or \
+            isinstance(transformer, ast.NodeVisitor), \
+            "given arg is not of type BaseTransformer"
         self._ast_root = transformer.visit(self._ast_root)
         assert isinstance(self._ast_root, ast.AST), \
             'ast_root is not ast.AST type after apply \

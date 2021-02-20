@@ -1,7 +1,6 @@
 from base_transformer import *
 from set_parent_transformer import *
-from sharding_least_dim_transformer import *
-from sharding_least_dim_post_transformer import *
+from matmul_sharding_pass import *
 
 __all__ = [
     'BaseTransformer',
