@@ -38,7 +38,7 @@ class GeminiCompiler:
         try:
             self._source_code = astunparse.unparse(self._ast_root)
         except Exception:
-            assert 0, 'unparse failed'
+            assert 0, 'unparse ast_root failed, cannot update source_code'
         return self._source_code
 
     @property
@@ -56,7 +56,12 @@ class GeminiCompiler:
             return
         if isinstance(transformer, ShardingLeastDimTransformer):
             postproc_transformer = ShardingLeastDimPostTransformer(transformer)
-            self._ast_root = postproc_transformer.visit(self._ast_root)
+            # postproc_transformer is a visitor not a transformer
+            # don't got a retval
+            postproc_transformer.visit(self._ast_root)
+            assert isinstance(self._ast_root, ast.AST), \
+                'ast_root is not ast.AST type after \
+                apply transformations {}'.format(str(postproc_transformer))
             # TODO(albert) remember to add exception handles
             return
 
@@ -66,6 +71,9 @@ class GeminiCompiler:
         assert isinstance(
             transformer, BaseTransformer), "given arg is not of type BaseTransformer"
         self._ast_root = transformer.visit(self._ast_root)
+        assert isinstance(self._ast_root, ast.AST), \
+            'ast_root is not ast.AST type after apply \
+            transformations {}'.format(str(transformer))
         self._apply_postprocess_transformer(transformer)
         return
 
@@ -75,15 +83,22 @@ class GeminiCompiler:
         # TODO defaultly, use src to run, rather than ast
         assert self._initialized, "compiler not inited"
         if use_ast:
-            exec(
-                compile(
-                    self._ast_root,
-                    filename=self._src_file,
-                    mode='exec'),
-                environment)
+            assert isinstance(self._ast_root, ast.AST), "expected ast.AST, but got " + str(type(self._ast_root))
+            co_obj = compile(self._ast_root, filename=self._src_file, mode='exec')
+            exec(co_obj, environment)
         else:
             exec(self._source_code, environment)
         pass
+
+    def raw_dump(self):
+        # type: (Bool) -> str
+
+        # do sanity check
+        assert self._initialized, "compiler not inited"
+        assert self._ast_root is not None, "compiler.ast is None"
+        assert isinstance(
+            self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
+        return ast.dump(self._ast_root)
 
     def dump(self, pretty=True, dump_file=""):
         # type: (Bool) -> str
@@ -95,10 +110,19 @@ class GeminiCompiler:
             self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
 
         # dump with raw or formatted way
-        if pretty:
-            return astunparse.dump(self._ast_root)
-        else:
-            return ast.dump(self._ast_root)
+        return astunparse.dump(self._ast_root)
+
+    def dump_src(self, pretty=True, dump_file=""):
+        # type: (Bool) -> str
+
+        # do sanity check
+        assert self._initialized, "compiler not inited"
+        assert self._ast_root is not None, "compiler.ast is None"
+        assert isinstance(
+            self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
+
+        # dump with raw or formatted way
+        return self.src
 
     # TODO set classmethod
     # python2 not support typing hint, thus leave a TODO here

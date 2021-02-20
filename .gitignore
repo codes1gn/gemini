@@ -5,3 +5,4 @@ tags
 dump_ast
 dump_graph
 *dataset*
+.vscode
