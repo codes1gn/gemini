@@ -24,4 +24,3 @@ class SetParentTransformer(BaseTransformer):
                 print('not found parent of ' + str(child))
 
         return node
-

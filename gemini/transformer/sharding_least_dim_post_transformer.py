@@ -34,7 +34,8 @@ class ShardingLeastDimPostTransformer(ast.NodeVisitor):
         # vlog(astunparse.dump(node.targets[0]))
         assert hasattr(node, 'gemini_parent'), "split_weights not have parents"
         parent_node = node.gemini_parent
-        if hasattr(node.targets[0], 'id') and node.targets[0].id in self._split_weights:
+        if hasattr(
+                node.targets[0], 'id') and node.targets[0].id in self._split_weights:
             print('before split weight')
             print(astunparse.dump(parent_node))
             print('-----------------------\n')
@@ -44,7 +45,8 @@ class ShardingLeastDimPostTransformer(ast.NodeVisitor):
             print(astunparse.dump(node))
             print('-----------------------\n')
             # TODO check if weights are 2 dims, only handles matmul 2d
-            assert len(node.value.args[0].elts) == 2, "yet, support matmul 2d only"
+            assert len(
+                node.value.args[0].elts) == 2, "yet, support matmul 2d only"
             node.value.args[0].elts[0] = ast.BinOp(
                 left=node.value.args[0].elts[0],
                 # TODO check if reduce dim is times of sharding size
@@ -83,5 +85,5 @@ class ShardingLeastDimPostTransformer(ast.NodeVisitor):
             print(astunparse.dump(parent_node))
             print('-----------------------\n')
             ast.fix_missing_locations(node)
-            
+
         self.generic_visit(node)
