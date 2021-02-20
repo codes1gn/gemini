@@ -10,18 +10,6 @@ PATH_BAK=$PYTHONPATH
 # export TF_DUMP_GRAPH_PREFIX=./dump_graph
 runner="gemini_python"
 
-
-
-# for debug use
-# export PYTHONPATH=$PYTHONPATH:$rpath && export DEBUG_MODE=false && python $rpath/samples/mnist.py
-# unset PYTHONPATH
-# export PYTHONPATH=$PATH_BAK
-# exit
-
-
-
-
-
 if ! command -v $runner > /dev/null;
 then
   echo "using bin/gemini_python.py"
