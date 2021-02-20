@@ -1,0 +1,7 @@
+*.log
+log
+tags
+*.pyc
+dump_ast
+dump_graph
+*dataset*
