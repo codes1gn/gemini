@@ -19,7 +19,8 @@ class GeminiCompiler:
     __slots__ = [
         '_ast_root',
         '_source_code',
-        '_initialized'
+        '_initialized',
+        '_src_file',
     ]
 
     def __init__(self):
@@ -34,6 +35,10 @@ class GeminiCompiler:
 
     @property
     def src(self):
+        try:
+            self._source_code = astunparse.unparse(self._ast_root)
+        except Exception:
+            assert 0, 'unparse failed'
         return self._source_code
 
     @property
@@ -46,19 +51,21 @@ class GeminiCompiler:
 
     # TODO add pretty dump
 
-    def apply_postprocess_transformer(self, transformer):
+    def _apply_postprocess_transformer(self, transformer):
+        if isinstance(transformer, SetParentTransformer):
+            return
         if isinstance(transformer, ShardingLeastDimTransformer):
             postproc_transformer = ShardingLeastDimPostTransformer(transformer)
             self._ast_root = postproc_transformer.visit(self._ast_root)
-        # TODO(albert) remember to add exception handles
-        return
+            # TODO(albert) remember to add exception handles
+            return
 
     def apply_transformer(self, transformer):
         # type: (BaseTransformer) -> None
         assert self._initialized, "compiler not inited"
         assert isinstance(transformer, BaseTransformer), "given arg is not of type BaseTransformer"
         self._ast_root = transformer.visit(self._ast_root)
-        self.apply_postprocess_transformer(transformer)
+        self._apply_postprocess_transformer(transformer)
         return
 
     def run(self, environment, use_ast=False):
@@ -94,6 +101,18 @@ class GeminiCompiler:
     # TODO set classmethod
     # python2 not support typing hint, thus leave a TODO here
 
+    # TODO legacy codes for setting parents
+    # def _set_parents(self):
+    #     # this function sets parents of ast tree, that add a way to access parent nodes for pass
+    #     for stmt in ast.walk(self._ast_root):
+    #         print(stmt)
+    #         if stmt is None:
+    #             print('super')
+    #         for child in ast.iter_child_nodes(stmt):
+    #             print(child)
+    #             # setattr(child, 'gemini_parent', stmt)
+    #     return
+
     def parse(self, func_or_src, filename="dummy.py"):
         # type: (Callable[..., Any]) -> None
         assert isinstance(func_or_src, Callable) or isinstance(
@@ -126,10 +145,14 @@ class GeminiCompiler:
             # ast.increment_lineno(ast_root, n=0)
 
         assert isinstance(ast_root, ast.AST), "compiler.ast is not of type ast.AST"
+        # TODO set parents of each node for further operations
+        # TODO leave a tree arg here tmp
+        # self._set_parents()
+        # assert 0
         self._ast_root = ast_root
+        # TODO(albert) remove this assign, and move assign to property, keep ast as master
         self._source_code = src_code
         self._initialized = True
-        vlog('dump ast_root = ', self.dump())
         return
 
         # # get module body

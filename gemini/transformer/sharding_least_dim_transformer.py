@@ -7,9 +7,6 @@ __all__ = ['ShardingLeastDimTransformer']
 
 class ShardingLeastDimTransformer(BaseTransformer):
 
-    # def visit_Call(self, node):
-    #     print(astunparse.dump(node))
-    #     return node
     __slots__ = [
         '_sharding_size',
         '_split_weights',
@@ -37,14 +34,14 @@ class ShardingLeastDimTransformer(BaseTransformer):
         # situation one, tf.matmul(a, b) + c
         if isinstance(node.left, ast.Call) and hasattr(
                 node.left.func, 'attr') and (node.left.func.attr == "matmul"):
-            print('visiting ' + node.left.func.attr)
+            # print('visiting ' + node.left.func.attr)
             lhs_id = node.left.args[0].id
             rhs_id = node.left.args[1].id
 
             # handle split weights, add weights id to the list
             self._split_weights.append(rhs_id)
-            print('lhs id = ' + lhs_id)
-            print('rhs id = ' + rhs_id)
+            # print('lhs id = ' + lhs_id)
+            # print('rhs id = ' + rhs_id)
             func_attr = ast.Attribute(
                 value=ast.Name(
                     id='tf',
@@ -70,14 +67,17 @@ class ShardingLeastDimTransformer(BaseTransformer):
                     args=[
                         lhs_op,
                         rhs_op
-                    ]
+                    ],
+                    keywords=[]
                 ))
             ret_node = ast.Call(
                 func=reduce_attr,
-                args=_tmp
+                args=_tmp,
+                keywords=[]
             )
-            print(astunparse.dump(node))
+            # print(astunparse.dump(node))
             node.left = ret_node
-            print(astunparse.dump(node))
+            # print(astunparse.dump(node))
 
+        ast.fix_missing_locations(node)
         return node
