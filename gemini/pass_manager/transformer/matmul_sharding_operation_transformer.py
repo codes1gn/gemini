@@ -2,13 +2,14 @@
 import ast
 
 from gemini.utils import *
+from .node_transformer_base import NodeTransformerBase
 
 __all__ = [
     'MatmulShardingOperationTransformer',
 ]
 
 
-class MatmulShardingOperationTransformer(ast.NodeTransformer):
+class MatmulShardingOperationTransformer(NodeTransformerBase):
 
     __slots__ = [
         '_sharding_size',
@@ -18,7 +19,7 @@ class MatmulShardingOperationTransformer(ast.NodeTransformer):
     def __init__(self, sharding_size=1):
         self._sharding_size = sharding_size
         self._split_weights = {'left': [], 'right': []}
-        super(ast.NodeTransformer, self).__init__()
+        super(NodeTransformerBase, self).__init__()
 
     @property
     def sharding_size(self):

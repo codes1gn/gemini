@@ -5,13 +5,14 @@ import copy
 from gemini.utils import *
 
 from .matmul_sharding_operation_transformer import *
+from .node_visitor_base import NodeVisitorBase
 
 __all__ = [
     'MatmulShardingOperandTransformer',
 ]
 
 
-class MatmulShardingOperandTransformer(ast.NodeVisitor):
+class MatmulShardingOperandTransformer(NodeVisitorBase):
 
     __slots__ = [
         '_sharding_size',
@@ -23,8 +24,8 @@ class MatmulShardingOperandTransformer(ast.NodeVisitor):
             "call __init__ of ShardingLeastDimPostTransformer; transformer is not of type ShardingLeastDimTransformer"
         self._sharding_size = tfr.sharding_size
         self._split_weights = tfr.split_weights
-        super(ast.NodeVisitor, self).__init__()
-
+        super(MatmulShardingOperandTransformer, self).__init__()
+    
     @property
     def sharding_size(self):
         return self._sharding_size
@@ -113,7 +114,7 @@ class MatmulShardingOperandTransformer(ast.NodeVisitor):
         new_node = ast.Assign(targets=node_targets, value=node_value)
         old_index = parent_node.body.index(node)
         parent_node.body.insert(old_index + 1, new_node)
-        setattr(new_node, 'gemini_parent', parent_node)
+        self.fix_missing_parent(parent_node)
         ast.fix_missing_locations(parent_node)
 
     def split_dim_0_2d(self, node):
@@ -136,9 +137,9 @@ class MatmulShardingOperandTransformer(ast.NodeVisitor):
             new_node.targets[0].id += '_{}'.format(idx)
             old_index = parent_node.body.index(node)
             parent_node.body.insert(old_index + 1, new_node)
-            setattr(new_node, 'gemini_parent', parent_node)
 
         # change id of var to var0 for first replica.
         # TODO(albert) may need to support Save Restore.
         node.targets[0].id += '_0'
         ast.fix_missing_locations(parent_node)
+        self.fix_missing_parent(parent_node)
