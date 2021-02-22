@@ -1,3 +1,4 @@
+from gemini.pass_manager.sharding_pass_manager import ShardingPassManager
 import os
 import inspect
 import textwrap
@@ -19,15 +20,15 @@ class GeminiCompiler:
     __slots__ = [
         '_ast_root',
         '_source_code',
-        '_initialized',
         '_src_file',
+        '_pass_manager',
     ]
 
     def __init__(self):
         self._ast_root = None
-        self._source_code = None
-        self._initialized = False
-        self._src_file = None
+        self._source_code = "" 
+        self._src_file = ""
+        self._pass_manager = None
 
     @property
     def ast(self):
@@ -43,13 +44,19 @@ class GeminiCompiler:
 
     @property
     def inited(self):
-        return self._initialized
+        return True if self.ast is not None else False
 
     @property
     def src_file(self):
         return self._src_file
 
-    # TODO add pretty dump
+    # method to apply MP patterns
+    def apply_model_parallel(self, config):
+        # TODO(albert) add config class
+        if config['mode'] == "sharding":
+            self._pass_manager = ShardingPassManager()
+            self._pass_manager.register_passes()
+            self._pass_manager.run(self)
 
     def _apply_postprocess_transformer(self, transformer):
         if isinstance(transformer, SetParentTransformer):
@@ -67,7 +74,7 @@ class GeminiCompiler:
 
     def apply_transformer(self, transformer):
         # type: (BaseTransformer) -> None
-        assert self._initialized, "compiler not inited"
+        assert self.inited, "compiler not inited"
         assert isinstance(
             transformer, ast.NodeTransformer) or \
             isinstance(transformer, ast.NodeVisitor), \
@@ -83,7 +90,7 @@ class GeminiCompiler:
         # print('global keys have\n')
         # print(globals().keys())
         # TODO defaultly, use src to run, rather than ast
-        assert self._initialized, "compiler not inited"
+        assert self.inited, "compiler not inited"
         if use_ast:
             assert isinstance(
                 self._ast_root, ast.AST), "expected ast.AST, but got " + str(type(self._ast_root))
@@ -100,7 +107,7 @@ class GeminiCompiler:
         # type: (Bool) -> str
 
         # do sanity check
-        assert self._initialized, "compiler not inited"
+        assert self.inited, "compiler not inited"
         assert self._ast_root is not None, "compiler.ast is None"
         assert isinstance(
             self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
@@ -110,7 +117,7 @@ class GeminiCompiler:
         # type: (Bool) -> str
 
         # do sanity check
-        assert self._initialized, "compiler not inited"
+        assert self.inited, "compiler not inited"
         assert self._ast_root is not None, "compiler.ast is None"
         assert isinstance(
             self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
@@ -122,7 +129,7 @@ class GeminiCompiler:
         # type: (Bool) -> str
 
         # do sanity check
-        assert self._initialized, "compiler not inited"
+        assert self.inited, "compiler not inited"
         assert self._ast_root is not None, "compiler.ast is None"
         assert isinstance(
             self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
@@ -186,7 +193,6 @@ class GeminiCompiler:
         # TODO(albert) remove this assign, and move assign to property, keep
         # ast as master
         self._source_code = src_code
-        self._initialized = True
         return
 
         # # get module body

@@ -20,19 +20,17 @@ def main(argv=sys.argv[1:]):
     filename = argv[0]
     arguments = argv[1:]
     compiler = _get_compiler(filename, arguments)
-
+    
+    # construct config, use dummy string instead
+    config = {'mode': 'sharding'}
     dump_to_file('dump_0_src.ast', compiler.dump())
     dump_to_file('dump_0_src.src', compiler.dump_src())
-    compiler.apply_transformer(SetParentTransformer())
-    dump_to_file('dump_1_setparent.ast', compiler.dump())
-    dump_to_file('dump_1_setparent.src', compiler.dump_src())
-
-    pass1 = ShardingLeastDimTransformer(sharding_size=2)
-    compiler.apply_transformer(pass1)
-    dump_to_file('dump_2_shardingleastdim.ast', compiler.dump())
-    dump_to_file('dump_2_shardingleastdim.src', compiler.dump_src())
+    compiler.apply_model_parallel(config)
+    dump_to_file('dump_1_after.ast', compiler.dump())
+    dump_to_file('dump_1_after.src', compiler.dump_src())
 
     use_ast = False
+    # TODO(albert) have bug when not use_ast
     if not use_ast:
         try:
             compiler.run(globals(), use_ast=False)
