@@ -17,13 +17,13 @@ def main(argv=sys.argv[1:]):
     arguments = argv[1:]
     compiler = _get_compiler(filename, arguments)
 
-    # construct config, use dummy string instead
+    # TODO(albert) construct config, use dummy string instead
     config = {'mode': 'sharding'}
-    dump_to_file('dump_0_src.ast', compiler.dump())
-    dump_to_file('dump_0_src.src', compiler.dump_src())
+    dump_to_file('dump_0_before_{}_mode_pass.ast'.format(config['mode']), compiler.dump())
+    dump_to_file('dump_0_before_{}_mode_pass.src'.format(config['mode']), compiler.dump_src())
     compiler.apply_model_parallel(config)
-    dump_to_file('dump_1_after.ast', compiler.dump())
-    dump_to_file('dump_1_after.src', compiler.dump_src())
+    dump_to_file('dump_1_after_{}_mode_pass.ast'.format(config['mode']), compiler.dump())
+    dump_to_file('dump_1_after_{}_mode_pass.src'.format(config['mode']), compiler.dump_src())
 
     use_ast = False
     # TODO(albert) have bug when not use_ast
