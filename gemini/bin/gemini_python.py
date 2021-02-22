@@ -16,7 +16,7 @@ def main(argv=sys.argv[1:]):
     filename = argv[0]
     arguments = argv[1:]
     compiler = _get_compiler(filename, arguments)
-    
+
     # construct config, use dummy string instead
     config = {'mode': 'sharding'}
     dump_to_file('dump_0_src.ast', compiler.dump())

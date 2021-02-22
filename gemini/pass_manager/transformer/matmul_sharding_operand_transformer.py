@@ -1,6 +1,6 @@
 
 import ast
-import copy 
+import copy
 
 from gemini.utils import *
 
@@ -12,7 +12,7 @@ __all__ = [
 
 
 class MatmulShardingOperandTransformer(ast.NodeVisitor):
-    
+
     __slots__ = [
         '_sharding_size',
         '_split_weights',

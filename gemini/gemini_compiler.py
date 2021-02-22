@@ -5,7 +5,7 @@ import astunparse
 
 from typing import Callable
 
-from gemini.pass_manager import * 
+from gemini.pass_manager import *
 from gemini.utils import *
 
 __all__ = [
@@ -24,7 +24,7 @@ class GeminiCompiler:
 
     def __init__(self):
         self._ast_root = None
-        self._source_code = "" 
+        self._source_code = ""
         self._src_file = ""
         self._pass_manager = None
 

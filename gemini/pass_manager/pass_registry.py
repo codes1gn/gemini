@@ -13,10 +13,11 @@ class PassRegistry(object):
         # will only run once
         # TODO(albert) add more passes
         _pass_table = {}
+
         def register_pass(pass_class):
             _pass_table[pass_class.__name__] = str(register_pass.id_cnt)
             register_pass.id_cnt += 1
-        
+
         # register passes
         register_pass.id_cnt = 0
         register_pass(MatmulShardingPass)

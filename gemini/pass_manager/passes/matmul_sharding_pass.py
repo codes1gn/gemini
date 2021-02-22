@@ -35,5 +35,3 @@ class MatmulShardingPass(PassBase):
 
         assert isinstance(_ast, ast.AST)
         return _ast
-
-

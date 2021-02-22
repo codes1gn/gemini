@@ -7,8 +7,9 @@ __all__ = [
     'MatmulShardingOperationTransformer',
 ]
 
+
 class MatmulShardingOperationTransformer(ast.NodeTransformer):
-    
+
     __slots__ = [
         '_sharding_size',
         '_split_weights',
