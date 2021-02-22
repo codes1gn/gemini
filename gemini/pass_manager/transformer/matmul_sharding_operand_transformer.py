@@ -25,7 +25,7 @@ class MatmulShardingOperandTransformer(NodeVisitorBase):
         self._sharding_size = tfr.sharding_size
         self._split_weights = tfr.split_weights
         super(MatmulShardingOperandTransformer, self).__init__()
-    
+
     @property
     def sharding_size(self):
         return self._sharding_size
