@@ -1,17 +1,13 @@
 
-import os
-import inspect
-import ast
-import astunparse
-
 from gemini.utils import *
 
 from .pass_manager_base import PassManagerBase
-from .matmul_sharding_pass import MatmulShardingPass 
+from .passes.matmul_sharding_pass import MatmulShardingPass 
 
 __all__ = [
     'ShardingPassManager',
 ]
+
 
 class ShardingPassManager(PassManagerBase):
 

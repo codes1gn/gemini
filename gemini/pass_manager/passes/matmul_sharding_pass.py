@@ -1,15 +1,12 @@
+
 import ast
 
-from gemini.utils import *
-from gemini.transformer import *
-
-from .pass_registry import *
+from gemini.pass_manager.transformer import *
 from .pass_base import PassBase
 
 __all__ = [
     'MatmulShardingPass',
 ]
-
 
 
 class MatmulShardingPass(PassBase):

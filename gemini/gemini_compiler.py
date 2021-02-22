@@ -1,5 +1,3 @@
-from gemini.pass_manager.sharding_pass_manager import ShardingPassManager
-import os
 import inspect
 import textwrap
 import ast
@@ -7,8 +5,8 @@ import astunparse
 
 from typing import Callable
 
-from .utils import *
-from .transformer import *
+from gemini.pass_manager import * 
+from gemini.utils import *
 
 __all__ = [
     'GeminiCompiler',
@@ -58,35 +56,7 @@ class GeminiCompiler:
             self._pass_manager.register_passes()
             self._pass_manager.run(self)
 
-    def _apply_postprocess_transformer(self, transformer):
-        if isinstance(transformer, SetParentTransformer):
-            return
-        if isinstance(transformer, ShardingLeastDimTransformer):
-            postproc_transformer = ShardingLeastDimPostTransformer(transformer)
-            # postproc_transformer is a visitor not a transformer
-            # don't got a retval
-            postproc_transformer.visit(self._ast_root)
-            assert isinstance(self._ast_root, ast.AST), \
-                'ast_root is not ast.AST type after \
-                apply transformations {}'.format(str(postproc_transformer))
-            # TODO(albert) remember to add exception handles
-            return
-
-    def apply_transformer(self, transformer):
-        # type: (BaseTransformer) -> None
-        assert self.inited, "compiler not inited"
-        assert isinstance(
-            transformer, ast.NodeTransformer) or \
-            isinstance(transformer, ast.NodeVisitor), \
-            "given arg is not of type BaseTransformer"
-        self._ast_root = transformer.visit(self._ast_root)
-        assert isinstance(self._ast_root, ast.AST), \
-            'ast_root is not ast.AST type after apply \
-            transformations {}'.format(str(transformer))
-        self._apply_postprocess_transformer(transformer)
-        return
-
-    def run(self, environment, use_ast=False):
+    def compile_and_run(self, environment, use_ast=False):
         # print('global keys have\n')
         # print(globals().keys())
         # TODO defaultly, use src to run, rather than ast
@@ -137,29 +107,14 @@ class GeminiCompiler:
         # dump with raw or formatted way
         return self.src
 
-    # TODO set classmethod
-    # python2 not support typing hint, thus leave a TODO here
-
-    # TODO legacy codes for setting parents
-    # def _set_parents(self):
-    #     # this function sets parents of ast tree, that add a way to access parent nodes for pass
-    #     for stmt in ast.walk(self._ast_root):
-    #         print(stmt)
-    #         if stmt is None:
-    #             print('super')
-    #         for child in ast.iter_child_nodes(stmt):
-    #             print(child)
-    #             # setattr(child, 'gemini_parent', stmt)
-    #     return
-
     def parse(self, func_or_src, filename="dummy.py"):
         # type: (Callable[..., Any]) -> None
         assert isinstance(func_or_src, Callable) or isinstance(
             func_or_src,
             basestring), "object to parse is not in type Callable or source code string"
+
         # for python3.x, do assert(isinstance(func, Callable) or
         # isinstance(func, str))
-
         if isinstance(func_or_src, Callable):
             func = func_or_src
             src_filename = inspect.getsourcefile(func)
@@ -181,25 +136,8 @@ class GeminiCompiler:
             self._src_file = src_filename
             src_code = func_or_src
             ast_root = ast.parse(src_code, filename=src_filename)
-            # ast.increment_lineno(ast_root, n=0)
 
         assert isinstance(
             ast_root, ast.AST), "compiler.ast is not of type ast.AST"
-        # TODO set parents of each node for further operations
-        # TODO leave a tree arg here tmp
-        # self._set_parents()
-        # assert 0
         self._ast_root = ast_root
-        # TODO(albert) remove this assign, and move assign to property, keep
-        # ast as master
-        self._source_code = src_code
         return
-
-        # # get module body
-        # ast_fdef = ast_root.body[0]
-        # vlog('dump ast_function_def = ', ast.dump(ast_fdef, include_attributes=True))
-
-        # # TODO find out do what
-        # import funcsigs
-        # f_signature = funcsigs.signature(func)
-        # f_params = f_signature.parameters

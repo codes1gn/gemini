@@ -1,11 +1,7 @@
-import argparse
 import sys
-
-# import tensorflow.compat.v1 as tf
 
 from gemini.gemini_compiler import *
 from gemini.utils import *
-from gemini.transformer import *
 
 
 def _get_compiler(filename, arguments):
@@ -33,13 +29,13 @@ def main(argv=sys.argv[1:]):
     # TODO(albert) have bug when not use_ast
     if not use_ast:
         try:
-            compiler.run(globals(), use_ast=False)
+            compiler.compile_and_run(globals(), use_ast=False)
             print('try run src success')
         except Exception:
             print('try run src fail')
     else:
         try:
-            compiler.run(globals(), use_ast=True)
+            compiler.compile_and_run(globals(), use_ast=True)
             print('try run ast success')
         except Exception:
             print('try run ast fail')

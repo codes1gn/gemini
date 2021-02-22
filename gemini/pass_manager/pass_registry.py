@@ -1,10 +1,8 @@
+
 from gemini.utils import *
 
-from .matmul_sharding_pass import MatmulShardingPass
+from .passes.matmul_sharding_pass import MatmulShardingPass
 
-__all__ = [
-    'PassRegistry',
-]
 
 class PassRegistry(object):
 
@@ -24,4 +22,3 @@ class PassRegistry(object):
         register_pass(MatmulShardingPass)
 
         return _pass_table
-
