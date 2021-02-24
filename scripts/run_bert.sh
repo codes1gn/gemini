@@ -76,8 +76,8 @@ if [ -d "${FILE2%.zip}" ]; then
   # check checksum
 else
   echo "not found dir ${FILE2%.zip}, do unzip"
-  mkdir -p uncased_L-12_H-768_A-12 && cd uncased_L-12_H-768_A-12
-  unzip $FILE2
+  mkdir -p uncased_L-12_H-768_A-12 && cd uncased_L-12_H-768_A-12/
+  unzip ../$FILE2
 fi
 
 cd -
@@ -110,44 +110,62 @@ fi
 
 cd $top_dir_realpath
 
-exit -1
-
+# do running
 export PYTHONPATH="${PYTHONPATH}:${top_dir_realpath}:${bert_dir}"
 export BERT_LARGE=$bert_dir"/pretrained_models/uncased_L-24_H-1024_A-16"
 export BERT_BASE=$bert_dir"/pretrained_models/uncased_L-12_H-768_A-12"
 cd $top_dir_realpath"/external/TopsModels/common/"
 python setup.py install
 cd $top_dir_realpath
+
 export ENABLE_INIT_ON_CPU=1
+BERT_CKPT_DIR=$BERT_BASE
 
-rm -rf squad_output
-BERT_DIR=$BERT_BASE
-export SQUAD_DIR=$BERT_DIR/dataset/squad/v1.1
-export OUT_DIR=$BERT_DIR/squad_output
-python run_squad.py \
-  --vocab_file=$BERT_DIR/vocab.txt \
-  --bert_config_file=$BERT_DIR/bert_config.json \
-  --init_checkpoint=$BERT_DIR/bert_model.ckpt \
-  --do_train=True \
-  --do_predict=True \
-  --device=dtu \
-  --train_file=$SQUAD_DIR/train-v1.1.json \
-  --predict_file=$SQUAD_DIR/dev-v1.1.json \
-  --train_batch_size=8 \
-  --learning_rate=5e-6 \
-  --num_train_epochs=0.003 \
-  # --num_train_epochs=2.0 \
+# run squad ----------------------------------
+# rm -rf squad_output
+# export SQUAD_DIR=$bert_dir/dataset/squad/v1.1
+# export OUT_DIR=$bert_dir/squad_output
+# nohup python $bert_dir/run_squad.py \
+#   --vocab_file=$BERT_CKPT_DIR/vocab.txt \
+#   --bert_config_file=$BERT_CKPT_DIR/bert_config.json \
+#   --init_checkpoint=$BERT_CKPT_DIR/bert_model.ckpt \
+#   --do_train=True \
+#   --do_predict=True \
+#   --device=dtu \
+#   --train_file=$SQUAD_DIR/train-v1.1.json \
+#   --predict_file=$SQUAD_DIR/dev-v1.1.json \
+#   --train_batch_size=1 \
+#   --learning_rate=5e-6 \
+#   --num_train_epochs=0.003 \
+#   --max_seq_length=128 \
+#   --doc_stride=128 \
+#   --output_dir=$OUT_DIR \
+#   --use_resource=False \
+#   --use_xla=True \
+#   --horovod=False \
+#   --display_loss_steps=10 \
+#   > $top_dir_realpath/log 2>&1 &
+
+# run mrpc ---------------------------------------
+rm -rf mrpc_output
+export GLUE_DIR=$bert_dir/dataset/glue_data/MRPC
+export OUT_DIR=$bert_dir/mrpc_output
+python $bert_dir/run_classifier.py \
+  --task_name=MRPC \
+  --do_train=true \
+  --do_eval=false \
+  --data_dir=${GLUE_DIR}\
+  --vocab_file=${BERT_CKPT_DIR}/vocab.txt \
+  --bert_config_file=${BERT_CKPT_DIR}/bert_config.json \
+  --init_checkpoint=${BERT_CKPT_DIR}/bert_model.ckpt \
   --max_seq_length=128 \
-  # --max_seq_length=384 \
-  --doc_stride=128 \
-  --output_dir=$OUT_DIR \
-  --use_resource=False \
-  --use_xla=False \
-  --horovod=False \
-  --display_loss_steps=10
-# need probe
+  --train_batch_size=1 \
+  --learning_rate=2e-5 \
+  --num_train_epochs=0.03 \
+  --output_dir=${OUT_DIR} \
+  > $top_dir_realpath/log 2>&1 &
 
-# set pythonpath
+tail -f $top_dir_realpath/log
 
 
 
@@ -176,28 +194,6 @@ python run_squad.py \
 #  export STATIC_MEM_MC_BALANCE=true
 #  export REDUCE_HBM_USE_PEAK=true
 #export CLUSTER_AS_DEVICE=false
-
-#export SQUAD_DIR=$BASE_DIR/dataset/squad/v1.1
-#export OUT_DIR=$BASE_DIR/squad_base
-#python run_squad.py \
-#  --vocab_file=$BERT_BASE/vocab.txt \
-#  --bert_config_file=$BERT_BASE/bert_config.json \
-#  --init_checkpoint=$BERT_BASE/bert_model.ckpt \
-#  --do_train=True \
-#  --do_predict=True \
-#  --device=dtu \
-#  --train_file=$SQUAD_DIR/train-v1.1.json \
-#  --predict_file=$SQUAD_DIR/dev-v1.1.json \
-#  --train_batch_size=8\
-#  --learning_rate=5e-6 \
-#  --num_train_epochs=2.0 \
-#  --max_seq_length=384 \
-#  --doc_stride=128 \
-#  --output_dir=$OUT_DIR \
-#  --use_resource=False \
-#  --use_xla=False \
-#  --horovod=False \
-#  --display_loss_steps=100
 
 # rm -rf mrpc_output
 # export GLUE_DIR=${BASE_DIR}/dataset/glue_data/MRPC
