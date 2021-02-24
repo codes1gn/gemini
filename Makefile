@@ -13,17 +13,17 @@ uninstall:
 tests:
 	./scripts/run_unittest.sh
 
-sample_ast_dump:
+ast_dump_sample:
 	./scripts/run_dump_ast_sample.sh
 
-sample_mnist:
+mnist_sample:
 	./scripts/run_mnist.sh
 
-sample_bert:
+bert_sample:
 	./scripts/run_bert.sh
 
 clean:
 	rm -rf ./build && rm -rf ./dist && rm -rf dump_ast && rm -rf dump_graph && rm -f log* && rm -rf *.egg-info
 
-.PHONY: init install uninstall tests lint sample_ast_dump sample_mnist sample_bert
+.PHONY: init install uninstall tests lint ast_dump_sample mnist_sample bert_sample
 
