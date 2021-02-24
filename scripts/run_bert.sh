@@ -8,8 +8,7 @@ string_contains () {
   [ -z "$1"  ] || { [ -z "${2##*$1*}"  ] && [ -n "$2"  ]; };
 }
 
-download_file() {
-  if [ -f "$1" ]; then
+download_file() { if [ -f "$1" ]; then
     echo "$1 exist"
     # check checksum
     if string_contains $2 `get_sha256sum $1`; then
@@ -25,6 +24,10 @@ download_file() {
     wget https://storage.googleapis.com/bert_models/2019_05_30/wwm_uncased_L-24_H-1024_A-16.zip
   elif string_contains "12_H-768" $1; then
     wget https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip
+  elif string_contains "squad" $1; then
+    wget ftp://10.16.11.32/software/dataset/squad.zip
+  elif string_contains "glue" $1; then
+    wget ftp://10.16.11.32/software/dataset/glue.zip
   else
     echo "invalid filename specified, cannot process"
   fi
@@ -60,9 +63,15 @@ cd -
 
 # download dataset
 cd $bert_dir"/dataset"
-
-
+FILE3=squad.zip
+FILE_HASH3="e49e508d867daa7c6d6365b7112c270da8d25a51dac479384083114eb6964a6e"
+download_file $FILE3 $FILE_HASH3
+FILE4=glue.zip
+FILE_HASH4="7b3fa927167380c0ec704230d8730390a11307dbcd6fd454408cb36dfb29ab95"
+download_file $FILE4 $FILE_HASH4
 cd -
+exit -1
+
 
 export PYTHONPATH="${PYTHONPATH}:${top_dir_realpath}:${bert_dir}"
 export BERT_LARGE=$bert_dir"/pretrained/uncased_L-24_H-1024_A-16"
