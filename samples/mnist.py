@@ -6,6 +6,10 @@ import time
 from datetime import datetime
 from tensorflow.examples.tutorials.mnist import input_data
 import enflame_cake_cutter as ecc
+print('hello world')
+print(os.path.abspath(__file__))
+print(os.environ.get("PYTHONPATH"))
+from mnist_lib import conv2d
 
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -62,9 +66,6 @@ def bias_variable(shape, name, dtype):
     initial = tf.constant(0, shape=shape, dtype=dtype)
     return tf.Variable(initial, name=name)
 
-
-def conv2d(input, weight):
-    return tf.nn.conv2d(input, weight, strides=[1, 1, 1, 1], padding='SAME')
 
 
 def max_pool_2x2(input):

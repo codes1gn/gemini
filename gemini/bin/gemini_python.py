@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 from gemini.gemini_compiler import *
 from gemini.utils import *
@@ -33,12 +34,14 @@ def main(argv=sys.argv[1:]):
             print('try run src success')
         except Exception:
             print('try run src fail')
+            traceback.print_exc()
     else:
         try:
             compiler.compile_and_run(globals(), use_ast=True)
             print('try run ast success')
         except Exception:
             print('try run ast fail')
+            traceback.print_exc()
 
 
 if __name__ == '__main__':

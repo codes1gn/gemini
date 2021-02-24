@@ -19,6 +19,9 @@ ast_dump_sample:
 mnist_sample:
 	./scripts/run_mnist.sh
 
+mnist_sample_vanilla:
+	./scripts/run_mnist.sh vanilla
+
 bert_sample:
 	./scripts/run_bert.sh
 
