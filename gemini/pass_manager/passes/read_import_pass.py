@@ -5,11 +5,11 @@ from gemini.pass_manager.transformer import *
 from .pass_base import PassBase
 
 __all__ = [
-    'FixImportPass',
+    'ReadImportPass',
 ]
 
 
-class FixImportPass(PassBase):
+class ReadImportPass(PassBase):
 
     __slots__ = [
         '_solvers',
@@ -22,10 +22,9 @@ class FixImportPass(PassBase):
 
     def __init__(self):
         # type: (None) -> None
-        super(FixImportPass, self).__init__()
+        super(ReadImportPass, self).__init__()
         self._solvers = []
         self._solvers.append(ReadImportTransformer)
-        # self.solvers.append(MatmulShardingOperandTransformer)
 
     # method to run pass on ast tree
     def run_ast(self, _ast):

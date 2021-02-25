@@ -147,7 +147,7 @@ class GeminiCompiler:
 
     def fix_missing_imports(self):
         print("dummy fix_missing_imports")
-        _pass_manager = FixImportPassManager()
+        _pass_manager = ReadImportPassManager()
         _pass_manager.register_passes()
         _pass_manager.run(self)
         _cpass_list = _pass_manager.concrete_pass
