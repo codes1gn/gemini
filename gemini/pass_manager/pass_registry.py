@@ -2,6 +2,7 @@
 from gemini.utils import *
 
 from .passes.matmul_sharding_pass import MatmulShardingPass
+from .passes.fix_import_pass import FixImportPass
 
 
 class PassRegistry(object):
@@ -21,5 +22,6 @@ class PassRegistry(object):
         # register passes
         register_pass.id_cnt = 0
         register_pass(MatmulShardingPass)
+        register_pass(FixImportPass)
 
         return _pass_table

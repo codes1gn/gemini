@@ -18,6 +18,14 @@ def main(argv=sys.argv[1:]):
     arguments = argv[1:]
     compiler = _get_compiler(filename, arguments)
 
+    # TODO(albert) for fix imports
+    dump_to_file('dump_0_before_import.ast', compiler.dump())
+    dump_to_file('dump_0_before_import.src', compiler.dump_src())
+    compiler.fix_missing_imports()
+    dump_to_file('dump_1_after_import.ast', compiler.dump())
+    dump_to_file('dump_1_after_import.src', compiler.dump_src())
+    assert 0
+
     # TODO(albert) construct config, use dummy string instead
     config = {'mode': 'sharding'}
     dump_to_file('dump_0_before_{}_mode_pass.ast'.format(config['mode']), compiler.dump())

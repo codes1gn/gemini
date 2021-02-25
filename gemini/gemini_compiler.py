@@ -2,6 +2,7 @@ import inspect
 import textwrap
 import ast
 import astunparse
+import importlib as impl
 
 from typing import Callable
 
@@ -20,6 +21,7 @@ class GeminiCompiler:
         '_source_code',
         '_src_file',
         '_pass_manager',
+        '_import_code_vector',
     ]
 
     def __init__(self):
@@ -27,6 +29,7 @@ class GeminiCompiler:
         self._source_code = ""
         self._src_file = ""
         self._pass_manager = None
+        self._import_code_vector = []
 
     @property
     def ast(self):
@@ -140,4 +143,18 @@ class GeminiCompiler:
         assert isinstance(
             ast_root, ast.AST), "compiler.ast is not of type ast.AST"
         self._ast_root = ast_root
+        return
+
+    def fix_missing_imports(self):
+        print("dummy fix_missing_imports")
+        _pass_manager = FixImportPassManager()
+        _pass_manager.register_passes()
+        _pass_manager.run(self)
+        _cpass_list = _pass_manager.concrete_pass
+        _src_list = None
+        for _cpass in _cpass_list:
+            _src_list = _cpass.import_vector
+        for _src in _src_list:
+            self._import_code_vector.append(_src)
+
         return
