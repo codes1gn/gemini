@@ -3,6 +3,7 @@ import ast
 
 from gemini.pass_manager.transformer import *
 from .pass_base import PassBase
+from gemini.utils import *
 
 __all__ = [
     'ReadImportPass',
@@ -32,8 +33,8 @@ class ReadImportPass(PassBase):
         solver1 = self._solvers[0]()
         # solver2 = self.solvers[1](solver1)
         # _ast = solver0.visit(_ast)
-        solver1.visit(_ast)
+        _ast = solver1.visit(_ast)
+        ast.fix_missing_locations(_ast)
         self._import_vector = solver1._import_vector
-
         assert isinstance(_ast, ast.AST)
         return _ast

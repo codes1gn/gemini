@@ -3,6 +3,7 @@ from gemini.utils import *
 
 from .passes.matmul_sharding_pass import MatmulShardingPass
 from .passes.read_import_pass import ReadImportPass
+from .passes.module_trans_pass import ModuleTransPass
 
 
 class PassRegistry(object):
@@ -23,5 +24,6 @@ class PassRegistry(object):
         register_pass.id_cnt = 0
         register_pass(MatmulShardingPass)
         register_pass(ReadImportPass)
+        register_pass(ModuleTransPass)
 
         return _pass_table

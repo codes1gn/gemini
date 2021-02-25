@@ -1,8 +1,10 @@
 import inspect
+import os
 import textwrap
 import ast
 import astunparse
-import importlib as impl
+import importlib
+import types
 
 from typing import Callable
 
@@ -34,6 +36,10 @@ class GeminiCompiler:
     @property
     def ast(self):
         return self._ast_root
+
+    @property
+    def import_code_vector(self):
+        return self._import_code_vector
 
     @property
     def src(self):
@@ -73,6 +79,14 @@ class GeminiCompiler:
                 mode='exec')
             exec(co_obj, environment)
         else:
+            # way to dynamically load module like import
+            # mod = importlib.import_module('import_lib')
+            code_obj = compile(self._import_code_vector[0], filename='import_lib', mode='exec')
+            _module = types.ModuleType("import_lib", "import_lib doc")
+            exec(code_obj, _module.__dict__)
+            # assert 0
+            environment['import_lib'] = _module
+
             exec(self._source_code, environment)
         pass
 
@@ -146,6 +160,7 @@ class GeminiCompiler:
         return
 
     def fix_missing_imports(self):
+        # STEP 1: read import source codes
         print("dummy fix_missing_imports")
         _pass_manager = ReadImportPassManager()
         _pass_manager.register_passes()
@@ -157,4 +172,11 @@ class GeminiCompiler:
         for _src in _src_list:
             self._import_code_vector.append(_src)
 
+        # STEP 2: transform a bit
+        _pass_manager = None
+        _pass_manager = ModuleTransPassManager()
+        _pass_manager.register_passes()
+        _pass_manager.run(self)
+
+        # STEP 3: load import modules
         return

@@ -3,10 +3,14 @@ import ast
 import astunparse
 
 __all__ = [
+    'pretty_dump',
     'vlog',
     'ast_analysis'
 ]
 
+
+def pretty_dump(_ast):
+    print(astunparse.dump(_ast))
 
 def ast_analysis(ast_node):
     print(astunparse.dump(ast_node))
