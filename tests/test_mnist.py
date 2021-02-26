@@ -17,6 +17,8 @@ class TestGeminiCompilerDump(unittest.TestCase):
         self.compiler = GeminiCompiler()
         self.code_str = read_src(self.filename)
         self.compiler.parse(self.code_str, filename=self.filename)
+        config = {'mode': 'sharding'}
+        self.compiler.apply_model_parallel(config)
 
     def tearDown(self):
         del self.compiler
@@ -34,10 +36,10 @@ class TestGeminiCompilerDump(unittest.TestCase):
         self.assertNotEqual(dump_src, '')
 
     def test_run_with_src(self):
-        self.compiler.run(globals(), use_ast=False)
+        self.compiler.compile_and_run(globals(), use_ast=False)
 
     def test_run_with_ast(self):
-        self.compiler.run(globals(), use_ast=True)
+        self.compiler.compile_and_run(globals(), use_ast=True)
 
 
 if __name__ == '__main__':

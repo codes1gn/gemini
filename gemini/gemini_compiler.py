@@ -10,6 +10,7 @@ from typing import Callable
 
 from gemini.pass_manager import *
 from gemini.utils import *
+from gemini.code_tree import *
 
 __all__ = [
     'GeminiCompiler',
@@ -20,18 +21,20 @@ class GeminiCompiler:
 
     __slots__ = [
         '_ast_root',
-        '_source_code',
+        # '_code_node_entry.src',
         '_src_file',
         '_pass_manager',
         '_import_code_vector',
+        '_code_node_entry',
     ]
 
     def __init__(self):
         self._ast_root = None
-        self._source_code = ""
+        # self._code_node_entry.src = ""
         self._src_file = ""
         self._pass_manager = None
         self._import_code_vector = []
+        self._code_node_entry = CodeNodeRoot()
 
     @property
     def ast(self):
@@ -44,10 +47,10 @@ class GeminiCompiler:
     @property
     def src(self):
         try:
-            self._source_code = astunparse.unparse(self._ast_root)
+            self._code_node_entry.src = astunparse.unparse(self._ast_root)
         except Exception:
             assert 0, 'unparse ast_root failed, cannot update source_code'
-        return self._source_code
+        return self._code_node_entry.src
 
     @property
     def inited(self):
@@ -87,7 +90,7 @@ class GeminiCompiler:
             # assert 0
             environment['import_lib'] = _module
 
-            exec(self._source_code, environment)
+            exec(self._code_node_entry.src, environment)
         pass
 
     def raw_dump(self):

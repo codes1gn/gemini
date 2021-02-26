@@ -26,12 +26,12 @@ def main(argv=sys.argv[1:]):
     dump_to_file('dump_1_after_import.src', compiler.dump_src())
 
     # TODO(albert) construct config, use dummy string instead
-    # config = {'mode': 'sharding'}
-    # dump_to_file('dump_0_before_{}_mode_pass.ast'.format(config['mode']), compiler.dump())
-    # dump_to_file('dump_0_before_{}_mode_pass.src'.format(config['mode']), compiler.dump_src())
-    # compiler.apply_model_parallel(config)
-    # dump_to_file('dump_1_after_{}_mode_pass.ast'.format(config['mode']), compiler.dump())
-    # dump_to_file('dump_1_after_{}_mode_pass.src'.format(config['mode']), compiler.dump_src())
+    config = {'mode': 'sharding'}
+    dump_to_file('dump_2_before_{}_mode_pass.ast'.format(config['mode']), compiler.dump())
+    dump_to_file('dump_2_before_{}_mode_pass.src'.format(config['mode']), compiler.dump_src())
+    compiler.apply_model_parallel(config)
+    dump_to_file('dump_3_after_{}_mode_pass.ast'.format(config['mode']), compiler.dump())
+    dump_to_file('dump_3_after_{}_mode_pass.src'.format(config['mode']), compiler.dump_src())
 
     use_ast = False
     # TODO(albert) have bug when not use_ast

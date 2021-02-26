@@ -47,33 +47,37 @@ class CodeNodeBase(object):
 
     # getter and setter of src
     @property
-    def parent(self):
-        return self._parent
+    def src(self):
+        return self._src
 
-    @parent.setter
-    def parent(self, value):
+    @src.setter
+    def src(self, value):
         assert value is not None, 'received NoneType, not expected'
-        self._parent = value
+        assert isinstance(value, basestring), "expected <type 'basestring'>, got {}".format(type(value))
+        self._src = value
 
     # getter and setter of ast
     @property
-    def parent(self):
-        return self._parent
+    def ast(self):
+        return self._ast
 
-    @parent.setter
-    def parent(self, value):
+    @ast.setter
+    def ast(self, value):
         assert value is not None, 'received NoneType, not expected'
-        self._parent = value
+        assert isinstance(value, ast.AST), "expected <type 'ast.AST'>, got {}".format(type(value))
+        self._ast = value
 
     # getter and setter of environment
     @property
-    def parent(self):
-        return self._parent
+    def env(self):
+        return self._env
 
-    @parent.setter
-    def parent(self, value):
+    @env.setter
+    def env(self, value):
+        # add sanity check
         assert value is not None, 'received NoneType, not expected'
-        self._parent = value
+        assert isinstance(value, dict), "expected <type 'dict'>, got {}".format(type(value))
+        self._env = value
 
 
     def execute_module(self, module_name):
