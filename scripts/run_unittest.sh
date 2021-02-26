@@ -5,6 +5,9 @@ rpath=`realpath $path`
 
 PATH_BAK=$PYTHONPATH
 
+export PYTHONPATH=$PYTHONPATH:$rpath && export DEBUG_MODE=false && \
+  python $rpath/tests/test_code_node.py
+
 # export PYTHONPATH=$PYTHONPATH:$rpath && export DEBUG_MODE=false && \
 #   python $rpath/tests/test_compiler_dump.py
 # 
@@ -13,9 +16,9 @@ PATH_BAK=$PYTHONPATH
 # 
 # export PYTHONPATH=$PYTHONPATH:$rpath && export DEBUG_MODE=false && \
 #   python $rpath/tests/test_mnist_ast.py
-
-export PYTHONPATH=$PYTHONPATH:$rpath && export DEBUG_MODE=false && \
-  python $rpath/tests/test_compiler_run.py
+# 
+# export PYTHONPATH=$PYTHONPATH:$rpath && export DEBUG_MODE=false && \
+#   python $rpath/tests/test_compiler_run.py
 
 unset PYTHONPATH
 export PYTHONPATH=$PATH_BAK
