@@ -20,7 +20,7 @@ __all__ = [
 class GeminiCompiler:
 
     __slots__ = [
-        '_ast_root',
+        # '_code_node_entry.ast',
         # '_code_node_entry.src',
         '_src_file',
         '_pass_manager',
@@ -29,7 +29,7 @@ class GeminiCompiler:
     ]
 
     def __init__(self):
-        self._ast_root = None
+        # self._code_node_entry.ast = None
         # self._code_node_entry.src = ""
         self._src_file = ""
         self._pass_manager = None
@@ -38,7 +38,7 @@ class GeminiCompiler:
 
     @property
     def ast(self):
-        return self._ast_root
+        return self._code_node_entry.ast
 
     @property
     def import_code_vector(self):
@@ -47,7 +47,7 @@ class GeminiCompiler:
     @property
     def src(self):
         try:
-            self._code_node_entry.src = astunparse.unparse(self._ast_root)
+            self._code_node_entry.src = astunparse.unparse(self._code_node_entry.ast)
         except Exception:
             assert 0, 'unparse ast_root failed, cannot update source_code'
         return self._code_node_entry.src
@@ -75,9 +75,9 @@ class GeminiCompiler:
         assert self.inited, "compiler not inited"
         if use_ast:
             assert isinstance(
-                self._ast_root, ast.AST), "expected ast.AST, but got " + str(type(self._ast_root))
+                self._code_node_entry.ast, ast.AST), "expected ast.AST, but got " + str(type(self._code_node_entry.ast))
             co_obj = compile(
-                self._ast_root,
+                self._code_node_entry.ast,
                 filename=self._src_file,
                 mode='exec')
             exec(co_obj, environment)
@@ -98,31 +98,31 @@ class GeminiCompiler:
 
         # do sanity check
         assert self.inited, "compiler not inited"
-        assert self._ast_root is not None, "compiler.ast is None"
+        assert self._code_node_entry.ast is not None, "compiler.ast is None"
         assert isinstance(
-            self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
-        return ast.dump(self._ast_root)
+            self._code_node_entry.ast, ast.AST), "compiler.ast is not of type ast.AST"
+        return ast.dump(self._code_node_entry.ast)
 
     def dump(self, pretty=True, dump_file=""):
         # type: (Bool) -> str
 
         # do sanity check
         assert self.inited, "compiler not inited"
-        assert self._ast_root is not None, "compiler.ast is None"
+        assert self._code_node_entry.ast is not None, "compiler.ast is None"
         assert isinstance(
-            self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
+            self._code_node_entry.ast, ast.AST), "compiler.ast is not of type ast.AST"
 
         # dump with raw or formatted way
-        return astunparse.dump(self._ast_root)
+        return astunparse.dump(self._code_node_entry.ast)
 
     def dump_src(self, pretty=True, dump_file=""):
         # type: (Bool) -> str
 
         # do sanity check
         assert self.inited, "compiler not inited"
-        assert self._ast_root is not None, "compiler.ast is None"
+        assert self._code_node_entry.ast is not None, "compiler.ast is None"
         assert isinstance(
-            self._ast_root, ast.AST), "compiler.ast is not of type ast.AST"
+            self._code_node_entry.ast, ast.AST), "compiler.ast is not of type ast.AST"
 
         # dump with raw or formatted way
         return self.src
@@ -159,7 +159,7 @@ class GeminiCompiler:
 
         assert isinstance(
             ast_root, ast.AST), "compiler.ast is not of type ast.AST"
-        self._ast_root = ast_root
+        self._code_node_entry.ast = ast_root
         return
 
     def fix_missing_imports(self):
