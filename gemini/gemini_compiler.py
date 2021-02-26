@@ -23,12 +23,14 @@ class GeminiCompiler:
         '_pass_manager',
         '_import_code_vector',
         '_code_node_entry',
+        '_env',
     ]
 
     def __init__(self):
         self._pass_manager = None
         self._import_code_vector = []
         self._code_node_entry = CodeNodeRoot()
+        self._env = globals
 
     @property
     def ast(self):
@@ -62,29 +64,30 @@ class GeminiCompiler:
             self._pass_manager.register_passes()
             self._pass_manager.run(self)
 
-    def compile_and_run(self, environment, use_ast=False):
+    def compile_and_run(self, use_ast=False):
         # print('global keys have\n')
         # print(globals().keys())
         # TODO defaultly, use src to run, rather than ast
         assert self.inited, "compiler not inited"
-        if use_ast:
-            assert isinstance(
-                self._code_node_entry.ast, ast.AST), "expected ast.AST, but got " + str(type(self._code_node_entry.ast))
-            co_obj = compile(
-                self._code_node_entry.ast,
-                filename=self._code_node_entry.src_file,
-                mode='exec')
-            exec(co_obj, environment)
-        else:
-            # way to dynamically load module like import
-            # mod = importlib.import_module('import_lib')
-            code_obj = compile(self._import_code_vector[0], filename='import_lib', mode='exec')
-            _module = types.ModuleType("import_lib", "import_lib doc")
-            exec(code_obj, _module.__dict__)
-            # assert 0
-            environment['import_lib'] = _module
+        assert use_ast == False, "exec with ast is NotImplemented yet"
+        code_obj = compile(self._import_code_vector[0], filename='import_lib', mode='exec')
+        _module = types.ModuleType("import_lib", "import_lib doc")
+        exec(code_obj, _module.__dict__)
+        # assert 0
+        self._env()['import_lib'] = _module
+        exec(self._code_node_entry.src, self._env())
 
-            exec(self._code_node_entry.src, environment)
+        # if use_ast:
+        #     assert isinstance(
+        #         self._code_node_entry.ast, ast.AST), "expected ast.AST, but got " + str(type(self._code_node_entry.ast))
+        #     co_obj = compile(
+        #         self._code_node_entry.ast,
+        #         filename=self._code_node_entry.src_file,
+        #         mode='exec')
+        #     exec(co_obj, environment)
+        # else:
+        #     # way to dynamically load module like import
+        #     # mod = importlib.import_module('import_lib')
         pass
 
     def raw_dump(self):
