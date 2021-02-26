@@ -8,6 +8,7 @@ class CodeNodeBase(object):
         '_is_root',
         '_parent',
         '_src',
+        '_src_file',
         '_ast',
         '_env',
     ]
@@ -21,6 +22,7 @@ class CodeNodeBase(object):
             self._is_root = False
 
         self._src = ""
+        self._src_file = ""
         self._ast = ""
         self._env = ""
 
@@ -55,6 +57,17 @@ class CodeNodeBase(object):
         assert value is not None, 'received NoneType, not expected'
         assert isinstance(value, basestring), "expected <type 'basestring'>, got {}".format(type(value))
         self._src = value
+
+    # getter and setter of src_file
+    @property
+    def src_file(self):
+        return self._src_file
+
+    @src_file.setter
+    def src_file(self, value):
+        assert value is not None, 'received NoneType, not expected'
+        assert isinstance(value, basestring), "expected <type 'basestring'>, got {}".format(type(value))
+        self._src_file = value
 
     # getter and setter of ast
     @property

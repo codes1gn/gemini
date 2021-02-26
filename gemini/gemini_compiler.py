@@ -20,18 +20,12 @@ __all__ = [
 class GeminiCompiler:
 
     __slots__ = [
-        # '_code_node_entry.ast',
-        # '_code_node_entry.src',
-        '_src_file',
         '_pass_manager',
         '_import_code_vector',
         '_code_node_entry',
     ]
 
     def __init__(self):
-        # self._code_node_entry.ast = None
-        # self._code_node_entry.src = ""
-        self._src_file = ""
         self._pass_manager = None
         self._import_code_vector = []
         self._code_node_entry = CodeNodeRoot()
@@ -58,7 +52,7 @@ class GeminiCompiler:
 
     @property
     def src_file(self):
-        return self._src_file
+        return self._code_node_entry.src_file
 
     # method to apply MP patterns
     def apply_model_parallel(self, config):
@@ -78,7 +72,7 @@ class GeminiCompiler:
                 self._code_node_entry.ast, ast.AST), "expected ast.AST, but got " + str(type(self._code_node_entry.ast))
             co_obj = compile(
                 self._code_node_entry.ast,
-                filename=self._src_file,
+                filename=self._code_node_entry.src_file,
                 mode='exec')
             exec(co_obj, environment)
         else:
@@ -138,7 +132,7 @@ class GeminiCompiler:
         if isinstance(func_or_src, Callable):
             func = func_or_src
             src_filename = inspect.getsourcefile(func)
-            self._src_file = src_filename
+            self._code_node_entry.src_file = src_filename
             vlog('src_filename = ', src_filename)
 
             src_lines, start_lineno = inspect.getsourcelines(func)
@@ -153,7 +147,7 @@ class GeminiCompiler:
             ast.increment_lineno(ast_root, n=start_lineno - 1)
         elif isinstance(func_or_src, basestring):
             src_filename = filename
-            self._src_file = src_filename
+            self._code_node_entry.src_file = src_filename
             src_code = func_or_src
             ast_root = ast.parse(src_code, filename=src_filename)
 
