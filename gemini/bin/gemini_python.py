@@ -5,33 +5,31 @@ from gemini.gemini_compiler import *
 from gemini.utils import *
 
 
-def _get_compiler(filename, arguments):
-    compiler = GeminiCompiler()
-    src_code = read_src(filename)
-    compiler.parse(src_code, filename=filename)
-    return compiler
-
-
 def main(argv=sys.argv[1:]):
     print('gemini compiler entry point')
     filename = argv[0]
     arguments = argv[1:]
-    compiler = _get_compiler(filename, arguments)
 
-    # TODO(albert) for fix imports
-    dump_to_file('dump_0_before_import.ast', compiler.dump())
-    dump_to_file('dump_0_before_import.src', compiler.dump_src())
-    compiler.fix_missing_imports()
-    dump_to_file('dump_1_after_import.ast', compiler.dump())
-    dump_to_file('dump_1_after_import.src', compiler.dump_src())
+    compiler = GeminiCompiler()
+    src_code = read_src(filename)
+
+    # step 1, parse src code
+    compiler.parse(src_code, filename=filename)
+    dump_to_file('dump_0_parse_src.ast', compiler.dump())
+    dump_to_file('dump_0_parse_src.src', compiler.dump_src())
+    assert 1, 'after parse src'
+
+    # step 2, parse modules
+    compiler.parse_modules()
+    dump_to_file('dump_1_parse_module.ast', compiler.dump())
+    dump_to_file('dump_1_parse_module.src', compiler.dump_src())
+    assert 0, 'after parse module'
 
     # TODO(albert) construct config, use dummy string instead
     config = {'mode': 'sharding'}
-    dump_to_file('dump_2_before_{}_mode_pass.ast'.format(config['mode']), compiler.dump())
-    dump_to_file('dump_2_before_{}_mode_pass.src'.format(config['mode']), compiler.dump_src())
     compiler.apply_model_parallel(config)
-    dump_to_file('dump_3_after_{}_mode_pass.ast'.format(config['mode']), compiler.dump())
-    dump_to_file('dump_3_after_{}_mode_pass.src'.format(config['mode']), compiler.dump_src())
+    dump_to_file('dump_3_apply_{}_pass.ast'.format(config['mode']), compiler.dump())
+    dump_to_file('dump_3_apply_{}_pass.src'.format(config['mode']), compiler.dump_src())
 
     use_ast = False
     # TODO(albert) have bug when not use_ast

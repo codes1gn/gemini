@@ -2,16 +2,16 @@
 from gemini.utils import *
 
 from .pass_manager_base import PassManagerBase
-from .passes.read_import_pass import ReadImportPass
+from .passes.import_module_pass import ImportModulePass
 
 __all__ = [
-    'ReadImportPassManager',
+    'ImportModulePassManager',
 ]
 
 
-class ReadImportPassManager(PassManagerBase):
+class ImportModulePassManager(PassManagerBase):
 
     def register_passes(self):
         print('dummy ReadImportPassManager register_passes')
-        self.add_pass(ReadImportPass)
+        self.add_pass(ImportModulePass)
         return

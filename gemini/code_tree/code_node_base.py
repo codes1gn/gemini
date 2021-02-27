@@ -11,6 +11,7 @@ class CodeNodeBase(object):
         '_src_file',
         '_ast',
         '_env',
+        '_sub_code_nodes',
     ]
 
     def __init__(self, parent):
@@ -25,7 +26,18 @@ class CodeNodeBase(object):
         self._src_file = ""
         self._ast = ""
         self._env = ""
+        self._sub_code_nodes = []
 
+    @property
+    def sub_code_nodes(self):
+        return self._sub_code_nodes
+
+    def add_code_node(self, value):
+        assert isinstance(value, CodeNodeBase)
+        assert value.parent is not None
+        assert value.is_root is False
+        self._sub_code_nodes.append(value)
+        return
 
     # getter and setter of is_root
     @property
@@ -50,6 +62,10 @@ class CodeNodeBase(object):
     # getter and setter of src
     @property
     def src(self):
+        if self._src == "" and self._ast == None:
+            assert 0, 'CodeNode has no src and ast'
+        elif self._src == "" and self._ast is not None:
+            self._src = astunparse.unparse(self._ast)
         return self._src
 
     @src.setter
@@ -72,6 +88,10 @@ class CodeNodeBase(object):
     # getter and setter of ast
     @property
     def ast(self):
+        if self._ast is None and self._src == "":
+            assert 0, 'CodeNode has no src and ast'
+        elif self._ast is None and self._src != "":
+            self._ast = ast.parse(self._src)
         return self._ast
 
     @ast.setter
@@ -92,12 +112,9 @@ class CodeNodeBase(object):
         assert isinstance(value, dict), "expected <type 'dict'>, got {}".format(type(value))
         self._env = value
 
-
-    def execute_module(self, module_name):
-        print('dummy execute_import on module {}'.format(module_name))
+    def parse_modules(self):
         return
 
     def execute(self):
-        print('dummy execute')
         return
 

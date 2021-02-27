@@ -46,16 +46,16 @@ class PassManagerBase(object):
         # return an ordered id list
         return self._pass_id_list
 
-    def run_pass(self, pass_class, ast_tree):
+    def run_pass(self, pass_class, code_node):
         cpass = pass_class()
         self._concrete_pass.append(cpass)
-        new_ast_tree = cpass.run_ast(ast_tree)
-        return new_ast_tree
+        code_node = cpass.run_pass(code_node)
+        return
 
-    def run(self, compiler):
+    def run(self, code_node):
         order_list = self.schedule_passes()
         for idx in order_list:
             pass_class = self._pass_vector[idx]
             # lazy_load pass_obj
-            compiler.ast = self.run_pass(pass_class, compiler.ast)
+            self.run_pass(pass_class, code_node)
         pass

@@ -10,7 +10,8 @@ from typing import Callable
 
 from gemini.pass_manager import *
 from gemini.utils import *
-from gemini.code_tree import *
+
+from .code_tree.code_node_root import CodeNodeRoot
 
 __all__ = [
     'GeminiCompiler',
@@ -116,7 +117,7 @@ class GeminiCompiler:
         # type: (Bool) -> str
 
         # do sanity check
-        assert self.inited, "compiler not inited"
+
         assert self._code_node_entry.ast is not None, "compiler.ast is None"
         assert isinstance(
             self._code_node_entry.ast, ast.AST), "compiler.ast is not of type ast.AST"
@@ -159,24 +160,9 @@ class GeminiCompiler:
         self._code_node_entry.ast = ast_root
         return
 
-    def fix_missing_imports(self):
+    def parse_modules(self):
         # STEP 1: read import source codes
-        print("dummy fix_missing_imports")
-        _pass_manager = ReadImportPassManager()
+        _pass_manager = ImportModulePassManager()
         _pass_manager.register_passes()
-        _pass_manager.run(self)
-        _cpass_list = _pass_manager.concrete_pass
-        _src_list = None
-        for _cpass in _cpass_list:
-            _src_list = _cpass.import_vector
-        for _src in _src_list:
-            self._import_code_vector.append(_src)
-
-        # STEP 2: transform a bit
-        _pass_manager = None
-        _pass_manager = ModuleTransPassManager()
-        _pass_manager.register_passes()
-        _pass_manager.run(self)
-
-        # STEP 3: load import modules
+        _pass_manager.run(self._code_node_entry)
         return
