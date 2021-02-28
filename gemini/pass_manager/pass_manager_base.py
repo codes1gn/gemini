@@ -37,12 +37,12 @@ class PassManagerBase(object):
         return
 
     def register_passes(self):
-        print('pass_manager_base::register_passes dummy method')
+        print('pass_manager_base::register_passes')
         pass
 
     def schedule_passes(self):
         # TODO(albert) keep dummy for now
-        print('pass_manager_base::schedule_passes dummy method')
+        print('pass_manager_base::schedule_passes')
         # return an ordered id list
         return self._pass_id_list
 

@@ -12,5 +12,6 @@ __all__ = [
 class ShardingPassManager(PassManagerBase):
 
     def register_passes(self):
+        print('sharding_pass_manager::register_passes')
         self.add_pass(MatmulShardingPass)
         return

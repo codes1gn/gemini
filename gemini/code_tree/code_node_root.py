@@ -21,17 +21,6 @@ class CodeNodeRoot(CodeNodeBase):
         # root node have no parent, if and only if
         super(CodeNodeRoot, self).__init__(None)
 
-    def parse_modules(self):
-        _pass_manager = ReadImportPassManager()
-        _pass_manager.register_passes()
-        _pass_manager.run(self)
-        if len(self.sub_code_nodes) > 0:
-            for _sub_cnode in self.sub_code_nodes:
-                _sub_cnode.parse_modules()
-
-        return
-
     def execute(self):
-        print('root execute')
         return
 

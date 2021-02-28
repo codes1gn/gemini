@@ -63,7 +63,8 @@ class GeminiCompiler:
         if config['mode'] == "sharding":
             self._pass_manager = ShardingPassManager()
             self._pass_manager.register_passes()
-            self._pass_manager.run(self)
+            assert 0
+            self._pass_manager.run(self._code_node_entry)
 
     def compile_and_run(self, use_ast=False):
         # print('global keys have\n')
@@ -91,39 +92,11 @@ class GeminiCompiler:
         #     # mod = importlib.import_module('import_lib')
         pass
 
-    def raw_dump(self):
-        # type: (Bool) -> str
+    def dump(self, pretty=True, prefix="anonymous"):
+        self._code_node_entry.dump(pretty=pretty, prefix=prefix)
 
-        # do sanity check
-        assert self.inited, "compiler not inited"
-        assert self._code_node_entry.ast is not None, "compiler.ast is None"
-        assert isinstance(
-            self._code_node_entry.ast, ast.AST), "compiler.ast is not of type ast.AST"
-        return ast.dump(self._code_node_entry.ast)
-
-    def dump(self, pretty=True, dump_file=""):
-        # type: (Bool) -> str
-
-        # do sanity check
-        assert self.inited, "compiler not inited"
-        assert self._code_node_entry.ast is not None, "compiler.ast is None"
-        assert isinstance(
-            self._code_node_entry.ast, ast.AST), "compiler.ast is not of type ast.AST"
-
-        # dump with raw or formatted way
-        return astunparse.dump(self._code_node_entry.ast)
-
-    def dump_src(self, pretty=True, dump_file=""):
-        # type: (Bool) -> str
-
-        # do sanity check
-
-        assert self._code_node_entry.ast is not None, "compiler.ast is None"
-        assert isinstance(
-            self._code_node_entry.ast, ast.AST), "compiler.ast is not of type ast.AST"
-
-        # dump with raw or formatted way
-        return self.src
+    def dump_src(self, prefix="anonymous"):
+        self._code_node_entry.dump_src(prefix=prefix)
 
     def parse(self, func_or_src, filename="dummy.py"):
         # type: (Callable[..., Any]) -> None

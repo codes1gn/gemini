@@ -1,3 +1,5 @@
+import astunparse
+import os
 
 from gemini.utils import *
 
@@ -22,15 +24,21 @@ class CodeNodeBase(object):
         else:
             self._is_root = False
 
-        self._src = ""
-        self._src_file = ""
-        self._ast = ""
-        self._env = ""
+        self._src = None
+        self._src_file = None
+        self._ast = None
+        self._env = None
         self._sub_code_nodes = []
 
     @property
     def sub_code_nodes(self):
         return self._sub_code_nodes
+
+    def _has_sub_nodes(self):
+        if isinstance(self._sub_code_nodes, list) and len(self._sub_code_nodes) > 0:
+            return True
+        else:
+            return False
 
     def add_code_node(self, value):
         assert isinstance(value, CodeNodeBase)
@@ -62,9 +70,9 @@ class CodeNodeBase(object):
     # getter and setter of src
     @property
     def src(self):
-        if self._src == "" and self._ast == None:
+        if self._src is None and self._ast is None:
             assert 0, 'CodeNode has no src and ast'
-        elif self._src == "" and self._ast is not None:
+        elif self._src is None and self._ast is not None:
             self._src = astunparse.unparse(self._ast)
         return self._src
 
@@ -88,9 +96,9 @@ class CodeNodeBase(object):
     # getter and setter of ast
     @property
     def ast(self):
-        if self._ast is None and self._src == "":
+        if self._ast is None and self._src is None:
             assert 0, 'CodeNode has no src and ast'
-        elif self._ast is None and self._src != "":
+        elif self._ast is None and self._src is not None:
             self._ast = ast.parse(self._src)
         return self._ast
 
@@ -118,3 +126,52 @@ class CodeNodeBase(object):
     def execute(self):
         return
 
+    def _raw_dump(self):
+        # type: (Bool) -> str
+
+        # do sanity check
+        assert self.ast is not None, "compiler.ast is None"
+        assert isinstance(
+            self.ast, ast.AST), "compiler.ast is not of type ast.AST"
+        return ast.dump(self.ast)
+
+    def _pretty(self):
+        # type: (Bool) -> str
+
+        # do sanity check
+        assert self.ast is not None, "compiler.ast is None"
+        assert isinstance(
+            self.ast, ast.AST), "compiler.ast is not of type ast.AST"
+        return astunparse.dump(self.ast)
+
+    def dump(self, pretty=True, prefix="anonymous"):
+        # type: (Bool) -> None 
+
+        # do sanity check
+        assert self.ast is not None, "code_node {} have no ast".format(self.src_file)
+        assert isinstance(
+            self.ast, ast.AST), \
+            "ast of code_node {} is not of type ast.AST".format(self.src_file)
+        
+        if pretty:
+            _ast_text = self._pretty()
+        else:
+            _ast_text = self._raw_dump()
+        
+        _src_text = self.src
+        
+        # handle self codenode dump
+        _, tail = os.path.split(self.src_file)
+        if self.is_root:
+            _filename = tail[:-3]
+        else:
+            _filename = tail
+        dump_to_file(_filename + '.ast', _ast_text, prefix)
+        dump_to_file(_filename + '.src', _src_text, prefix)
+
+        # handle sub nodes
+        if self._has_sub_nodes():
+            for _sub_node in self.sub_code_nodes:
+                _sub_node.dump(pretty=pretty, prefix=prefix)
+
+        return

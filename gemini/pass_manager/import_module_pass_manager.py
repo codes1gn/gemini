@@ -12,6 +12,6 @@ __all__ = [
 class ImportModulePassManager(PassManagerBase):
 
     def register_passes(self):
-        print('dummy ReadImportPassManager register_passes')
+        print('import_module_pass_manager::register_passes')
         self.add_pass(ImportModulePass)
         return

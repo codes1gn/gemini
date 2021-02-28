@@ -15,21 +15,19 @@ def main(argv=sys.argv[1:]):
 
     # step 1, parse src code
     compiler.parse(src_code, filename=filename)
-    dump_to_file('dump_0_parse_src.ast', compiler.dump())
-    dump_to_file('dump_0_parse_src.src', compiler.dump_src())
-    assert 1, 'after parse src'
+    compiler.dump(pretty=True, prefix='src_parse')
+    assert 1, 'step 1 parse src'
 
     # step 2, parse modules
     compiler.parse_modules()
-    dump_to_file('dump_1_parse_module.ast', compiler.dump())
-    dump_to_file('dump_1_parse_module.src', compiler.dump_src())
-    assert 0, 'after parse module'
+    compiler.dump(pretty=True, prefix='parse_module')
+    assert 1, 'step 2 parse module'
 
     # TODO(albert) construct config, use dummy string instead
     config = {'mode': 'sharding'}
     compiler.apply_model_parallel(config)
-    dump_to_file('dump_3_apply_{}_pass.ast'.format(config['mode']), compiler.dump())
-    dump_to_file('dump_3_apply_{}_pass.src'.format(config['mode']), compiler.dump_src())
+    compiler.dump(pretty=True, prefix='apply_{}_pass'.format(config['mode']))
+    assert 0, 'step 3 apply sharding mode'
 
     use_ast = False
     # TODO(albert) have bug when not use_ast
