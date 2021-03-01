@@ -63,7 +63,6 @@ class GeminiCompiler:
         if config['mode'] == "sharding":
             self._pass_manager = ShardingPassManager()
             self._pass_manager.register_passes()
-            assert 0
             self._pass_manager.run(self._code_node_entry)
 
     def compile_and_run(self, use_ast=False):
@@ -71,25 +70,26 @@ class GeminiCompiler:
         # print(globals().keys())
         # TODO defaultly, use src to run, rather than ast
         assert self.inited, "compiler not inited"
-        assert use_ast == False, "exec with ast is NotImplemented yet"
-        code_obj = compile(self._import_code_vector[0], filename='import_lib', mode='exec')
-        _module = types.ModuleType("import_lib", "import_lib doc")
-        exec(code_obj, _module.__dict__)
-        # assert 0
-        self._env()['import_lib'] = _module
-        exec(self._code_node_entry.src, self._env())
+        # assert use_ast == False, "exec with ast is NotImplemented yet"
+        if use_ast == False:
+            if self._code_node_entry._has_sub_nodes():
+                for _sub_node in self._code_node_entry.sub_code_nodes:
+                    code_obj = compile(_sub_node.src, filename=_sub_node.get_module_name(), mode='exec')
+                    _module = types.ModuleType("import_lib", "import_lib doc")
+                    exec(code_obj, _module.__dict__)
+                    self._env()['import_lib'] = _module
 
-        # if use_ast:
-        #     assert isinstance(
-        #         self._code_node_entry.ast, ast.AST), "expected ast.AST, but got " + str(type(self._code_node_entry.ast))
-        #     co_obj = compile(
-        #         self._code_node_entry.ast,
-        #         filename=self._code_node_entry.src_file,
-        #         mode='exec')
-        #     exec(co_obj, environment)
-        # else:
-        #     # way to dynamically load module like import
-        #     # mod = importlib.import_module('import_lib')
+            exec(self._code_node_entry.src, self._env())
+        # TODO fix ast run bugs.
+        # elif use_ast == True:
+            #     assert isinstance(
+            #         self._code_node_entry.ast, ast.AST), "expected ast.AST, but got " + str(type(self._code_node_entry.ast))
+            #     co_obj = compile(
+            #         self._code_node_entry.ast,
+            #         filename=self._code_node_entry.src_file,
+            #         mode='exec')
+            #     exec(co_obj, environment)
+
         pass
 
     def dump(self, pretty=True, prefix="anonymous"):

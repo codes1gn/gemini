@@ -52,6 +52,7 @@ class PassManagerBase(object):
         code_node = cpass.run_pass(code_node)
         return
 
+    # interface method
     def run(self, code_node):
         order_list = self.schedule_passes()
         for idx in order_list:

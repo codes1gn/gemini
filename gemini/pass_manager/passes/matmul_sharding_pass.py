@@ -30,4 +30,9 @@ class MatmulShardingPass(PassBase):
         _cnode.ast = solver1.visit(_cnode.ast)
         solver2.visit(_cnode.ast)
 
+        if _cnode._has_sub_nodes():
+            for _sub_node in _cnode.sub_code_nodes:
+                _sub_node.ast = solver1.visit(_sub_node.ast)
+                solver2.visit(_sub_node.ast)
+
         return _cnode

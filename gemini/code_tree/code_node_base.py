@@ -144,6 +144,16 @@ class CodeNodeBase(object):
             self.ast, ast.AST), "compiler.ast is not of type ast.AST"
         return astunparse.dump(self.ast)
 
+    def get_module_name(self):
+        # handle self codenode dump
+        _, tail = os.path.split(self.src_file)
+        if self.is_root:
+            _filename = tail[:-3]
+        else:
+            _filename = tail
+        return _filename
+
+
     def dump(self, pretty=True, prefix="anonymous"):
         # type: (Bool) -> None 
 
@@ -160,14 +170,9 @@ class CodeNodeBase(object):
         
         _src_text = self.src
         
-        # handle self codenode dump
-        _, tail = os.path.split(self.src_file)
-        if self.is_root:
-            _filename = tail[:-3]
-        else:
-            _filename = tail
-        dump_to_file(_filename + '.ast', _ast_text, prefix)
-        dump_to_file(_filename + '.src', _src_text, prefix)
+        _module_name = self.get_module_name()
+        dump_to_file(_module_name + '.ast', _ast_text, prefix)
+        dump_to_file(_module_name + '.src', _src_text, prefix)
 
         # handle sub nodes
         if self._has_sub_nodes():
