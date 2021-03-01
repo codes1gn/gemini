@@ -1,6 +1,7 @@
 
 from gemini.utils import *
 
+
 class PassBase(object):
 
     def __init__(self):
@@ -8,4 +9,3 @@ class PassBase(object):
 
     def run_pass(self, _cnode):
         return _cnode
-

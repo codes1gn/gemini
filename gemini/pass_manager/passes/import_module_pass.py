@@ -5,7 +5,7 @@ from gemini.utils import *
 from gemini.code_tree.code_node_leaf import CodeNodeLeaf
 
 from ..transformer.import_module_transformer import ImportModuleTransformer
-from .pass_base import PassBase 
+from .pass_base import PassBase
 
 __all__ = [
     'ImportModulePass',

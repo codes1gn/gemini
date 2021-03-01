@@ -44,7 +44,8 @@ class GeminiCompiler:
     @property
     def src(self):
         try:
-            self._code_node_entry.src = astunparse.unparse(self._code_node_entry.ast)
+            self._code_node_entry.src = astunparse.unparse(
+                self._code_node_entry.ast)
         except Exception:
             assert 0, 'unparse ast_root failed, cannot update source_code'
         return self._code_node_entry.src
@@ -74,7 +75,10 @@ class GeminiCompiler:
         if use_ast == False:
             if self._code_node_entry._has_sub_nodes():
                 for _sub_node in self._code_node_entry.sub_code_nodes:
-                    code_obj = compile(_sub_node.src, filename=_sub_node.get_module_name(), mode='exec')
+                    code_obj = compile(
+                        _sub_node.src,
+                        filename=_sub_node.get_module_name(),
+                        mode='exec')
                     _module = types.ModuleType("import_lib", "import_lib doc")
                     exec(code_obj, _module.__dict__)
                     self._env()['import_lib'] = _module
@@ -82,13 +86,13 @@ class GeminiCompiler:
             exec(self._code_node_entry.src, self._env())
         # TODO fix ast run bugs.
         # elif use_ast == True:
-            #     assert isinstance(
-            #         self._code_node_entry.ast, ast.AST), "expected ast.AST, but got " + str(type(self._code_node_entry.ast))
-            #     co_obj = compile(
-            #         self._code_node_entry.ast,
-            #         filename=self._code_node_entry.src_file,
-            #         mode='exec')
-            #     exec(co_obj, environment)
+        #     assert isinstance(
+        #         self._code_node_entry.ast, ast.AST), "expected ast.AST, but got " + str(type(self._code_node_entry.ast))
+        #     co_obj = compile(
+        #         self._code_node_entry.ast,
+        #         filename=self._code_node_entry.src_file,
+        #         mode='exec')
+        #     exec(co_obj, environment)
 
         pass
 

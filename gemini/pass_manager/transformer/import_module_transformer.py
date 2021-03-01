@@ -59,4 +59,3 @@ class ImportModuleTransformer(ast.NodeTransformer):
 
     #     assert 0, 'from ** import **, not implemented, please use Import instead'
     #     self.generic_visit(node)
-

@@ -24,7 +24,6 @@ class TestGeminiCompilerDump(unittest.TestCase):
         self.leaf_node3 = CodeNodeLeaf(self.leaf_node2)
         self.leaf_node4 = CodeNodeLeaf(self.leaf_node2)
 
-
     def tearDown(self):
         del self.root_node
         del self.leaf_node1
@@ -38,7 +37,6 @@ class TestGeminiCompilerDump(unittest.TestCase):
         self.assertEqual(self.leaf_node2.parent, self.root_node)
         self.assertEqual(self.leaf_node3.parent, self.leaf_node2)
         self.assertEqual(self.leaf_node4.parent, self.leaf_node2)
-
 
 
 if __name__ == '__main__':

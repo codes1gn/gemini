@@ -35,7 +35,8 @@ class CodeNodeBase(object):
         return self._sub_code_nodes
 
     def _has_sub_nodes(self):
-        if isinstance(self._sub_code_nodes, list) and len(self._sub_code_nodes) > 0:
+        if isinstance(self._sub_code_nodes, list) and len(
+                self._sub_code_nodes) > 0:
             return True
         else:
             return False
@@ -54,7 +55,9 @@ class CodeNodeBase(object):
 
     @is_root.setter
     def is_root(self, value):
-        assert isinstance(value, bool), 'expected bool value, but got {}'.format(type(value))
+        assert isinstance(
+            value, bool), 'expected bool value, but got {}'.format(
+            type(value))
         self._is_root = value
 
     # getter and setter of parent
@@ -79,7 +82,9 @@ class CodeNodeBase(object):
     @src.setter
     def src(self, value):
         assert value is not None, 'received NoneType, not expected'
-        assert isinstance(value, basestring), "expected <type 'basestring'>, got {}".format(type(value))
+        assert isinstance(
+            value, basestring), "expected <type 'basestring'>, got {}".format(
+            type(value))
         self._src = value
 
     # getter and setter of src_file
@@ -90,7 +95,9 @@ class CodeNodeBase(object):
     @src_file.setter
     def src_file(self, value):
         assert value is not None, 'received NoneType, not expected'
-        assert isinstance(value, basestring), "expected <type 'basestring'>, got {}".format(type(value))
+        assert isinstance(
+            value, basestring), "expected <type 'basestring'>, got {}".format(
+            type(value))
         self._src_file = value
 
     # getter and setter of ast
@@ -105,7 +112,9 @@ class CodeNodeBase(object):
     @ast.setter
     def ast(self, value):
         assert value is not None, 'received NoneType, not expected'
-        assert isinstance(value, ast.AST), "expected <type 'ast.AST'>, got {}".format(type(value))
+        assert isinstance(
+            value, ast.AST), "expected <type 'ast.AST'>, got {}".format(
+            type(value))
         self._ast = value
 
     # getter and setter of environment
@@ -117,7 +126,9 @@ class CodeNodeBase(object):
     def env(self, value):
         # add sanity check
         assert value is not None, 'received NoneType, not expected'
-        assert isinstance(value, dict), "expected <type 'dict'>, got {}".format(type(value))
+        assert isinstance(
+            value, dict), "expected <type 'dict'>, got {}".format(
+            type(value))
         self._env = value
 
     def parse_modules(self):
@@ -153,23 +164,23 @@ class CodeNodeBase(object):
             _filename = tail
         return _filename
 
-
     def dump(self, pretty=True, prefix="anonymous"):
-        # type: (Bool) -> None 
+        # type: (Bool) -> None
 
         # do sanity check
-        assert self.ast is not None, "code_node {} have no ast".format(self.src_file)
+        assert self.ast is not None, "code_node {} have no ast".format(
+            self.src_file)
         assert isinstance(
             self.ast, ast.AST), \
             "ast of code_node {} is not of type ast.AST".format(self.src_file)
-        
+
         if pretty:
             _ast_text = self._pretty()
         else:
             _ast_text = self._raw_dump()
-        
+
         _src_text = self.src
-        
+
         _module_name = self.get_module_name()
         dump_to_file(_module_name + '.ast', _ast_text, prefix)
         dump_to_file(_module_name + '.src', _src_text, prefix)

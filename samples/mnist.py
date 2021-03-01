@@ -1,3 +1,5 @@
+import ssl
+from mnist_lib import conv2d
 import tensorflow as tf
 import os
 import numpy as np
@@ -9,9 +11,7 @@ import enflame_cake_cutter as ecc
 print('hello world')
 print(os.path.abspath(__file__))
 print(os.environ.get("PYTHONPATH"))
-from mnist_lib import conv2d
 
-import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 tf.app.flags.DEFINE_string("device", "dtu", "cpu|gpu|dtu|xla_cpu|xla_gpu")
@@ -65,7 +65,6 @@ def weight_variable(shape, name, dtype):
 def bias_variable(shape, name, dtype):
     initial = tf.constant(0, shape=shape, dtype=dtype)
     return tf.Variable(initial, name=name)
-
 
 
 def max_pool_2x2(input):

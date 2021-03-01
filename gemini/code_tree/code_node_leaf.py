@@ -15,7 +15,6 @@ class CodeNodeLeaf(CodeNodeBase):
         '_sub_code_nodes',
     ]
 
-
     def __init__(self, parent_node):
         # root node have no parent, if and only if
         super(CodeNodeLeaf, self).__init__(parent_node)
@@ -27,4 +26,3 @@ class CodeNodeLeaf(CodeNodeBase):
     def execute(self):
         print('leaf execute')
         return
-
