@@ -70,19 +70,20 @@ class GeminiCompiler:
     def compile_and_run(self, use_ast=False):
         # print('global keys have\n')
         # print(globals().keys())
-        # TODO defaultly, use src to run, rather than ast
+        # TODO(albert) fix ast run bugs
         assert self.inited, "compiler not inited"
         # assert use_ast == False, "exec with ast is NotImplemented yet"
         if use_ast == False:
             if self._code_node_entry._has_sub_nodes():
                 for _sub_node in self._code_node_entry.sub_code_nodes:
+                    _module_name = _sub_node.get_module_name()
                     code_obj = compile(
                         _sub_node.src,
-                        filename=_sub_node.get_module_name(),
+                        filename=_module_name,
                         mode='exec')
-                    _module = types.ModuleType("import_lib", "import_lib doc")
+                    _module = types.ModuleType(_module_name, _module_name + " doc")
                     exec(code_obj, _module.__dict__)
-                    self._env()['import_lib'] = _module
+                    self._env()[_module_name] = _module
 
             exec(self._code_node_entry.src, self._env())
         # TODO fix ast run bugs.

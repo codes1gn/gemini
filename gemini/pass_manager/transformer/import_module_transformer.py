@@ -45,7 +45,7 @@ class ImportModuleTransformer(ast.NodeTransformer):
             if 'python' not in _path and \
                 '/usr/local' not in _path:
                 sys.path.remove(_path)
-        self._python_builtin_packages = get_python_library() 
+        self._python_builtin_packages = get_python_library()
         sys.path = _syspath_bak
         del _syspath_bak
 
@@ -58,6 +58,7 @@ class ImportModuleTransformer(ast.NodeTransformer):
     def visit_Import(self, node):
         # note that import or importfrom node does not have parent
         # TODO(albert) support recursive importing
+        _ret_node = node
         for name_head in node.names:
             module_name = name_head.name
             module_alias = name_head.asname
@@ -71,7 +72,7 @@ class ImportModuleTransformer(ast.NodeTransformer):
             if module_name in self._blacklist:
                 print '------ skip import ', module_name
                 continue
-            
+
             _module = importlib.import_module(module_name)
             source_code = inspect.getsource(_module)
             del _module
@@ -81,8 +82,9 @@ class ImportModuleTransformer(ast.NodeTransformer):
                 self._modules[module_alias] = source_code
             else:
                 self._modules[module_name] = source_code
+            _ret_node = None
 
-        return None
+        return _ret_node
 
     # def visit_ImportFrom(self, node):
     #     # vlog(astunparse.dump(node))

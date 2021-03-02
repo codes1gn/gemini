@@ -30,6 +30,7 @@ class ImportModulePass(PassBase):
         self._solvers.append(ImportModuleTransformer)
 
     def run_pass(self, _cnode):
+        # TODO(albert) support recursive importing, not Done
         solver1 = self._solvers[0]()
         _cnode.ast = solver1.visit(_cnode.ast)
         ast.fix_missing_locations(_cnode.ast)
