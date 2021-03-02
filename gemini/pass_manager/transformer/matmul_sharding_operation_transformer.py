@@ -30,6 +30,17 @@ class MatmulShardingOperationTransformer(NodeTransformerBase):
         # type: (None) -> dict
         return self._split_weights
 
+    def visit_Assign(self, node):
+        if self._sharding_size == 1:
+            return node
+
+        parent_node = node.gemini_parent
+
+        if isinstance(node.value, ast.Call) and hasattr(node.value.func, 'attr') and node.value.func.attr == 'matmul':
+            pretty_dump(parent_node)
+
+        return node
+
     def visit_BinOp(self, node):
         # print(astunparse.dump(node))
         # sanity check, do shortcut if not change

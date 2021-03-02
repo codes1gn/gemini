@@ -186,11 +186,11 @@ else
     --learning_rate=2e-5 \
     --num_train_epochs=0.03 \
     --output_dir=${OUT_DIR} \
-    > $top_dir_realpath/log 2>&1 &
+    > $top_dir_realpath/log 2>&1
 fi
 # run mrpc ---------------------------------------
 
-tail -f $top_dir_realpath/log
+vim $top_dir_realpath/log
 
 
 

@@ -1,4 +1,5 @@
 from gemini.pass_manager.transformer import *
+from gemini.utils import *
 
 from .pass_base import PassBase
 
@@ -23,10 +24,8 @@ class MatmulShardingPass(PassBase):
     # method to run pass on ast tree
     def run_pass(self, _cnode):
         # run passes by sequential
-        # solver0 = self.solvers[0]()
         solver1 = self.solvers[0](sharding_size=2)
         solver2 = self.solvers[1](solver1)
-        # _ast = solver0.visit(_ast)
         _cnode.ast = solver1.visit(_cnode.ast)
         solver2.visit(_cnode.ast)
 
