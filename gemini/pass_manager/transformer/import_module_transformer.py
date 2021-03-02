@@ -1,6 +1,9 @@
 import ast
+import sys
 import importlib
 import inspect
+
+from tops_models.common_utils import get_python_version
 
 from gemini.utils import *
 
@@ -25,6 +28,10 @@ class ImportModuleTransformer(ast.NodeTransformer):
 
     def __init__(self):
         self._modules = {}
+        self._blacklist = [
+            'horovod',
+            'horovod.tensorflow',
+        ]
         super(ImportModuleTransformer, self).__init__()
 
     @property
@@ -37,10 +44,24 @@ class ImportModuleTransformer(ast.NodeTransformer):
         # note that import or importfrom node does not have parent
         for name_head in node.names:
             module_name = name_head.name
+            module_alias = name_head.asname
+
+            # skip import process if current module is system module
+            if module_name in get_python_library():
+                continue
+            # skip import process if in blacklist
+            if module_name in self._blacklist:
+                continue
+            
+            pretty_dump(node)
             _module = importlib.import_module(module_name)
             source_code = inspect.getsource(_module)
             del _module
-            self._modules[module_name] = source_code
+            if module_alias is not None:
+                self._modules[module_alias] = source_code
+            else:
+                self._modules[module_name] = source_code
+            assert 0
 
         return None
 

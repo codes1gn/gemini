@@ -1,3 +1,3 @@
-import import_lib
+import import_lib as il
 
-import_lib.do_print()
+il.do_print()

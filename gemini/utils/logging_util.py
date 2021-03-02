@@ -9,8 +9,8 @@ __all__ = [
 ]
 
 
-def pretty_dump(_ast):
-    print(astunparse.dump(_ast))
+def pretty_dump(_ast_node):
+    print(astunparse.dump(_ast_node))
 
 
 def ast_analysis(ast_node):
