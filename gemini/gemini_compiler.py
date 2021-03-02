@@ -29,6 +29,7 @@ class GeminiCompiler:
 
     def __init__(self):
         self._pass_manager = None
+        self._model_code_path = None
         self._import_code_vector = []
         self._code_node_entry = CodeNodeRoot()
         self._env = globals

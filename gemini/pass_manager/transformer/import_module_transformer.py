@@ -1,4 +1,5 @@
 import ast
+import copy
 import sys
 import importlib
 import inspect
@@ -24,14 +25,30 @@ class ImportModuleTransformer(ast.NodeTransformer):
     __slots__ = [
         '_modules',
         '_blacklist',
+        '_python_builtin_packages',
     ]
 
     def __init__(self):
         self._modules = {}
         self._blacklist = [
+            # TODO(albert), ban module by top level name
             'horovod',
             'horovod.tensorflow',
+            'tensorflow',
+            'tops_models.tf_utils',
+            'tops_models.common_utils',
+            'tops_models.estimator_utils',
+            'tops_models.logger',
         ]
+        _syspath_bak = copy.deepcopy(sys.path)
+        for _path in _syspath_bak:
+            if 'python' not in _path and \
+                '/usr/local' not in _path:
+                sys.path.remove(_path)
+        self._python_builtin_packages = get_python_library() 
+        sys.path = _syspath_bak
+        del _syspath_bak
+
         super(ImportModuleTransformer, self).__init__()
 
     @property
@@ -39,29 +56,31 @@ class ImportModuleTransformer(ast.NodeTransformer):
         return self._modules
 
     def visit_Import(self, node):
-        # vlog(astunparse.dump(node))
-        # vlog(astunparse.dump(node.targets[0]))
         # note that import or importfrom node does not have parent
+        # TODO(albert) support recursive importing
         for name_head in node.names:
             module_name = name_head.name
             module_alias = name_head.asname
 
             # skip import process if current module is system module
-            if module_name in get_python_library():
+            # if module_name in get_python_library():
+            if module_name in self._python_builtin_packages:
+                print '------ skip import ', module_name
                 continue
             # skip import process if in blacklist
             if module_name in self._blacklist:
+                print '------ skip import ', module_name
                 continue
             
-            pretty_dump(node)
             _module = importlib.import_module(module_name)
             source_code = inspect.getsource(_module)
             del _module
+            print '------ handle import ', module_name
+            pretty_dump(node)
             if module_alias is not None:
                 self._modules[module_alias] = source_code
             else:
                 self._modules[module_name] = source_code
-            assert 0
 
         return None
 
