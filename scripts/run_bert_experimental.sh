@@ -15,8 +15,8 @@ cd $top_dir_realpath
 # cp impl
 mv $bert_dir"/modeling.py" $bert_dir"/modeling_bak"
 mv $bert_dir"/run_classifier.py" $bert_dir"/run_classifier_bak"
-cp $top_dir_realpath"/experimental/run_classifier.py" $bert_dir/run_classifier.py
-cp $top_dir_realpath"/experimental/modeling.py" $bert_dir/modeling.py
+cp $top_dir_realpath"/experimental/bert/run_classifier.py" $bert_dir/run_classifier.py
+cp $top_dir_realpath"/experimental/bert/modeling.py" $bert_dir/modeling.py
 
 
 # do running
