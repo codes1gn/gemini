@@ -12,6 +12,12 @@ echo "bert dir = "$bert_dir
 
 cd $top_dir_realpath
 
+# cp impl
+mv $bert_dir"/modeling.py" $bert_dir"/modeling_bak"
+mv $bert_dir"/run_classifier.py" $bert_dir"/run_classifier_bak"
+cp $top_dir_realpath"/experimental/run_classifier.py" $bert_dir/run_classifier.py
+cp $top_dir_realpath"/experimental/modeling.py" $bert_dir/modeling.py
+
 
 # do running
 export PYTHONPATH="${PYTHONPATH}:${top_dir_realpath}:${bert_dir}"
@@ -44,6 +50,8 @@ python $bert_dir/run_classifier.py \
   --output_dir=${OUT_DIR} \
   > $top_dir_realpath/log 2>&1
 
+mv $bert_dir"/modeling_bak" $bert_dir"/modeling.py"
+mv $bert_dir"/run_classifier_bak" $bert_dir"/run_classifier.py"
 vim $top_dir_realpath/log
 
 
