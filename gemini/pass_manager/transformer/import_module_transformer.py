@@ -43,7 +43,7 @@ class ImportModuleTransformer(ast.NodeTransformer):
         _syspath_bak = copy.deepcopy(sys.path)
         for _path in _syspath_bak:
             if 'python' not in _path and \
-                '/usr/local' not in _path:
+                    '/usr/local' not in _path:
                 sys.path.remove(_path)
         self._python_builtin_packages = get_python_library()
         sys.path = _syspath_bak

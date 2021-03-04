@@ -45,9 +45,10 @@ def get_python_library():
 
     # Glob all the 'top_level.txt' files installed under site-packages.
     site_packages = glob.iglob(os.path.join(os.path.dirname(os.__file__)
-                    + '/site-packages', '*-info', 'top_level.txt'))
+                                            + '/site-packages', '*-info', 'top_level.txt'))
 
-    # Read the files for the import names and remove them from the modules list.
+    # Read the files for the import names and remove them from the modules
+    # list.
     modules -= {open(txt).read().strip() for txt in site_packages}
 
     # Get the system packages.
@@ -58,6 +59,7 @@ def get_python_library():
     _, top_level_libs, _ = list(os.walk(python_root))[0]
 
     return sorted(top_level_libs + list(modules | system_modules))
+
 
 def get_python_methods(module):
     assert isinstance(module, types.ModuleType)

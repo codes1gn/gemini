@@ -36,7 +36,8 @@ class MatmulShardingOperationTransformer(NodeTransformerBase):
 
         parent_node = node.gemini_parent
 
-        if isinstance(node.value, ast.Call) and hasattr(node.value.func, 'attr') and node.value.func.attr == 'matmul':
+        if isinstance(node.value, ast.Call) and hasattr(
+                node.value.func, 'attr') and node.value.func.attr == 'matmul':
             pretty_dump(parent_node)
 
         return node

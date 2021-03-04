@@ -81,7 +81,8 @@ class GeminiCompiler:
                         _sub_node.src,
                         filename=_module_name,
                         mode='exec')
-                    _module = types.ModuleType(_module_name, _module_name + " doc")
+                    _module = types.ModuleType(
+                        _module_name, _module_name + " doc")
                     exec(code_obj, _module.__dict__)
                     self._env()[_module_name] = _module
 
