@@ -732,10 +732,10 @@ def attention_layer(from_tensor,
   attention_scores = gemini.matmul(query_layer, key_layer, transpose_b=True)
   attention_scores = gemini.multiply(attention_scores,
                                  1.0 / math.sqrt(float(size_per_head)))
-  assert 0, 'debug'
   # FIXME merge here
-  attention_scores = gemini_merge(attention_scores)
+  attention_scores = gemini.merge(attention_scores)
   assert attention_scores.shape == (1, 12, 128, 128)
+  # assert 0, 'debug'
 
   if attention_mask is not None:
     # `attention_mask` = [B, 1, F, T]

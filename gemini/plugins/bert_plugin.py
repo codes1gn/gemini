@@ -149,26 +149,15 @@ def multiply(*args, **kwargs):
     else:
         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(type(input_symbol))
 
-def merge(symbol_input):
-    lhs_symbol = args[0]
-    rhs_symbol = args[1]
+def merge(lhs_symbol):
     if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
         isinstance(lhs_symbol[0], tf.Tensor):
-        _ret = []
-        for _idx in range(len(lhs_symbol)):
-            lhs_operand = lhs_symbol[_idx]
-            rhs_operand = rhs_symbol[_idx]
-            _ret.append(tf.multiply(
-                lhs_operand, 
-                rhs_operand, 
-                *args[2:], 
-                **kwargs)
-            )
-        assert isinstance(_ret, list)
+        _ret = tf.add_n(lhs_symbol)
+        assert isinstance(_ret, tf.Tensor)
         return _ret
 
     elif isinstance(lhs_symbol, tf.Tensor):
-        return tf.multiply(*args, **kwargs)
+        return lhs_symbol
 
     else:
         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(type(input_symbol))
