@@ -169,7 +169,7 @@ then
     --learning_rate=2e-5 \
     --num_train_epochs=0.03 \
     --output_dir=${OUT_DIR} \
-    > $top_dir_realpath/log 2>&1 &
+    > $top_dir_realpath/log 2>&1
 else
   echo "using gemini_python"
   rm -rf mrpc_output
@@ -193,50 +193,3 @@ fi
 # run mrpc ---------------------------------------
 
 vim $top_dir_realpath/log
-
-
-
-
-
-#gpu
-#export CUDA_VISIBLE_DEVICES=1,2
-# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
-
-#dtu
-##log level
-#export LMODULE=MM
-#export LMLEVEL=3
-#export DTU_OPT_MODE=false
-#export SDK_VLOG_LEVEL=1
-#export TF_CPP_MIN_VLOG_LEVEL=1
-
-##dump graph
-#export XLA_FLAGS="--dtu_enable=memory_pressure_analysis  --xla_dump_hlo_as_text --xla_dump_to=hlo_dump/`date "+%m%d%H%M"`/ --xla_dump_hlo_pass_re='.*'"
-#export TF_DUMP_GRAPH_PREFIX=./graph_dump/`date "+%m%d%H%M"`/
-
-# export ENABLE_INIT_ON_CPU=1
-#export TF_XLA_FLAGS="--tf_xla_auto_jit=-1 --tf_xla_min_cluster_size=4"
-#  export XLA_FLAGS="--dtu_enable=memory_pressure_analysis"
-#  export DTU_UMD_FLAGS='ib_pool_size=134217728'
-#  export STATIC_MEM_MC_BALANCE=true
-#  export REDUCE_HBM_USE_PEAK=true
-#export CLUSTER_AS_DEVICE=false
-
-# rm -rf mrpc_output
-# export GLUE_DIR=${BASE_DIR}/dataset/glue_data/MRPC
-# export OUT_DIR=$BASE_DIR/mrpc_output
-# python run_classifier.py \
-#   --task_name=MRPC \
-#   --do_train=true \
-#   --do_eval=false \
-#   --data_dir=${GLUE_DIR}\
-#   --vocab_file=${BERT_BASE}/vocab.txt \
-#   --bert_config_file=${BERT_BASE}/bert_config.json \
-#   --init_checkpoint=${BERT_BASE}/bert_model.ckpt \
-#   --max_seq_length=384 \
-#   --train_batch_size=11 \
-#   --learning_rate=2e-5 \
-#   --num_train_epochs=0.3 \
-#   --output_dir=${OUT_DIR}
-
-
