@@ -661,137 +661,13 @@ def attention_layer(from_tensor,
 
   from_tensor_2d = reshape_to_matrix(from_tensor)
   to_tensor_2d = reshape_to_matrix(to_tensor)
-  _sharding_size = 2
-  _dense_sharding_switch = True
-
-  def gemini_dense(*args, **kwargs):
-    if not _dense_sharding_switch:
-        # do not shard weights
-        if isinstance(args[0], tf.Tensor):
-            return tf.layers.dense(*args, **kwargs)
-        elif (isinstance(args[0], tuple) or isinstance(args[0], list)) \
-            and isinstance(args[0][0], tf.Tensor):
-            # TODO wrap this
-            _ret = []
-            _rename_idx = 0
-            _name_base = kwargs['name'] + "_"
-            for _input_tensor in args[0]:
-                kwargs['name'] = _name_base + str(_rename_idx)
-                _rename_idx += 1
-                print(kwargs['name'])
-                _ret.append(tf.layers.dense(_input_tensor, *args[1:], **kwargs))
-            assert isinstance(_ret, list)
-            return _ret
-
-    elif _dense_sharding_switch:
-        sharded_shape = args[1] // _sharding_size
-        if isinstance(args[0], tf.Tensor):
-            _ret = []
-            _rename_idx = 0
-            _name_base = kwargs['name'] + "_"
-            for _idx in range(_sharding_size):
-                kwargs['name'] = _name_base + str(_rename_idx)
-                _rename_idx += 1
-                _ret.append(tf.layers.dense(args[0], sharded_shape, *args[2:], **kwargs))
-            assert isinstance(_ret, list)
-            return _ret
-
-        elif (isinstance(args[0], tuple) or isinstance(args[0], list)) \
-            and isinstance(args[0][0], tf.Tensor):
-            _ret = []
-            _rename_idx = 0
-            _name_base = kwargs['name'] + "_"
-            for _i_tensor in args[0]:
-                kwargs['name'] = _name_base + str(_rename_idx)
-                _rename_idx += 1
-                _ret.append(tf.layers.dense(_i_tensor, sharded_shape, *args[2:], **kwargs))
-            # replace by reduce
-            _ret_tensor = tf.add_n(_ret)
-            assert isinstance(_ret_tensor, tf.Tensor)
-            return _ret_tensor
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(type(input_symbol))
-
-
-  def gemini_reshape(*args, **kwargs):
-    input_symbol = args[0]
-    if (isinstance(input_symbol, list) or isinstance(input_symbol, tuple)) and \
-            isinstance(input_symbol[0], tf.Tensor):
-        _ret = []
-        old_shape = args[1]
-        new_shape = old_shape
-        new_shape[-1] = old_shape[-1] // _sharding_size
-        for _input_tensor in input_symbol:
-            _ret.append(tf.reshape(_input_tensor, new_shape, *args[2:], **kwargs))
-        assert isinstance(_ret, list)
-        return _ret
-
-    elif isinstance(input_symbol, tf.Tensor):
-        return tf.reshape(*args, **kwargs)
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(type(input_symbol))
-
-
-  def gemini_transpose(*args, **kwargs):
-    input_symbol = args[0]
-    if (isinstance(input_symbol, list) or isinstance(input_symbol, tuple)) and \
-            isinstance(input_symbol[0], tf.Tensor):
-        _ret = []
-        for _input_tensor in input_symbol:
-            _ret.append(tf.transpose(_input_tensor, *args[1:], **kwargs))
-        assert isinstance(_ret, list)
-        return _ret
-
-    elif isinstance(input_symbol, tf.Tensor):
-        return tf.transpose(*args, **kwargs)
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(type(input_symbol))
-
-  def gemini_matmul(*args, **kwargs):
-    lhs_symbol = args[0]
-    rhs_symbol = args[1]
-    assert isinstance(lhs_symbol, type(rhs_symbol))
-    if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
-            isinstance(lhs_symbol[0], tf.Tensor):
-        _ret = []
-        for _idx in range(len(lhs_symbol)):
-            lhs_operand = lhs_symbol[_idx]
-            rhs_operand = rhs_symbol[_idx]
-            _ret.append(tf.matmul(
-              lhs_operand, 
-              rhs_operand, 
-              *args[2:], 
-              **kwargs)
-            )
-        assert isinstance(_ret, list)
-        return _ret
-
-    elif isinstance(lhs_symbol, tf.Tensor):
-        return tf.matmul(*args, **kwargs)
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(type(input_symbol))
-
-  def gemini_multiply(*args, **kwargs):
-    return tf.multiply(*args, **kwargs)
-
-  def gemini_merge(symbol_input):
-      if isinstance(symbol_input, list):
-          print('found list')
-          return tf.add_n(symbol_input)
-      elif isinstance(symbol_input, tf.Tensor):
-          print('found tensor')
-          return symbol_input
 
   def transpose_for_scores(input_tensor, batch_size, num_attention_heads,
                            seq_length, width):
-    output_tensor = gemini_reshape(
+    output_tensor = gemini.reshape(
         input_tensor, [batch_size, seq_length, num_attention_heads, width])
 
-    output_tensor = gemini_transpose(output_tensor, [0, 2, 1, 3])
+    output_tensor = gemini.transpose(output_tensor, [0, 2, 1, 3])
     return output_tensor
 
 
@@ -804,14 +680,12 @@ def attention_layer(from_tensor,
   #     name="query",
   #     kernel_initializer=create_initializer(initializer_range))
   # FIXME fork here
-  query_layer = gemini_dense(
+  query_layer = gemini.dense(
       from_tensor_2d,
       num_attention_heads * size_per_head,
       activation=query_act,
       name="query",
       kernel_initializer=create_initializer(initializer_range))
-  assert query_layer[0].shape == (128, 768//_sharding_size)
-  assert len(query_layer) == _sharding_size
 
   # `key_layer` = [B*T, N*H]
   # key_layer = tf.layers.dense(
@@ -820,14 +694,12 @@ def attention_layer(from_tensor,
   #     activation=key_act,
   #     name="key",
   #     kernel_initializer=create_initializer(initializer_range))
-  key_layer = gemini_dense(
+  key_layer = gemini.dense(
       to_tensor_2d,
       num_attention_heads * size_per_head,
       activation=key_act,
       name="key",
       kernel_initializer=create_initializer(initializer_range))
-  assert key_layer[0].shape == (128, 768//_sharding_size)
-  assert len(key_layer) == _sharding_size
 
   # `value_layer` = [B*T, N*H]
   # value_layer = tf.layers.dense(
@@ -842,15 +714,11 @@ def attention_layer(from_tensor,
       activation=value_act,
       name="value",
       kernel_initializer=create_initializer(initializer_range))
-  assert value_layer[0].shape == (128, 768//_sharding_size)
-  assert len(value_layer) == _sharding_size
 
   # `query_layer` = [B, N, F, H]
   query_layer = transpose_for_scores(query_layer, batch_size,
                                      num_attention_heads, from_seq_length,
                                      size_per_head)
-  assert query_layer[0].shape == (1, 12, 128, 32)
-  assert len(query_layer) == 2
 
   # `key_layer` = [B, N, T, H]
   key_layer = transpose_for_scores(key_layer, batch_size, num_attention_heads,
@@ -859,7 +727,7 @@ def attention_layer(from_tensor,
   # Take the dot product between "query" and "key" to get the raw
   # attention scores.
   # `attention_scores` = [B, N, F, T]
-  attention_scores = gemini_matmul(query_layer, key_layer, transpose_b=True)
+  attention_scores = gemini.matmul(query_layer, key_layer, transpose_b=True)
   assert 0, 'debug'
   attention_scores = gemini_multiply(attention_scores,
                                  1.0 / math.sqrt(float(size_per_head)))
