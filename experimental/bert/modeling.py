@@ -675,19 +675,17 @@ def attention_layer(from_tensor,
             _ret = []
             _rename_idx = 0
             _name_base = kwargs['name'] + "_"
-            for _i_tensor in args[0]:
+            for _input_tensor in args[0]:
                 kwargs['name'] = _name_base + str(_rename_idx)
                 _rename_idx += 1
                 print(kwargs['name'])
-                _ret.append(tf.layers.dense(_i_tensor, *args[1:], **kwargs))
+                _ret.append(tf.layers.dense(_input_tensor, *args[1:], **kwargs))
             assert isinstance(_ret, list)
             return _ret
 
     elif _dense_sharding_switch:
         sharded_shape = args[1] // _sharding_size
-
         if isinstance(args[0], tf.Tensor):
-            # TODO wrap this
             _ret = []
             _rename_idx = 0
             _name_base = kwargs['name'] + "_"
@@ -700,19 +698,15 @@ def attention_layer(from_tensor,
 
         elif (isinstance(args[0], tuple) or isinstance(args[0], list)) \
             and isinstance(args[0][0], tf.Tensor):
-            # TODO wrap this
             _ret = []
             _rename_idx = 0
             _name_base = kwargs['name'] + "_"
             for _i_tensor in args[0]:
                 kwargs['name'] = _name_base + str(_rename_idx)
                 _rename_idx += 1
-                print(kwargs['name'])
                 _ret.append(tf.layers.dense(_i_tensor, sharded_shape, *args[2:], **kwargs))
             # replace by reduce
-            print(_ret[0].shape)
             _ret_tensor = tf.add_n(_ret)
-            print(_ret_tensor.shape)
             assert isinstance(_ret_tensor, tf.Tensor)
             return _ret_tensor
 
@@ -724,25 +718,16 @@ def attention_layer(from_tensor,
     input_symbol = args[0]
     if (isinstance(input_symbol, list) or isinstance(input_symbol, tuple)) and \
             isinstance(input_symbol[0], tf.Tensor):
-        print('path 1')
         _ret = []
         old_shape = args[1]
         new_shape = old_shape
         new_shape[-1] = old_shape[-1] // _sharding_size
-        print(new_shape)
-        assert 0, 'stop now'
-        # _rename_idx = 0
-        # _name_base = kwargs['name'] + "_"
         for _input_tensor in input_symbol:
-            # kwargs['name'] = _name_base + str(_rename_idx)
-            # _rename_idx += 1
-            # print(kwargs['name'])
-            _ret.append(tf.reshape(_i_tensor, new_shape, *args[2:], **kwargs))
+            _ret.append(tf.reshape(_input_tensor, new_shape, *args[2:], **kwargs))
         assert isinstance(_ret, list)
         return _ret
 
     elif isinstance(input_symbol, tf.Tensor):
-        print('path 2')
         return tf.reshape(*args, **kwargs)
 
     else:
@@ -750,10 +735,45 @@ def attention_layer(from_tensor,
 
 
   def gemini_transpose(*args, **kwargs):
-    return tf.transpose(*args, **kwargs)
+    input_symbol = args[0]
+    if (isinstance(input_symbol, list) or isinstance(input_symbol, tuple)) and \
+            isinstance(input_symbol[0], tf.Tensor):
+        _ret = []
+        for _input_tensor in input_symbol:
+            _ret.append(tf.transpose(_input_tensor, *args[1:], **kwargs))
+        assert isinstance(_ret, list)
+        return _ret
+
+    elif isinstance(input_symbol, tf.Tensor):
+        return tf.transpose(*args, **kwargs)
+
+    else:
+        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(type(input_symbol))
 
   def gemini_matmul(*args, **kwargs):
-    return tf.matmul(*args, **kwargs)
+    lhs_symbol = args[0]
+    rhs_symbol = args[1]
+    assert isinstance(lhs_symbol, type(rhs_symbol))
+    if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
+            isinstance(lhs_symbol[0], tf.Tensor):
+        _ret = []
+        for _idx in range(len(lhs_symbol)):
+            lhs_operand = lhs_symbol[_idx]
+            rhs_operand = rhs_symbol[_idx]
+            _ret.append(tf.matmul(
+              lhs_operand, 
+              rhs_operand, 
+              *args[2:], 
+              **kwargs)
+            )
+        assert isinstance(_ret, list)
+        return _ret
+
+    elif isinstance(lhs_symbol, tf.Tensor):
+        return tf.matmul(*args, **kwargs)
+
+    else:
+        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(type(input_symbol))
 
   def gemini_multiply(*args, **kwargs):
     return tf.multiply(*args, **kwargs)
@@ -829,18 +849,18 @@ def attention_layer(from_tensor,
   query_layer = transpose_for_scores(query_layer, batch_size,
                                      num_attention_heads, from_seq_length,
                                      size_per_head)
-  assert query_layer.shape == (1, 12, 128, 64)
-  assert 0, 'debug'
+  assert query_layer[0].shape == (1, 12, 128, 32)
+  assert len(query_layer) == 2
 
   # `key_layer` = [B, N, T, H]
   key_layer = transpose_for_scores(key_layer, batch_size, num_attention_heads,
                                    to_seq_length, size_per_head)
-  assert key_layer.shape == (1, 12, 128, 64)
 
   # Take the dot product between "query" and "key" to get the raw
   # attention scores.
   # `attention_scores` = [B, N, F, T]
   attention_scores = gemini_matmul(query_layer, key_layer, transpose_b=True)
+  assert 0, 'debug'
   attention_scores = gemini_multiply(attention_scores,
                                  1.0 / math.sqrt(float(size_per_head)))
   # FIXME merge here
