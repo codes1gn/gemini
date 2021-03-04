@@ -27,6 +27,8 @@ import numpy as np
 import six
 import tensorflow as tf
 
+# add one line
+import gemini.plugins.bert_plugin as gemini
 
 class BertConfig(object):
   """Configuration for `BertModel`."""
@@ -708,7 +710,7 @@ def attention_layer(from_tensor,
   #     activation=value_act,
   #     name="value",
   #     kernel_initializer=create_initializer(initializer_range))
-  value_layer = gemini_dense(
+  value_layer = gemini.dense(
       to_tensor_2d,
       num_attention_heads * size_per_head,
       activation=value_act,
@@ -728,9 +730,9 @@ def attention_layer(from_tensor,
   # attention scores.
   # `attention_scores` = [B, N, F, T]
   attention_scores = gemini.matmul(query_layer, key_layer, transpose_b=True)
-  assert 0, 'debug'
-  attention_scores = gemini_multiply(attention_scores,
+  attention_scores = gemini.multiply(attention_scores,
                                  1.0 / math.sqrt(float(size_per_head)))
+  assert 0, 'debug'
   # FIXME merge here
   attention_scores = gemini_merge(attention_scores)
   assert attention_scores.shape == (1, 12, 128, 128)
