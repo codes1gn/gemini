@@ -157,9 +157,9 @@ then
   export GLUE_DIR=$bert_dir/dataset/glue_data/MRPC
   export OUT_DIR=$bert_dir/mrpc_output
   python $top_dir_realpath/gemini/bin/gemini_python.py $bert_dir/run_classifier.py \
-    --task_name=MRPC \
     --do_train=true \
     --do_eval=false \
+    --task_name=MRPC \
     --data_dir=${GLUE_DIR}\
     --vocab_file=${BERT_CKPT_DIR}/vocab.txt \
     --bert_config_file=${BERT_CKPT_DIR}/bert_config.json \

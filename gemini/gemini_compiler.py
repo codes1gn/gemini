@@ -3,8 +3,6 @@ import os
 import textwrap
 import ast
 import astunparse
-import importlib
-import types
 
 from typing import Callable
 
@@ -33,6 +31,7 @@ class GeminiCompiler:
         self._import_code_vector = []
         self._code_node_entry = CodeNodeRoot()
         self._env = globals
+        self._env_dummy = {}
 
     @property
     def ast(self):
@@ -71,22 +70,55 @@ class GeminiCompiler:
         # print('global keys have\n')
         # print(globals().keys())
         # TODO(albert) fix ast run bugs
-        assert self.inited, "compiler not inited"
+        # import tensorflow as tf
+        # def del_all_flags(FLAGS):
+        #     flags_dict = FLAGS._flags()
+        #     keys_list = [keys for keys in flags_dict]
+        #     for keys in keys_list:
+        #         FLAGS.__delattr__(keys)
+        # del_all_flags(tf.flags.FLAGS)
+        # print tf.flags.FLAGS
         # assert use_ast == False, "exec with ast is NotImplemented yet"
         if use_ast == False:
+            from imp import new_module
+            import traceback
             if self._code_node_entry._has_sub_nodes():
+                assert 0
                 for _sub_node in self._code_node_entry.sub_code_nodes:
                     _module_name = _sub_node.get_module_name()
                     code_obj = compile(
                         _sub_node.src,
                         filename=_module_name,
                         mode='exec')
-                    _module = types.ModuleType(
-                        _module_name, _module_name + " doc")
-                    exec(code_obj, _module.__dict__)
-                    self._env()[_module_name] = _module
+                    # legacy codes, use types not imp
+                    # _module = types.ModuleType(
+                    #     _module_name, _module_name + " doc")
+                    _module = new_module(_module_name)
+                    try:
+                        exec(code_obj, _module.__dict__)
+                    except Exception as e:
+                        traceback.print_exc()
 
-            exec(self._code_node_entry.src, self._env())
+                    # self._env()[_module_name] = _module
+                    sys.modules[_module_name] = _module
+
+            _entry_backup = self._env()['__name__']
+            self._env()['__name__'] = '__main__'
+            import copy, sys
+            # TODO utils for backup envs
+            _sys_argv_backup = copy.deepcopy(sys.argv)
+            sys.argv = sys.argv[1:]
+            main_code_obj = compile(
+                self._code_node_entry.src,
+                filename=self._code_node_entry.src_file,
+                mode='exec'
+            )
+            _main_module = new_module('__main__')
+            sys.modules['__main__'] = _main_module
+            exec(main_code_obj, _main_module.__dict__)
+            # exec(self._code_node_entry.src, self._env())
+            sys.argv = copy.deepcopy(_sys_argv_backup)
+            self._env()['__name__'] = _entry_backup
         # TODO fix ast run bugs.
         # elif use_ast == True:
         #     assert isinstance(

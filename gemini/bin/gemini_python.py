@@ -1,5 +1,6 @@
 import sys
 import traceback
+import copy
 
 from gemini.gemini_compiler import *
 from gemini.utils import *
@@ -7,8 +8,8 @@ from gemini.utils import *
 
 def main(argv=sys.argv[1:]):
     print('gemini compiler entry point')
-    filename = argv[0]
-    arguments = argv[1:]
+    filename = copy.deepcopy(argv[0])
+    arguments = copy.deepcopy(argv[1:])
 
     compiler = GeminiCompiler()
     src_code = read_src(filename)
@@ -19,15 +20,15 @@ def main(argv=sys.argv[1:]):
     assert 1, 'step 1 parse src'
 
     # step 2, parse modules
-    compiler.parse_modules()
-    compiler.dump(pretty=True, prefix='parse_module')
-    assert 1, 'step 2 parse module'
+    # compiler.parse_modules()
+    # compiler.dump(pretty=True, prefix='parse_module')
+    # assert 1, 'step 2 parse module'
 
     # TODO(albert) construct config, use dummy string instead
-    config = {'mode': 'sharding'}
-    compiler.apply_model_parallel(config)
-    compiler.dump(pretty=True, prefix='apply_{}_pass'.format(config['mode']))
-    assert 1, 'step 3 apply sharding mode'
+    # config = {'mode': 'sharding'}
+    # compiler.apply_model_parallel(config)
+    # compiler.dump(pretty=True, prefix='apply_{}_pass'.format(config['mode']))
+    # assert 1, 'step 3 apply sharding mode'
 
     use_ast = False
     # TODO(albert) have bug when not use_ast

@@ -7,7 +7,6 @@ import sys
 import time
 from datetime import datetime
 from tensorflow.examples.tutorials.mnist import input_data
-import enflame_cake_cutter as ecc
 print('hello world')
 print(os.path.abspath(__file__))
 print(os.environ.get("PYTHONPATH"))
