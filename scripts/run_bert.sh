@@ -153,7 +153,7 @@ runner="gemini_python"
 if ! command -v $runner > /dev/null;
 then
   echo "using bin/gemini_python.py"
-  rm -rf mrpc_output
+  rm -rf $bert_dir/mrpc_output
   export GLUE_DIR=$bert_dir/dataset/glue_data/MRPC
   export OUT_DIR=$bert_dir/mrpc_output
   python $top_dir_realpath/gemini/bin/gemini_python.py $bert_dir/run_classifier.py \
@@ -172,7 +172,7 @@ then
     > $top_dir_realpath/log 2>&1
 else
   echo "using gemini_python"
-  rm -rf mrpc_output
+  rm -rf $bert_dir/mrpc_output
   export GLUE_DIR=$bert_dir/dataset/glue_data/MRPC
   export OUT_DIR=$bert_dir/mrpc_output
   gemini_python $bert_dir/run_classifier.py \

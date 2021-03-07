@@ -20,9 +20,9 @@ def main(argv=sys.argv[1:]):
     assert 1, 'step 1 parse src'
 
     # step 2, parse modules
-    # compiler.parse_modules()
-    # compiler.dump(pretty=True, prefix='parse_module')
-    # assert 1, 'step 2 parse module'
+    compiler.parse_modules()
+    compiler.dump(pretty=True, prefix='parse_module')
+    assert 1, 'step 2 parse module'
 
     # TODO(albert) construct config, use dummy string instead
     # config = {'mode': 'sharding'}

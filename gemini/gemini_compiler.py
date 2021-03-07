@@ -3,6 +3,8 @@ import os
 import textwrap
 import ast
 import astunparse
+import copy
+import sys
 
 from typing import Callable
 
@@ -83,7 +85,6 @@ class GeminiCompiler:
             from imp import new_module
             import traceback
             if self._code_node_entry._has_sub_nodes():
-                assert 0
                 for _sub_node in self._code_node_entry.sub_code_nodes:
                     _module_name = _sub_node.get_module_name()
                     code_obj = compile(
@@ -104,7 +105,6 @@ class GeminiCompiler:
 
             _entry_backup = self._env()['__name__']
             self._env()['__name__'] = '__main__'
-            import copy, sys
             # TODO utils for backup envs
             _sys_argv_backup = copy.deepcopy(sys.argv)
             sys.argv = sys.argv[1:]
