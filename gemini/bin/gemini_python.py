@@ -13,6 +13,7 @@ def main(argv=sys.argv[1:]):
 
     compiler = GeminiCompiler()
     src_code = read_src(filename)
+    assert 'gemini_python' in sys.argv[0]
 
     # step 1, parse src code
     compiler.parse(src_code, filename=filename)
