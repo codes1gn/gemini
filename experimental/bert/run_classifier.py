@@ -106,7 +106,7 @@ flags.DEFINE_integer("save_checkpoints_steps", 1000,
 
 flags.DEFINE_bool("use_resource", True, "Whether to use_resource.")
 
-flags.DEFINE_string("device", 'gpu', "device name")
+flags.DEFINE_string("device", 'dtu', "device name")
 
 flags.DEFINE_integer("display_loss_steps", 10,
                      "How often to print loss from estimator")
@@ -816,16 +816,16 @@ def main(_):
           return '/cpu:0'
       if op.name.startswith('bert/encoder/layer'):
           id = int(op.name.split('/')[2].split('_')[-1]) // 3
-          return "/device:GPU:{}".format(id)
+          return "/device:XLA_DTU:{}".format(id)
       elif op.name.startswith('gradients/bert/encoder/layer'):
           id = int(op.name.split('/')[3].split('_')[-1]) // 3
-          return "/device:GPU:{}".format(id)
+          return "/device:XLA_DTU:{}".format(id)
       else:
           return '/device:CPU:0'
   if FLAGS.device.lower() in ['dtu', 'xla_dtu']:
-      device_fn = lambda op: common_utils.device_mapping[FLAGS.device] if op.type != 'IteratorV2' else '/cpu:0'
+      device_fn = _device_fn
   else:
-      device_fn = None
+      device_fn = _device_fn
   if FLAGS.horovod:
      logger.info("hvd.size() = {} hvd.rank() = {}".format(hvd.size(), hvd.rank()))
      global_batch_size = global_batch_size * hvd.size()

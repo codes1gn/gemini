@@ -160,6 +160,7 @@ then
     --do_train=true \
     --do_eval=false \
     --task_name=MRPC \
+    --device=dtu \
     --data_dir=${GLUE_DIR}\
     --vocab_file=${BERT_CKPT_DIR}/vocab.txt \
     --bert_config_file=${BERT_CKPT_DIR}/bert_config.json \
@@ -179,6 +180,7 @@ else
     --task_name=MRPC \
     --do_train=true \
     --do_eval=false \
+    --device=dtu \
     --data_dir=${GLUE_DIR}\
     --vocab_file=${BERT_CKPT_DIR}/vocab.txt \
     --bert_config_file=${BERT_CKPT_DIR}/bert_config.json \
