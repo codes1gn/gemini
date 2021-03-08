@@ -764,13 +764,15 @@ def attention_layer(from_tensor,
       [batch_size, to_seq_length, num_attention_heads, size_per_head])
 
   # `value_layer` = [B, N, T, H]
-  value_layer = tf.transpose(value_layer, [0, 2, 1, 3])
+  value_layer = gemini.transpose(value_layer, [0, 2, 1, 3])
+  # value_layer = tf.transpose(value_layer, [0, 2, 1, 3])
 
   # `context_layer` = [B, N, F, H]
   context_layer = tf.matmul(attention_probs, value_layer)
 
   # `context_layer` = [B, F, N, H]
-  context_layer = tf.transpose(context_layer, [0, 2, 1, 3])
+  context_layer = gemini.transpose(context_layer, [0, 2, 1, 3])
+  # context_layer = tf.transpose(context_layer, [0, 2, 1, 3])
 
   if do_return_2d_tensor:
     # `context_layer` = [B*F, N*H]
