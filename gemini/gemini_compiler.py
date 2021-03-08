@@ -1,6 +1,7 @@
 import inspect
 import os
 import textwrap
+import importlib
 import ast
 import astunparse
 import copy
@@ -95,6 +96,8 @@ class GeminiCompiler:
                     # _module = types.ModuleType(
                     #     _module_name, _module_name + " doc")
                     _module = new_module(_module_name)
+                    _module.__dict__['gemini'] = sys.modules['gemini']
+                    print sys.modules['gemini']
                     try:
                         exec(code_obj, _module.__dict__)
                     except Exception as e:

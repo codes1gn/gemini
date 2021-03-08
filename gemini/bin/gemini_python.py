@@ -1,6 +1,7 @@
 import sys
 import traceback
 import copy
+import importlib
 
 from gemini.gemini_compiler import *
 from gemini.utils import *
@@ -19,6 +20,10 @@ def main(argv=sys.argv[1:]):
     compiler.parse(src_code, filename=filename)
     compiler.dump(pretty=True, prefix='src_parse')
     assert 1, 'step 1 parse src'
+
+    # patch, fix import gemini
+    _plugin = importlib.import_module('gemini.plugins.bert_plugin')
+    sys.modules['gemini'] = _plugin
 
     # step 2, parse modules
     compiler.parse_modules()

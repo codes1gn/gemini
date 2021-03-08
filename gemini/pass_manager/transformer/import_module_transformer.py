@@ -2,6 +2,7 @@ import ast
 import copy
 import sys
 import importlib
+import imp
 import inspect
 
 from tops_models.common_utils import get_python_version
@@ -73,9 +74,13 @@ class ImportModuleTransformer(ast.NodeTransformer):
                 print '------ skip import ', module_name
                 continue
 
-            _module = importlib.import_module(module_name)
-            source_code = inspect.getsource(_module)
-            del _module
+            paths = imp.find_module(module_name)
+            source_code = paths[0].read()
+
+            # legacy code, will import module then get source, not good
+            # _module = importlib.import_module(module_name)
+            # source_code = inspect.getsource(_module)
+            # del _module
             print '------ handle import ', module_name
             pretty_dump(node)
             if module_alias is not None:
