@@ -5,16 +5,15 @@ import copy
 from .api_wrapper import \
     reduce_unary_op, \
     bind_unary_op, \
-    bind_binary_op, \
-    bind_sharding_op
+    bind_binary_op
 
 
 # define global configuration
-# _sharding_size = 2
-# _dense_sharding_switch = True
+_sharding_size = 2
+_dense_sharding_switch = True
 
-_sharding_size = 1
-_dense_sharding_switch = False 
+# _sharding_size = 1
+# _dense_sharding_switch = False
 
 
 # define visibility
@@ -31,13 +30,16 @@ __all__ = [
 def multiply(*args, **kwargs):
     return tf.multiply(*args, **kwargs)
 
+
 @bind_unary_op
 def transpose(*args, **kwargs):
     return tf.transpose(*args, **kwargs)
 
+
 @bind_binary_op
 def matmul(*args, **kwargs):
     return tf.matmul(*args, **kwargs)
+
 
 @reduce_unary_op
 def all_reduce(*args, **kwargs):
@@ -45,27 +47,39 @@ def all_reduce(*args, **kwargs):
         if _dense_sharding_switch \
         else tf.add(*args, **kwargs)
 
+
 @bind_unary_op
 def reshape(*args, **kwargs):
-    # FIXME currently, assume only consider reshape parallel case with sharded last dimension.
+    # FIXME currently, assume only consider reshape parallel case with sharded
+    # last dimension.
     new_shape = copy.deepcopy(args[1])
     # FIXME use -1 tmply
     # new_shape[-1] = args[1][-1] // _sharding_size
     new_shape[-1] = -1
     return tf.reshape(args[0], new_shape, *args[2:], **kwargs)
 
-if not _dense_sharding_switch:
-    @bind_unary_op
-    def dense(*args, **kwargs):
-        return tf.layers.dense(*args, **kwargs)
-else:
-    @bind_sharding_op
-    def dense(*args, **kwargs):
-        return tf.layers.dense(*args, **kwargs)
 
-            
-# def dense(*args, **kwargs):
-#     elif _dense_sharding_switch:
+@bind_unary_op
+def monadic_dense(*args, **kwargs):
+    return tf.layers.dense(*args, **kwargs)
+
+
+if not _dense_sharding_switch:
+    def dense(*args, **kwargs):
+        return monadic_dense(*args, **kwargs)
+elif _dense_sharding_switch:
+    def dense(*args, **kwargs):
+        if isinstance(args[0], tf.Tensor):
+            sharded_out_size = args[1] // _sharding_size
+            input_list = [args[0], args[0]]
+            return monadic_dense(
+                input_list, sharded_out_size, *args[2:], **kwargs)
+
+        elif (isinstance(args[0], tuple) or isinstance(args[0], list)) \
+                and isinstance(args[0][0], tf.Tensor):
+            _tmp = monadic_dense(*args, **kwargs)
+            return all_reduce(_tmp)
+
 #         sharded_shape = args[1] // _sharding_size
 #         if isinstance(args[0], tf.Tensor):
 #             _ret = []
@@ -74,11 +88,7 @@ else:
 #             for _idx in range(_sharding_size):
 #                 kwargs['name'] = _name_base + str(_rename_idx)
 #                 _rename_idx += 1
-#                 _ret.append(tf.layers.dense(
-#                     args[0], sharded_shape, *args[2:], **kwargs))
-#             assert isinstance(_ret, list)
-#             return _ret
-# 
+#
 #         elif (isinstance(args[0], tuple) or isinstance(args[0], list)) \
 #                 and isinstance(args[0][0], tf.Tensor):
 #             _ret = []
@@ -93,8 +103,8 @@ else:
 #             _ret_tensor = tf.add_n(_ret)
 #             assert isinstance(_ret_tensor, tf.Tensor)
 #             return _ret_tensor
-# 
+#
 #     else:
 #         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
 #             type(input_symbol))
-# 
+#

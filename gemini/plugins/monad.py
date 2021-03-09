@@ -56,8 +56,18 @@ class MonadicTensor:
             # FIXME, partial appends new args, not work for pending for first undefined args
             # result = list(map(functools.partial(f, *args[1:], **kwargs), self.value))
             # legacy code, use lambda function
-            result = list(
-                map(lambda inp: f(inp, *args[1:], **kwargs), self.value))
+            if kwargs.__contains__('name'):
+                # avoid REUSE of vars, need to updates tensor/var/op name
+                _name_base = kwargs.pop('name') + "_shard_"
+                _name_candidates = []
+                for idx in range(len(self.value)):
+                    _name_candidates.append(_name_base + str(idx))
+                print(_name_candidates)
+                result = list(
+                    map(lambda inp, _one_name: f(inp, *args[1:], name=_one_name, **kwargs), self.value, _name_candidates))
+            else:
+                result = list(
+                    map(lambda inp: f(inp, *args[1:], **kwargs), self.value))
             return MonadicTensor(result)
         else:
             assert 0, 'got undefined type'
