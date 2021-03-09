@@ -29,6 +29,7 @@ import tensorflow as tf
 
 # add one line
 import gemini.plugins.bert_plugin as gemini
+from gemini.plugins.monad import MonadicTensor
 
 class BertConfig(object):
   """Configuration for `BertModel`."""
@@ -749,9 +750,10 @@ def attention_layer(from_tensor,
     # TODO need abstraction
 
 
-    # attention_scores += adder
-    attention_scores[0] += adder
-    attention_scores[1] += adder
+    attention_scores = MonadicTensor(attention_scores)
+    attention_scores += adder
+    # attention_scores[0] += adder
+    # attention_scores[1] += adder
 
   attention_scores = gemini.all_reduce(attention_scores)
 

@@ -1,5 +1,6 @@
 import tensorflow as tf
 from functools import reduce
+import operator
 
 
 class MonadicTensor:
@@ -7,7 +8,7 @@ class MonadicTensor:
     def __init__(self, value):
         if isinstance(value, list) or isinstance(value, tf.Tensor):
             self.value = value
-        elif isinstance(value, MonadicTensor):
+        elif isinstance(value, self.__class__):
             self.value = value.get()
         else:
             assert 0, 'got undefined type {}'.format(type(value))
@@ -21,17 +22,20 @@ class MonadicTensor:
     def __or__(self, f):
         return self.bind(f)
 
-    # def __add__(self, rhs):
-    #     if not isinstance(other, self.__class__):
-    #         if not isinstance(other, (list, tuple)):
-    #             tmp = np.ones(self._shape) * other
-    #             rhs = self.__class__(list(tmp))
-    #         else:
-    #             rhs = self.__class__(other)
-    #     else:
-    #         rhs = other
-    # return self.__class__(list(map(operator.add, self._buffer,
-    # rhs._buffer)))
+    def __add__(self, other):
+        if not isinstance(other, self.__class__):
+            if isinstance(other, (list, tuple)):
+                rhs = self.__class__(other)
+            elif isinstance(other, tf.Tensor):
+                _list = []
+                for idx in range(len(self.value)):
+                    _list.append(other)
+                rhs = self.__class__(list(_list))
+            else:
+                assert 0, 'expect tf.Tensor or literal, but got list/tuple'
+        else:
+            rhs = other
+        return self.__class__(list(map(operator.add, self.value, rhs.get())))
 
     def reduce(self, *args, **kwargs):
         f = args[0]
@@ -43,7 +47,7 @@ class MonadicTensor:
             # legacy code, use lambda function
             result = reduce(f, self.value)
             assert isinstance(result, tf.Tensor), 'should be tf.Tensor'
-            return MonadicTensor(result)
+            return self.__class__(result)
         else:
             assert 0, 'got undefined type'
 
@@ -51,7 +55,7 @@ class MonadicTensor:
         f = args[0]
         if isinstance(self.value, tf.Tensor):
             result = f(self.value, *args[1:], **kwargs)
-            return MonadicTensor(result)
+            return self.__class__(result)
         elif isinstance(self.value, list):
             # FIXME, partial appends new args, not work for pending for first undefined args
             # result = list(map(functools.partial(f, *args[1:], **kwargs), self.value))
@@ -62,13 +66,12 @@ class MonadicTensor:
                 _name_candidates = []
                 for idx in range(len(self.value)):
                     _name_candidates.append(_name_base + str(idx))
-                print(_name_candidates)
                 result = list(
                     map(lambda inp, _one_name: f(inp, *args[1:], name=_one_name, **kwargs), self.value, _name_candidates))
             else:
                 result = list(
                     map(lambda inp: f(inp, *args[1:], **kwargs), self.value))
-            return MonadicTensor(result)
+            return self.__class__(result)
         else:
             assert 0, 'got undefined type'
 
@@ -80,12 +83,12 @@ class MonadicTensor:
                 type(self.value), type(rhs_operand))
         if isinstance(self.value, tf.Tensor):
             result = f(self.value, rhs_operand.get(), *args[2:], **kwargs)
-            return MonadicTensor(result)
+            return self.__class__(result)
         elif isinstance(self.value, list):
             # FIXME, partial appends new args, not work for pending for first undefined args
             # result = list(map(functools.partial(f, *args[1:], **kwargs), self.value))
             result = list(map(lambda lhs, rhs: f(lhs, rhs, *
                                                  args[2:], **kwargs), self.value, rhs_operand.get()))
-            return MonadicTensor(result)
+            return self.__class__(result)
         else:
             assert 0, 'got undefined type'
