@@ -3,6 +3,19 @@ import functools
 import inspect
 import sys
 
+_sharding_size = 2
+_dense_sharding_switch = True
+
+__all__ = [
+    'dense',
+    'matmul',
+    'reshape',
+    'multiply',
+    'transpose',
+]
+
+
+
 if sys.version_info[0:2] >= (3, 4):  # Python v3.4+?
     wraps = functools.wraps  # built-in has __wrapped__ attribute
 else:
@@ -33,6 +46,17 @@ class MonadicTensor:
 
     def __or__(self, f):
         return self.bind(f)
+    
+    # def __add__(self, rhs):
+    #     if not isinstance(other, self.__class__):
+    #         if not isinstance(other, (list, tuple)):
+    #             tmp = np.ones(self._shape) * other
+    #             rhs = self.__class__(list(tmp))
+    #         else:
+    #             rhs = self.__class__(other)
+    #     else:
+    #         rhs = other
+    #     return self.__class__(list(map(operator.add, self._buffer, rhs._buffer)))
 
     def bind(self, *args, **kwargs):
         f = args[0]
@@ -40,7 +64,27 @@ class MonadicTensor:
             result = f(self.value, *args[1:], **kwargs)
             return MonadicTensor(result)
         elif isinstance(self.value, list):
+            # FIXME, partial appends new args, not work for pending for first undefined args
+            # result = list(map(functools.partial(f, *args[1:], **kwargs), self.value))
+            # legacy code, use lambda function
             result = list(map(lambda inp: f(inp, *args[1:], **kwargs), self.value))
+            return MonadicTensor(result)
+        else:
+            assert 0, 'got undefined type'
+
+    def bind_bin_op(self, *args, **kwargs):
+        f = args[0]
+        rhs_operand = args[1]
+        assert isinstance(self.value, type(rhs_operand.get())), \
+            'bin op found unmatched lhs {} and rhs {}'.format(type(self.value), type(rhs_operand))
+        if isinstance(self.value, tf.Tensor):
+            result = f(self.value, rhs_operand.get(), *args[1:], **kwargs)
+            return MonadicTensor(result)
+        elif isinstance(self.value, list):
+            # FIXME, partial appends new args, not work for pending for first undefined args
+            # result = list(map(functools.partial(f, *args[1:], **kwargs), self.value))
+            # legacy code, use lambda function
+            result = list(map(lambda lhs, rhs: f(lhs, rhs, *args[2:], **kwargs), self.value, rhs_operand.get()))
             return MonadicTensor(result)
         else:
             assert 0, 'got undefined type'
@@ -54,18 +98,31 @@ def enable_unary_op(f):
         return result.get()
     return wrapper
 
+def enable_binary_op(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        # FIXME assump the input tensor is the first positional arguments in all tf.op design
+        lhs_tensor = MonadicTensor(args[0])
+        rhs_tensor = MonadicTensor(args[1])
+        result = lhs_tensor.bind_bin_op(f, rhs_tensor, *args[2:], **kwargs)
+        return result.get()
+    return wrapper
 
 
-_sharding_size = 2
-_dense_sharding_switch = True
+@enable_unary_op
+def multiply(*args, **kwargs):
+    return tf.multiply(*args, **kwargs)
 
-__all__ = [
-    'dense',
-    'matmul',
-    'reshape',
-    'multiply',
-    'transpose',
-]
+@enable_unary_op
+def transpose(*args, **kwargs):
+    return tf.transpose(*args, **kwargs)
+
+@enable_binary_op
+def matmul(*args, **kwargs):
+    return tf.matmul(*args, **kwargs)
+
+
+
 
 
 def dense(*args, **kwargs):
@@ -142,7 +199,49 @@ def reshape(*args, **kwargs):
     else:
         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
             type(input_symbol))
+            
 
+
+# legacy code
+# def multiply(*args, **kwargs):
+#     lhs_symbol = args[0]
+# 
+#     if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
+#             isinstance(lhs_symbol[0], tf.Tensor):
+#         _ret = []
+#         for _idx in range(len(lhs_symbol)):
+#             lhs_operand = lhs_symbol[_idx]
+#             # rhs_operand = rhs_symbol[_idx]
+#             _ret.append(tf.multiply(
+#                 lhs_operand,
+#                 # rhs_operand,
+#                 *args[1:],
+#                 **kwargs)
+#             )
+#         assert isinstance(_ret, list)
+#         return _ret
+# 
+#     elif isinstance(lhs_symbol, tf.Tensor):
+#         return tf.multiply(*args, **kwargs)
+# 
+#     else:
+#         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
+#             type(input_symbol))
+
+
+def merge(lhs_symbol):
+    if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
+            isinstance(lhs_symbol[0], tf.Tensor):
+        _ret = tf.add_n(lhs_symbol)
+        assert isinstance(_ret, tf.Tensor)
+        return _ret
+
+    elif isinstance(lhs_symbol, tf.Tensor):
+        return lhs_symbol
+
+    else:
+        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
+            type(input_symbol))
 
 # legacy transpose
 # def transpose(*args, **kwargs):
@@ -162,76 +261,29 @@ def reshape(*args, **kwargs):
 #         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
 #             type(input_symbol))
 
-@enable_unary_op
-def transpose(*args, **kwargs):
-    result = tf.transpose(*args, **kwargs)
-    return result
-
-
-def matmul(*args, **kwargs):
-    lhs_symbol = args[0]
-    rhs_symbol = args[1]
-    assert isinstance(lhs_symbol, type(rhs_symbol))
-    if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
-            isinstance(lhs_symbol[0], tf.Tensor):
-        _ret = []
-        for _idx in range(len(lhs_symbol)):
-            lhs_operand = lhs_symbol[_idx]
-            rhs_operand = rhs_symbol[_idx]
-            _ret.append(tf.matmul(
-                lhs_operand,
-                rhs_operand,
-                *args[2:],
-                **kwargs)
-            )
-        assert isinstance(_ret, list)
-        return _ret
-
-    elif isinstance(lhs_symbol, tf.Tensor):
-        return tf.matmul(*args, **kwargs)
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
-            type(input_symbol))
-
-
-def multiply(*args, **kwargs):
-    lhs_symbol = args[0]
-    rhs_symbol = args[1]
-
-    if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
-            isinstance(lhs_symbol[0], tf.Tensor):
-        _ret = []
-        for _idx in range(len(lhs_symbol)):
-            lhs_operand = lhs_symbol[_idx]
-            # rhs_operand = rhs_symbol[_idx]
-            _ret.append(tf.multiply(
-                lhs_operand,
-                # rhs_operand,
-                *args[1:],
-                **kwargs)
-            )
-        assert isinstance(_ret, list)
-        return _ret
-
-    elif isinstance(lhs_symbol, tf.Tensor):
-        return tf.multiply(*args, **kwargs)
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
-            type(input_symbol))
-
-
-def merge(lhs_symbol):
-    if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
-            isinstance(lhs_symbol[0], tf.Tensor):
-        _ret = tf.add_n(lhs_symbol)
-        assert isinstance(_ret, tf.Tensor)
-        return _ret
-
-    elif isinstance(lhs_symbol, tf.Tensor):
-        return lhs_symbol
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
-            type(input_symbol))
+# legacy code: matmul
+# def matmul(*args, **kwargs):
+#     lhs_symbol = args[0]
+#     rhs_symbol = args[1]
+#     assert isinstance(lhs_symbol, type(rhs_symbol))
+#     if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
+#             isinstance(lhs_symbol[0], tf.Tensor):
+#         _ret = []
+#         for _idx in range(len(lhs_symbol)):
+#             lhs_operand = lhs_symbol[_idx]
+#             rhs_operand = rhs_symbol[_idx]
+#             _ret.append(tf.matmul(
+#                 lhs_operand,
+#                 rhs_operand,
+#                 *args[2:],
+#                 **kwargs)
+#             )
+#         assert isinstance(_ret, list)
+#         return _ret
+# 
+#     elif isinstance(lhs_symbol, tf.Tensor):
+#         return tf.matmul(*args, **kwargs)
+# 
+#     else:
+#         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
+#             type(input_symbol))
