@@ -46,27 +46,6 @@ def reshape(*args, **kwargs):
     new_shape[-1] = args[1][-1] // _sharding_size
     return tf.reshape(args[0], new_shape, *args[2:], **kwargs)
 
-# def reshape(*args, **kwargs):
-#     input_symbol = args[0]
-#     if (isinstance(input_symbol, list) or isinstance(input_symbol, tuple)) and \
-#             isinstance(input_symbol[0], tf.Tensor):
-#         _ret = []
-#         old_shape = args[1]
-#         new_shape = old_shape
-#         new_shape[-1] = old_shape[-1] // _sharding_size
-#         for _input_tensor in input_symbol:
-#             _ret.append(tf.reshape(_input_tensor,
-#                                    new_shape, *args[2:], **kwargs))
-#         assert isinstance(_ret, list)
-#         return _ret
-# 
-#     elif isinstance(input_symbol, tf.Tensor):
-#         return tf.reshape(*args, **kwargs)
-# 
-#     else:
-#         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
-#             type(input_symbol))
-
             
 def dense(*args, **kwargs):
     if not _dense_sharding_switch:
