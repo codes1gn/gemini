@@ -1,11 +1,12 @@
 import tensorflow as tf
-import functools
-import inspect
-import sys
+from functools import reduce
+
+from gemini.utils import *
 
 _sharding_size = 2
 _dense_sharding_switch = True
 
+# define visibility
 __all__ = [
     'dense',
     'matmul',
@@ -15,17 +16,6 @@ __all__ = [
 ]
 
 
-
-if sys.version_info[0:2] >= (3, 4):  # Python v3.4+?
-    wraps = functools.wraps  # built-in has __wrapped__ attribute
-else:
-    def wraps(wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
-              updated=functools.WRAPPER_UPDATES):
-        def wrapper(f):
-            f = functools.wraps(wrapped, assigned, updated)(f)
-            f.__wrapped__ = wrapped  # set attribute missing in earlier versions
-            return f
-        return wrapper
 
 
 class MonadicTensor:
@@ -58,6 +48,20 @@ class MonadicTensor:
     #         rhs = other
     #     return self.__class__(list(map(operator.add, self._buffer, rhs._buffer)))
 
+    def reduce(self, *args, **kwargs):
+        f = args[0]
+        if isinstance(self.value, tf.Tensor):
+            return self
+        elif isinstance(self.value, list):
+            # FIXME, partial appends new args, not work for pending for first undefined args
+            # result = list(map(functools.partial(f, *args[1:], **kwargs), self.value))
+            # legacy code, use lambda function
+            result = reduce(f, self.value)
+            assert isinstance(result, tf.Tensor), 'should be tf.Tensor'
+            return MonadicTensor(result)
+        else:
+            assert 0, 'got undefined type'
+
     def bind(self, *args, **kwargs):
         f = args[0]
         if isinstance(self.value, tf.Tensor):
@@ -83,11 +87,21 @@ class MonadicTensor:
         elif isinstance(self.value, list):
             # FIXME, partial appends new args, not work for pending for first undefined args
             # result = list(map(functools.partial(f, *args[1:], **kwargs), self.value))
-            # legacy code, use lambda function
             result = list(map(lambda lhs, rhs: f(lhs, rhs, *args[2:], **kwargs), self.value, rhs_operand.get()))
             return MonadicTensor(result)
         else:
             assert 0, 'got undefined type'
+
+def reduce_unary_op(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        # FIXME assump the input tensor is the first positional arguments in all tf.op design
+        m_tensor = MonadicTensor(args[0])
+        print("in reduce_unary_op")
+        print(m_tensor)
+        result = m_tensor.reduce(f, *args[1:], **kwargs)
+        return result.get()
+    return wrapper
 
 def bind_unary_op(f):
     @wraps(f)
@@ -121,23 +135,23 @@ def transpose(*args, **kwargs):
 def matmul(*args, **kwargs):
     return tf.matmul(*args, **kwargs)
 
-# @enable_binary_op
-# def all_reduce(*args, **kwargs):
-#     return 0.5*tf.add(*args, **kwargs)
+@reduce_unary_op
+def all_reduce(*args, **kwargs):
+    return 1 / _sharding_size * tf.add(*args, **kwargs)
 
-def all_reduce(lhs_symbol):
-    if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
-            isinstance(lhs_symbol[0], tf.Tensor):
-        _ret = tf.add_n(lhs_symbol)
-        assert isinstance(_ret, tf.Tensor)
-        return _ret
-
-    elif isinstance(lhs_symbol, tf.Tensor):
-        return lhs_symbol
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
-            type(input_symbol))
+# def all_reduce(lhs_symbol):
+#     if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
+#             isinstance(lhs_symbol[0], tf.Tensor):
+#         _ret = tf.add_n(lhs_symbol)
+#         assert isinstance(_ret, tf.Tensor)
+#         return _ret
+# 
+#     elif isinstance(lhs_symbol, tf.Tensor):
+#         return lhs_symbol
+# 
+#     else:
+#         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
+#             type(input_symbol))
 
 
 

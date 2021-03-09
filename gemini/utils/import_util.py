@@ -1,5 +1,6 @@
 from setuptools import distutils
 from inspect import getmembers, isfunction
+import functools
 import glob
 import os
 import pkgutil
@@ -8,9 +9,21 @@ import types
 
 
 __all__ = [
-    'get_python_library'
+    'get_python_library',
+    'get_python_methods',
+    'wraps',
 ]
 
+if sys.version_info[0:2] >= (3, 4):  # Python v3.4+?
+    wraps = functools.wraps  # built-in has __wrapped__ attribute
+else:
+    def wraps(wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
+              updated=functools.WRAPPER_UPDATES):
+        def wrapper(f):
+            f = functools.wraps(wrapped, assigned, updated)(f)
+            f.__wrapped__ = wrapped  # set attribute missing in earlier versions
+            return f
+        return wrapper
 
 # unify functions
 if sys.version_info[0] == 2:
