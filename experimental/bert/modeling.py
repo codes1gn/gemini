@@ -754,7 +754,7 @@ def attention_layer(from_tensor,
     attention_scores[1] += adder
     print('anchor', attention_scores)
 
-  attention_scores = gemini.merge(attention_scores)
+  attention_scores = gemini.all_reduce(attention_scores)
   print('anchor', attention_scores)
 
   # Normalize the attention scores to probabilities.

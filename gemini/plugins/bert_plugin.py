@@ -89,7 +89,7 @@ class MonadicTensor:
         else:
             assert 0, 'got undefined type'
 
-def enable_unary_op(f):
+def bind_unary_op(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         # FIXME assump the input tensor is the first positional arguments in all tf.op design
@@ -98,7 +98,7 @@ def enable_unary_op(f):
         return result.get()
     return wrapper
 
-def enable_binary_op(f):
+def bind_binary_op(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         # FIXME assump the input tensor is the first positional arguments in all tf.op design
@@ -109,17 +109,35 @@ def enable_binary_op(f):
     return wrapper
 
 
-@enable_unary_op
+@bind_unary_op
 def multiply(*args, **kwargs):
     return tf.multiply(*args, **kwargs)
 
-@enable_unary_op
+@bind_unary_op
 def transpose(*args, **kwargs):
     return tf.transpose(*args, **kwargs)
 
-@enable_binary_op
+@bind_binary_op
 def matmul(*args, **kwargs):
     return tf.matmul(*args, **kwargs)
+
+# @enable_binary_op
+# def all_reduce(*args, **kwargs):
+#     return 0.5*tf.add(*args, **kwargs)
+
+def all_reduce(lhs_symbol):
+    if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
+            isinstance(lhs_symbol[0], tf.Tensor):
+        _ret = tf.add_n(lhs_symbol)
+        assert isinstance(_ret, tf.Tensor)
+        return _ret
+
+    elif isinstance(lhs_symbol, tf.Tensor):
+        return lhs_symbol
+
+    else:
+        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
+            type(input_symbol))
 
 
 
@@ -228,20 +246,6 @@ def reshape(*args, **kwargs):
 #         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
 #             type(input_symbol))
 
-
-def merge(lhs_symbol):
-    if (isinstance(lhs_symbol, list) or isinstance(lhs_symbol, tuple)) and \
-            isinstance(lhs_symbol[0], tf.Tensor):
-        _ret = tf.add_n(lhs_symbol)
-        assert isinstance(_ret, tf.Tensor)
-        return _ret
-
-    elif isinstance(lhs_symbol, tf.Tensor):
-        return lhs_symbol
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
-            type(input_symbol))
 
 # legacy transpose
 # def transpose(*args, **kwargs):
