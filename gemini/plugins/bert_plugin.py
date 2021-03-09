@@ -1,5 +1,6 @@
 import tensorflow as tf
 from functools import reduce
+import copy
 
 from .api_wrapper import \
     reduce_unary_op, \
@@ -26,22 +27,47 @@ __all__ = [
 def multiply(*args, **kwargs):
     return tf.multiply(*args, **kwargs)
 
-
 @bind_unary_op
 def transpose(*args, **kwargs):
     return tf.transpose(*args, **kwargs)
-
 
 @bind_binary_op
 def matmul(*args, **kwargs):
     return tf.matmul(*args, **kwargs)
 
-
 @reduce_unary_op
 def all_reduce(*args, **kwargs):
     return 1 / _sharding_size * tf.add(*args, **kwargs)
 
+@bind_unary_op
+def reshape(*args, **kwargs):
+    # FIXME currently, assume only consider reshape parallel case with sharded last dimension.
+    new_shape = copy.deepcopy(args[1])
+    new_shape[-1] = args[1][-1] // _sharding_size
+    return tf.reshape(args[0], new_shape, *args[2:], **kwargs)
 
+# def reshape(*args, **kwargs):
+#     input_symbol = args[0]
+#     if (isinstance(input_symbol, list) or isinstance(input_symbol, tuple)) and \
+#             isinstance(input_symbol[0], tf.Tensor):
+#         _ret = []
+#         old_shape = args[1]
+#         new_shape = old_shape
+#         new_shape[-1] = old_shape[-1] // _sharding_size
+#         for _input_tensor in input_symbol:
+#             _ret.append(tf.reshape(_input_tensor,
+#                                    new_shape, *args[2:], **kwargs))
+#         assert isinstance(_ret, list)
+#         return _ret
+# 
+#     elif isinstance(input_symbol, tf.Tensor):
+#         return tf.reshape(*args, **kwargs)
+# 
+#     else:
+#         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
+#             type(input_symbol))
+
+            
 def dense(*args, **kwargs):
     if not _dense_sharding_switch:
         # do not shard weights
@@ -90,28 +116,6 @@ def dense(*args, **kwargs):
             _ret_tensor = tf.add_n(_ret)
             assert isinstance(_ret_tensor, tf.Tensor)
             return _ret_tensor
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
-            type(input_symbol))
-
-
-def reshape(*args, **kwargs):
-    input_symbol = args[0]
-    if (isinstance(input_symbol, list) or isinstance(input_symbol, tuple)) and \
-            isinstance(input_symbol[0], tf.Tensor):
-        _ret = []
-        old_shape = args[1]
-        new_shape = old_shape
-        new_shape[-1] = old_shape[-1] // _sharding_size
-        for _input_tensor in input_symbol:
-            _ret.append(tf.reshape(_input_tensor,
-                                   new_shape, *args[2:], **kwargs))
-        assert isinstance(_ret, list)
-        return _ret
-
-    elif isinstance(input_symbol, tf.Tensor):
-        return tf.reshape(*args, **kwargs)
 
     else:
         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
