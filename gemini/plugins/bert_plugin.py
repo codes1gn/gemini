@@ -1,4 +1,59 @@
 import tensorflow as tf
+import functools
+import inspect
+import sys
+
+if sys.version_info[0:2] >= (3, 4):  # Python v3.4+?
+    wraps = functools.wraps  # built-in has __wrapped__ attribute
+else:
+    def wraps(wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
+              updated=functools.WRAPPER_UPDATES):
+        def wrapper(f):
+            f = functools.wraps(wrapped, assigned, updated)(f)
+            f.__wrapped__ = wrapped  # set attribute missing in earlier versions
+            return f
+        return wrapper
+
+
+class MonadicTensor:
+
+    def __init__(self, value):
+        if isinstance(value, list) or isinstance(value, tf.Tensor):
+            self.value = value
+        elif isinstance(value, MonadicTensor):
+            self.value = value.get()
+        else:
+            assert 0, 'got undefined type {}'.format(type(value))
+
+    def get(self):
+        return self.value
+
+    def __str__(self):
+        return 'MonadicTensor(' + "\n".join(map(str, self.value)) + ')'
+
+    def __or__(self, f):
+        return self.bind(f)
+
+    def bind(self, *args, **kwargs):
+        f = args[0]
+        if isinstance(self.value, tf.Tensor):
+            result = f(self.value, *args[1:], **kwargs)
+            return MonadicTensor(result)
+        elif isinstance(self.value, list):
+            result = list(map(lambda inp: f(inp, *args[1:], **kwargs), self.value))
+            return MonadicTensor(result)
+        else:
+            assert 0, 'got undefined type'
+
+def enable_unary_op(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        # FIXME assump the input tensor is the first positional arguments in all tf.op design
+        m_tensor = MonadicTensor(args[0])
+        result = m_tensor.bind(f, *args[1:], **kwargs)
+        return result.get()
+    return wrapper
+
 
 
 _sharding_size = 2
@@ -11,21 +66,6 @@ __all__ = [
     'multiply',
     'transpose',
 ]
-
-
-# func(MetaTensor.monad)
-# class MetaTensor:
-#
-#     def __init__(self, _tensor):
-#         if isinstance(_tensor, tf.Tensor):
-#             self._is_list = False
-#         elif isinstance(_tensor, list) or isinstance(_tensor, tuple):
-#             self._is_list = True
-#         else:
-#             assert 0, 'got not supported meta_tensor type of {}'.format(type(_tensor))
-#
-#     def monad(self):
-#         if self._is_list
 
 
 def dense(*args, **kwargs):
@@ -104,22 +144,28 @@ def reshape(*args, **kwargs):
             type(input_symbol))
 
 
+# legacy transpose
+# def transpose(*args, **kwargs):
+#     input_symbol = args[0]
+#     if (isinstance(input_symbol, list) or isinstance(input_symbol, tuple)) and \
+#             isinstance(input_symbol[0], tf.Tensor):
+#         _ret = []
+#         for _input_tensor in input_symbol:
+#             _ret.append(tf.transpose(_input_tensor, *args[1:], **kwargs))
+#         assert isinstance(_ret, list)
+#         return _ret
+#
+#     elif isinstance(input_symbol, tf.Tensor):
+#         return tf.transpose(*args, **kwargs)
+#
+#     else:
+#         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
+#             type(input_symbol))
+
+@enable_unary_op
 def transpose(*args, **kwargs):
-    input_symbol = args[0]
-    if (isinstance(input_symbol, list) or isinstance(input_symbol, tuple)) and \
-            isinstance(input_symbol[0], tf.Tensor):
-        _ret = []
-        for _input_tensor in input_symbol:
-            _ret.append(tf.transpose(_input_tensor, *args[1:], **kwargs))
-        assert isinstance(_ret, list)
-        return _ret
-
-    elif isinstance(input_symbol, tf.Tensor):
-        return tf.transpose(*args, **kwargs)
-
-    else:
-        assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
-            type(input_symbol))
+    result = tf.transpose(*args, **kwargs)
+    return result
 
 
 def matmul(*args, **kwargs):
