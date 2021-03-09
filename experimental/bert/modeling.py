@@ -747,8 +747,11 @@ def attention_layer(from_tensor,
     # Since we are adding it to the raw scores before the softmax, this is
     # effectively the same as removing these entirely.
     # TODO need abstraction
-    attention_scores[0] += adder
-    attention_scores[1] += adder
+
+
+    attention_scores += adder
+    # attention_scores[0] += adder
+    # attention_scores[1] += adder
 
   attention_scores = gemini.all_reduce(attention_scores)
 

@@ -69,7 +69,7 @@ class MonadicTensor:
             'bin op found unmatched lhs {} and rhs {}'.format(
                 type(self.value), type(rhs_operand))
         if isinstance(self.value, tf.Tensor):
-            result = f(self.value, rhs_operand.get(), *args[1:], **kwargs)
+            result = f(self.value, rhs_operand.get(), *args[2:], **kwargs)
             return MonadicTensor(result)
         elif isinstance(self.value, list):
             # FIXME, partial appends new args, not work for pending for first undefined args

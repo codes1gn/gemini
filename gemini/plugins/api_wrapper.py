@@ -9,8 +9,6 @@ def reduce_unary_op(f):
         # FIXME assump the input tensor is the first positional arguments in
         # all tf.op design
         m_tensor = MonadicTensor(args[0])
-        print("in reduce_unary_op")
-        print(m_tensor)
         result = m_tensor.reduce(f, *args[1:], **kwargs)
         return result.get()
     return wrapper

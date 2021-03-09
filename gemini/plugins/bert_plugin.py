@@ -9,8 +9,11 @@ from .api_wrapper import \
 
 
 # define global configuration
-_sharding_size = 2
-_dense_sharding_switch = True
+# _sharding_size = 2
+# _dense_sharding_switch = True
+
+_sharding_size = 1
+_dense_sharding_switch = False 
 
 
 # define visibility
@@ -33,19 +36,31 @@ def transpose(*args, **kwargs):
 
 @bind_binary_op
 def matmul(*args, **kwargs):
+    print('anchor')
+    print(args[0])
+    print(args[1])
+    # assert 0
     return tf.matmul(*args, **kwargs)
 
 @reduce_unary_op
 def all_reduce(*args, **kwargs):
-    return 1 / _sharding_size * tf.add(*args, **kwargs)
+    return 1 / _sharding_size * tf.add(*args, **kwargs) \
+        if _dense_sharding_switch \
+        else tf.add(*args, **kwargs)
 
 @bind_unary_op
 def reshape(*args, **kwargs):
     # FIXME currently, assume only consider reshape parallel case with sharded last dimension.
     new_shape = copy.deepcopy(args[1])
-    new_shape[-1] = args[1][-1] // _sharding_size
+    # FIXME use -1 tmply
+    # new_shape[-1] = args[1][-1] // _sharding_size
+    new_shape[-1] = -1
     return tf.reshape(args[0], new_shape, *args[2:], **kwargs)
 
+# if not _dense_sharding_switch:
+#     @bind_unary_op
+#     def dense(*args, **kwargs):
+#         return tf.layers.dense(*args, **kwargs)
             
 def dense(*args, **kwargs):
     if not _dense_sharding_switch:
