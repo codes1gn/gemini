@@ -5,7 +5,8 @@ import copy
 from .api_wrapper import \
     reduce_unary_op, \
     bind_unary_op, \
-    bind_binary_op
+    bind_binary_op, \
+    bind_sharding_op
 
 
 # define global configuration
@@ -54,31 +55,16 @@ def reshape(*args, **kwargs):
     return tf.reshape(args[0], new_shape, *args[2:], **kwargs)
 
 if not _dense_sharding_switch:
-    print('anchor')
     @bind_unary_op
     def dense(*args, **kwargs):
         return tf.layers.dense(*args, **kwargs)
+else:
+    @bind_sharding_op
+    def dense(*args, **kwargs):
+        return tf.layers.dense(*args, **kwargs)
+
             
 # def dense(*args, **kwargs):
-#     if not _dense_sharding_switch:
-#         # do not shard weights
-#         if isinstance(args[0], tf.Tensor):
-#             return tf.layers.dense(*args, **kwargs)
-#         elif (isinstance(args[0], tuple) or isinstance(args[0], list)) \
-#                 and isinstance(args[0][0], tf.Tensor):
-#             # TODO wrap this
-#             _ret = []
-#             _rename_idx = 0
-#             _name_base = kwargs['name'] + "_"
-#             for _input_tensor in args[0]:
-#                 kwargs['name'] = _name_base + str(_rename_idx)
-#                 _rename_idx += 1
-#                 print(kwargs['name'])
-#                 _ret.append(tf.layers.dense(
-#                     _input_tensor, *args[1:], **kwargs))
-#             assert isinstance(_ret, list)
-#             return _ret
-# 
 #     elif _dense_sharding_switch:
 #         sharded_shape = args[1] // _sharding_size
 #         if isinstance(args[0], tf.Tensor):
