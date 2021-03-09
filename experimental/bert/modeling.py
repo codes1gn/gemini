@@ -733,10 +733,9 @@ def attention_layer(from_tensor,
   attention_scores = gemini.multiply(attention_scores,
                                  1.0 / math.sqrt(float(size_per_head)))
   # FIXME merge here
-  attention_scores = gemini.merge(attention_scores)
-  assert attention_scores.shape == (1, 12, 128, 128)
-  # assert 0, 'debug'
 
+  # attention_scores = gemini.merge(attention_scores)
+  print('anchor', attention_scores)
   if attention_mask is not None:
     # `attention_mask` = [B, 1, F, T]
     attention_mask = tf.expand_dims(attention_mask, axis=[1])
@@ -748,7 +747,15 @@ def attention_layer(from_tensor,
 
     # Since we are adding it to the raw scores before the softmax, this is
     # effectively the same as removing these entirely.
-    attention_scores += adder
+    print('anchor', adder)
+    print('anchor', attention_scores[0])
+    # TODO need abstraction
+    attention_scores[0] += adder
+    attention_scores[1] += adder
+    print('anchor', attention_scores)
+
+  attention_scores = gemini.merge(attention_scores)
+  print('anchor', attention_scores)
 
   # Normalize the attention scores to probabilities.
   # `attention_probs` = [B, N, F, T]
