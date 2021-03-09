@@ -79,32 +79,3 @@ elif _dense_sharding_switch:
                 and isinstance(args[0][0], tf.Tensor):
             _tmp = monadic_dense(*args, **kwargs)
             return all_reduce(_tmp)
-
-#         sharded_shape = args[1] // _sharding_size
-#         if isinstance(args[0], tf.Tensor):
-#             _ret = []
-#             _rename_idx = 0
-#             _name_base = kwargs['name'] + "_"
-#             for _idx in range(_sharding_size):
-#                 kwargs['name'] = _name_base + str(_rename_idx)
-#                 _rename_idx += 1
-#
-#         elif (isinstance(args[0], tuple) or isinstance(args[0], list)) \
-#                 and isinstance(args[0][0], tf.Tensor):
-#             _ret = []
-#             _rename_idx = 0
-#             _name_base = kwargs['name'] + "_"
-#             for _i_tensor in args[0]:
-#                 kwargs['name'] = _name_base + str(_rename_idx)
-#                 _rename_idx += 1
-#                 _ret.append(tf.layers.dense(
-#                     _i_tensor, sharded_shape, *args[2:], **kwargs))
-#             # replace by reduce
-#             _ret_tensor = tf.add_n(_ret)
-#             assert isinstance(_ret_tensor, tf.Tensor)
-#             return _ret_tensor
-#
-#     else:
-#         assert 0, 'expected tf.Tensor or list/tuple of tf.Tensor as inputs, but got {}'.format(
-#             type(input_symbol))
-#
