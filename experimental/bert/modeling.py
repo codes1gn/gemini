@@ -961,7 +961,6 @@ def transformer_model(input_tensor,
             kernel_initializer=create_initializer(initializer_range))
         layer_output = dropout(layer_output, hidden_dropout_prob)
         layer_output = layer_norm(layer_output + attention_output)
-        # assert 0, 'debug\n'+str(layer_output)
         prev_output = layer_output
         all_layer_outputs.append(layer_output)
 
@@ -1037,7 +1036,9 @@ def reshape_from_matrix(output_tensor, orig_shape_list):
   orig_dims = orig_shape_list[0:-1]
   width = output_shape[-1]
 
-  return tf.reshape(output_tensor, orig_dims + [width])
+  # FIXME
+  return gemini.reshape(output_tensor, orig_dims + [width])
+  # return tf.reshape(output_tensor, orig_dims + [width])
 
 
 def assert_rank(tensor, expected_rank, name=None):
