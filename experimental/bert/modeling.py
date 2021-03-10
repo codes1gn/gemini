@@ -373,6 +373,7 @@ def layer_norm(input_tensor, name=None):
   """Run layer normalization on the last dimension of the tensor."""
   # FIXME
   # return tf.contrib.layers.layer_norm(
+  input_tensor = MonadicTensor(input_tensor)
   return gemini.layer_norm(
       inputs=input_tensor, begin_norm_axis=-1, begin_params_axis=-1, scope=name)
 
@@ -938,9 +939,7 @@ def transformer_model(input_tensor,
           # FIXME, handle + operator
           # TODO, we may need to find + operators and determine before it, should we 
           # replace with MonadicTensor on both lhs and rhs, then wrap its output
-          _ = MonadicTensor(attention_output + layer_input)
-          attention_output = layer_norm(_)
-          # attention_output = layer_norm(attention_output + layer_input)
+          attention_output = layer_norm(attention_output + layer_input)
 
       # The activation is only applied to the "intermediate" hidden layer.
       with tf.variable_scope("intermediate"):
@@ -960,9 +959,9 @@ def transformer_model(input_tensor,
             intermediate_output,
             hidden_size,
             kernel_initializer=create_initializer(initializer_range))
-        assert 0, 'debug\n'+str(layer_output)
         layer_output = dropout(layer_output, hidden_dropout_prob)
         layer_output = layer_norm(layer_output + attention_output)
+        # assert 0, 'debug\n'+str(layer_output)
         prev_output = layer_output
         all_layer_outputs.append(layer_output)
 
