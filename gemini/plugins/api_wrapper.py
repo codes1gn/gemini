@@ -19,8 +19,12 @@ def bind_unary_op(f):
     def wrapper(*args, **kwargs):
         # FIXME assump the input tensor is the first positional arguments in
         # all tf.op design
-        m_tensor = MonadicTensor(args[0])
-        result = m_tensor.bind(f, *args[1:], **kwargs)
+        if kwargs.__contains__('inputs'):
+            m_tensor = MonadicTensor(kwargs['inputs'])
+            result = m_tensor.bind(f, *args, **kwargs)
+        else:
+            m_tensor = MonadicTensor(args[0])
+            result = m_tensor.bind(f, *args[1:], **kwargs)
         return result.get()
     return wrapper
 

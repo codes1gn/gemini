@@ -363,16 +363,24 @@ def dropout(input_tensor, dropout_prob):
   # output = tf.nn.dropout(input_tensor, 1.0 - dropout_prob)
   return output
 
-
-def layer_norm(input_tensor, name=None):
+def layer_norm_0(input_tensor, name=None):
   """Run layer normalization on the last dimension of the tensor."""
+  # FIXME
   return tf.contrib.layers.layer_norm(
       inputs=input_tensor, begin_norm_axis=-1, begin_params_axis=-1, scope=name)
 
+def layer_norm(input_tensor, name=None):
+  """Run layer normalization on the last dimension of the tensor."""
+  # FIXME
+  # return tf.contrib.layers.layer_norm(
+  return gemini.layer_norm(
+      inputs=input_tensor, begin_norm_axis=-1, begin_params_axis=-1, scope=name)
 
+
+# FIXME not handle first layer_norm now
 def layer_norm_and_dropout(input_tensor, dropout_prob, name=None):
   """Runs layer normalization followed by dropout."""
-  output_tensor = layer_norm(input_tensor, name)
+  output_tensor = layer_norm_0(input_tensor, name)
   output_tensor = dropout(output_tensor, dropout_prob)
   return output_tensor
 
@@ -927,13 +935,18 @@ def transformer_model(input_tensor,
               hidden_size,
               kernel_initializer=create_initializer(initializer_range))
           attention_output = dropout(attention_output, hidden_dropout_prob)
-          print(attention_output)
-          assert 0, 'happy'
-          attention_output = layer_norm(attention_output + layer_input)
+          # FIXME, handle + operator
+          # TODO, we may need to find + operators and determine before it, should we 
+          # replace with MonadicTensor on both lhs and rhs, then wrap its output
+          _ = MonadicTensor(attention_output + layer_input)
+          attention_output = layer_norm(_)
+          # attention_output = layer_norm(attention_output + layer_input)
 
       # The activation is only applied to the "intermediate" hidden layer.
       with tf.variable_scope("intermediate"):
-        intermediate_output = tf.layers.dense(
+        #FIXME
+        # intermediate_output = tf.layers.dense(
+        intermediate_output = gemini.dense(
             attention_output,
             intermediate_size,
             activation=intermediate_act_fn,
@@ -941,10 +954,13 @@ def transformer_model(input_tensor,
 
       # Down-project back to `hidden_size` then add the residual.
       with tf.variable_scope("output"):
-        layer_output = tf.layers.dense(
+        # FIXME
+        # layer_output = tf.layers.dense(
+        layer_output = gemini.dense(
             intermediate_output,
             hidden_size,
             kernel_initializer=create_initializer(initializer_range))
+        assert 0, 'debug\n'+str(layer_output)
         layer_output = dropout(layer_output, hidden_dropout_prob)
         layer_output = layer_norm(layer_output + attention_output)
         prev_output = layer_output

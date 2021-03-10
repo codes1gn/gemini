@@ -43,6 +43,12 @@ def transpose(*args, **kwargs):
 def softmax(*args, **kwargs):
     return tf.nn.softmax(*args, **kwargs)
 
+@bind_unary_op
+def layer_norm(*args, **kwargs):
+    print(kwargs)
+    print(args)
+    return tf.contrib.layers.layer_norm(*args, **kwargs)
+
 
 @bind_unary_op
 def dropout(*args, **kwargs):
