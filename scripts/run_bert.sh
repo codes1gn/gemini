@@ -164,13 +164,13 @@ then
     --data_dir=${GLUE_DIR}\
     --vocab_file=${BERT_CKPT_DIR}/vocab.txt \
     --bert_config_file=${BERT_CKPT_DIR}/bert_config.json \
-    --init_checkpoint=${BERT_CKPT_DIR}/bert_model.ckpt \
     --max_seq_length=128 \
     --train_batch_size=1 \
     --learning_rate=2e-5 \
     --num_train_epochs=0.03 \
     --output_dir=${OUT_DIR} \
     > $top_dir_realpath/log 2>&1
+    # --init_checkpoint=${BERT_CKPT_DIR}/bert_model.ckpt \
 else
   echo "using gemini_python"
   rm -rf $bert_dir/mrpc_output
@@ -184,13 +184,13 @@ else
     --data_dir=${GLUE_DIR}\
     --vocab_file=${BERT_CKPT_DIR}/vocab.txt \
     --bert_config_file=${BERT_CKPT_DIR}/bert_config.json \
-    --init_checkpoint=${BERT_CKPT_DIR}/bert_model.ckpt \
     --max_seq_length=128 \
     --train_batch_size=1 \
     --learning_rate=2e-5 \
     --num_train_epochs=0.03 \
     --output_dir=${OUT_DIR} \
     > $top_dir_realpath/log 2>&1
+    # --init_checkpoint=${BERT_CKPT_DIR}/bert_model.ckpt \
 fi
 # run mrpc ---------------------------------------
 

@@ -181,6 +181,7 @@ class BertModel(object):
             initializer_range=config.initializer_range,
             word_embedding_name="word_embeddings",
             use_one_hot_embeddings=use_one_hot_embeddings)
+        
 
         # Add positional embeddings and token type embeddings, then layer
         # normalize and perform dropout.
@@ -228,6 +229,7 @@ class BertModel(object):
         # We "pool" the model by simply taking the hidden state corresponding
         # to the first token. We assume that this has been pre-trained
         first_token_tensor = tf.squeeze(self.sequence_output[:, 0:1, :], axis=1)
+        # FIXME how to avoid pooler/dense do sharding
         self.pooled_output = tf.layers.dense(
             first_token_tensor,
             config.hidden_size,
@@ -261,6 +263,7 @@ class BertModel(object):
     return self.embedding_output
 
   def get_embedding_table(self):
+    assert 0, 'dumb'
     return self.embedding_table
 
 
@@ -424,18 +427,30 @@ def embedding_lookup(input_ids,
       name=word_embedding_name,
       shape=[vocab_size, embedding_size],
       initializer=create_initializer(initializer_range))
+  # FIXME ensure divisibility
+  embedding_tables = tf.split(embedding_table, num_or_size_splits=2, axis=1)
 
-  flat_input_ids = tf.reshape(input_ids, [-1])
+  # FIXME
+  # flat_input_ids = tf.reshape(input_ids, [-1])
+  flat_input_ids = gemini.reshape(input_ids, [-1])
   if use_one_hot_embeddings:
     one_hot_input_ids = tf.one_hot(flat_input_ids, depth=vocab_size)
-    output = tf.matmul(one_hot_input_ids, embedding_table)
+    # TODO not used yet
+    output = gemini.matmul(one_hot_input_ids, embedding_tables)
+    # output = tf.matmul(one_hot_input_ids, embedding_tables)
   else:
-    output = tf.gather(embedding_table, flat_input_ids)
+    # FIXME
+    output = gemini.gather(embedding_tables, flat_input_ids)
+    # output = tf.gather(embedding_tables, flat_input_ids)
 
   input_shape = get_shape_list(input_ids)
 
-  output = tf.reshape(output,
-                      input_shape[0:-1] + [input_shape[-1] * embedding_size])
+  # FIXME
+  # output = tf.reshape(output, input_shape[0:-1] + [input_shape[-1] * embedding_size])
+  output = gemini.reshape(output, input_shape[0:-1] + [input_shape[-1] * embedding_size])
+  # FIXME note here need concat to enclose, for sake of later convenience in transformer modules
+  # output = tf.concat(output, axis=-1)
+  output = gemini.all_gather(output)
   return (output, embedding_table)
 
 
@@ -493,11 +508,20 @@ def embedding_postprocessor(input_tensor,
         initializer=create_initializer(initializer_range))
     # This vocab will be small so we always do one-hot here, since it is always
     # faster for a small vocabulary.
-    flat_token_type_ids = tf.reshape(token_type_ids, [-1])
+    # FIXME
+    # flat_token_type_ids = tf.reshape(token_type_ids, [-1])
+    flat_token_type_ids = gemini.reshape(token_type_ids, [-1])
     one_hot_ids = tf.one_hot(flat_token_type_ids, depth=token_type_vocab_size)
-    token_type_embeddings = tf.matmul(one_hot_ids, token_type_table)
-    token_type_embeddings = tf.reshape(token_type_embeddings,
+
+    # token_type_embeddings = tf.matmul(one_hot_ids, token_type_table)
+    # token_type_embeddings = tf.reshape(token_type_embeddings,
+    # FIXME token_type_table is a resource variable, add a identtiy to convt to tensor
+    token_type_table = tf.identity(token_type_table)
+    token_type_embeddings = gemini.matmul(one_hot_ids, token_type_table)
+    token_type_embeddings = gemini.reshape(token_type_embeddings,
                                        [batch_size, seq_length, width])
+    # FIXME, monidic on input lhs operand, before +=
+    # output = MonadicTensor(output)
     output += token_type_embeddings
 
   if use_position_embeddings:
@@ -527,7 +551,9 @@ def embedding_postprocessor(input_tensor,
       for _ in range(num_dims - 2):
         position_broadcast_shape.append(1)
       position_broadcast_shape.extend([seq_length, width])
-      position_embeddings = tf.reshape(position_embeddings,
+      # FIXME
+      # position_embeddings = tf.reshape(position_embeddings,
+      position_embeddings = gemini.reshape(position_embeddings,
                                        position_broadcast_shape)
       output += position_embeddings
 
@@ -809,7 +835,6 @@ def attention_layer(from_tensor,
     context_layer = gemini.reshape(
         context_layer,
         [batch_size * from_seq_length, num_attention_heads * size_per_head])
-    # context_layer = gemini.all_reduce(context_layer)
     # assert 0, 'conguratulation A \n' + str(context_layer)
   else:
     # `context_layer` = [B, F, N*H]
@@ -930,6 +955,9 @@ def transformer_model(input_tensor,
         # with `layer_input`.
         with tf.variable_scope("output"):
           # FIXME
+          # attention_output = gemini.all_reduce(attention_output)
+          # print(attention_output)
+          # assert 0
           # attention_output = tf.layers.dense(
           attention_output = gemini.dense(
               attention_output,
