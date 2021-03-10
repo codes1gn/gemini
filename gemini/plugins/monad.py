@@ -29,19 +29,23 @@ class MonadicTensor:
         # other type, allowed: self.__class__/list,tuple/tf.Tensor
         if isinstance(rhs, self.__class__):
             # not rhs is monadic tensor as well
-            if isinstance(self.value, tf.Tensor) and isinstance(rhs.get(), tf.Tensor):
+            if isinstance(self.value, tf.Tensor) and isinstance(
+                    rhs.get(), tf.Tensor):
                 return self.value + rhs.get()
             elif (isinstance(self.value, list) or isinstance(self.value, tuple)) \
-                and (isinstance(rhs.get(), list) or isinstance(rhs.get(), tuple)):
+                    and (isinstance(rhs.get(), list) or isinstance(rhs.get(), tuple)):
                 assert len(self.value) == len(rhs.get()), 'MonadicTensor.__add__ error, with case 1' + \
                     'self.value:MonadicTensor and rhs:MonadicTensor has mismatch length'
-                return self.__class__(list(map(lambda l, r: l + r, self.value, rhs.get())))
+                return self.__class__(
+                    list(map(lambda l, r: l + r, self.value, rhs.get())))
             elif (isinstance(self.value, list) or isinstance(self.value, tuple)) \
-                and isinstance(rhs.get(), tf.Tensor):
-                return self.__class__(list(map(lambda l: l + rhs.get(), self.value)))
+                    and isinstance(rhs.get(), tf.Tensor):
+                return self.__class__(
+                    list(map(lambda l: l + rhs.get(), self.value)))
             elif (isinstance(rhs.get(), list) or isinstance(rhs.get(), tuple)) \
-                and isinstance(self.value, tf.Tensor):
-                return self.__class__(list(map(lambda r: self.value + r, rhs.get())))
+                    and isinstance(self.value, tf.Tensor):
+                return self.__class__(
+                    list(map(lambda r: self.value + r, rhs.get())))
             else:
                 assert 0, 'MonadicTensor.__add__ error, with case 2'
         elif isinstance(rhs, list) or isinstance(rhs, tuple):
@@ -50,7 +54,8 @@ class MonadicTensor:
             elif isinstance(self.value, list) or isinstance(self.value, tuple):
                 assert len(self.value) == len(rhs), 'MonadicTensor.__add__ error, with case 3' + \
                     'self.value:MonadicTensor and rhs:list has mismatch length'
-                return self.__class__(list(map(lambda l, r: l + r, self.value, rhs)))
+                return self.__class__(
+                    list(map(lambda l, r: l + r, self.value, rhs)))
             else:
                 assert 0, 'MonadicTensor.__add__ error, with case 4'
         elif isinstance(rhs, tf.Tensor):
@@ -62,7 +67,6 @@ class MonadicTensor:
                 assert 0, 'MonadicTensor.__add__ error, with case 5'
         else:
             assert 0, 'MonadicTensor.__add__ error, with case 6'
-
 
     def reduce(self, *args, **kwargs):
         f = args[0]
