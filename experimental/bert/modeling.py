@@ -669,9 +669,11 @@ def attention_layer(from_tensor,
 
   def transpose_for_scores(input_tensor, batch_size, num_attention_heads,
                            seq_length, width):
+    # FIXME
     output_tensor = gemini.reshape(
         input_tensor, [batch_size, seq_length, num_attention_heads, width])
 
+    # FIXME
     output_tensor = gemini.transpose(output_tensor, [0, 2, 1, 3])
     return output_tensor
 
@@ -699,6 +701,7 @@ def attention_layer(from_tensor,
   #     activation=key_act,
   #     name="key",
   #     kernel_initializer=create_initializer(initializer_range))
+  # FIXME
   key_layer = gemini.dense(
       to_tensor_2d,
       num_attention_heads * size_per_head,
@@ -713,6 +716,7 @@ def attention_layer(from_tensor,
   #     activation=value_act,
   #     name="value",
   #     kernel_initializer=create_initializer(initializer_range))
+  # FIXME
   value_layer = gemini.dense(
       to_tensor_2d,
       num_attention_heads * size_per_head,
@@ -732,10 +736,10 @@ def attention_layer(from_tensor,
   # Take the dot product between "query" and "key" to get the raw
   # attention scores.
   # `attention_scores` = [B, N, F, T]
+  # FIXME
   attention_scores = gemini.matmul(query_layer, key_layer, transpose_b=True)
   attention_scores = gemini.multiply(attention_scores,
                                  1.0 / math.sqrt(float(size_per_head)))
-  # FIXME merge here
 
   # attention_scores = gemini.merge(attention_scores)
   if attention_mask is not None:
@@ -758,10 +762,9 @@ def attention_layer(from_tensor,
     # attention_scores[0] += adder
     # attention_scores[1] += adder
 
-  # FIXME REMOVE THIS ALL_REDUCE
-
   # Normalize the attention scores to probabilities.
   # `attention_probs` = [B, N, F, T]
+  # FIXME
   attention_probs = gemini.softmax(attention_scores)
   # attention_probs = tf.nn.softmax(attention_scores)
 
@@ -770,11 +773,13 @@ def attention_layer(from_tensor,
   attention_probs = dropout(attention_probs, attention_probs_dropout_prob)
 
   # `value_layer` = [B, T, N, H]
+  # FIXME
   value_layer = gemini.reshape(
       value_layer,
       [batch_size, to_seq_length, num_attention_heads, size_per_head])
 
   # `value_layer` = [B, N, T, H]
+  # FIXME
   value_layer = gemini.transpose(value_layer, [0, 2, 1, 3])
   # value_layer = tf.transpose(value_layer, [0, 2, 1, 3])
 
