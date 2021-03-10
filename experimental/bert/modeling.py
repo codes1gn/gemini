@@ -358,7 +358,9 @@ def dropout(input_tensor, dropout_prob):
   if dropout_prob is None or dropout_prob == 0.0:
     return input_tensor
 
-  output = tf.nn.dropout(input_tensor, 1.0 - dropout_prob)
+  # FIXME
+  output = gemini.dropout(input_tensor, 1.0 - dropout_prob)
+  # output = tf.nn.dropout(input_tensor, 1.0 - dropout_prob)
   return output
 
 
@@ -747,26 +749,28 @@ def attention_layer(from_tensor,
 
     # Since we are adding it to the raw scores before the softmax, this is
     # effectively the same as removing these entirely.
-    # TODO need abstraction
 
 
+    # FIXME remove this line, allow all monadic type of returns. or find a way to override __add__
+    # FIXME dynamically add MonadicTensor converter before +=
     attention_scores = MonadicTensor(attention_scores)
     attention_scores += adder
     # attention_scores[0] += adder
     # attention_scores[1] += adder
 
-  attention_scores = gemini.all_reduce(attention_scores)
+  # FIXME REMOVE THIS ALL_REDUCE
 
   # Normalize the attention scores to probabilities.
   # `attention_probs` = [B, N, F, T]
-  attention_probs = tf.nn.softmax(attention_scores)
+  attention_probs = gemini.softmax(attention_scores)
+  # attention_probs = tf.nn.softmax(attention_scores)
 
   # This is actually dropping out entire tokens to attend to, which might
   # seem a bit unusual, but is taken from the original Transformer paper.
   attention_probs = dropout(attention_probs, attention_probs_dropout_prob)
 
   # `value_layer` = [B, T, N, H]
-  value_layer = tf.reshape(
+  value_layer = gemini.reshape(
       value_layer,
       [batch_size, to_seq_length, num_attention_heads, size_per_head])
 
@@ -775,11 +779,17 @@ def attention_layer(from_tensor,
   # value_layer = tf.transpose(value_layer, [0, 2, 1, 3])
 
   # `context_layer` = [B, N, F, H]
-  context_layer = tf.matmul(attention_probs, value_layer)
+  context_layer = gemini.matmul(attention_probs, value_layer)
+  # FIXME
+  # context_layer = tf.matmul(attention_probs, value_layer)
 
   # `context_layer` = [B, F, N, H]
+  # FIXME
   context_layer = gemini.transpose(context_layer, [0, 2, 1, 3])
   # context_layer = tf.transpose(context_layer, [0, 2, 1, 3])
+  print(context_layer)
+  context_layer = gemini.all_reduce(context_layer)
+  assert 0, 'conguratulation \n' + str(context_layer)
 
   if do_return_2d_tensor:
     # `context_layer` = [B*F, N*H]

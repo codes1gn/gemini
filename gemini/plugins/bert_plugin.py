@@ -23,6 +23,9 @@ __all__ = [
     'reshape',
     'multiply',
     'transpose',
+    'dropout',
+    'all_reduce',
+    'softmax',
 ]
 
 
@@ -34,6 +37,16 @@ def multiply(*args, **kwargs):
 @bind_unary_op
 def transpose(*args, **kwargs):
     return tf.transpose(*args, **kwargs)
+
+
+@bind_unary_op
+def softmax(*args, **kwargs):
+    return tf.nn.softmax(*args, **kwargs)
+
+
+@bind_unary_op
+def dropout(*args, **kwargs):
+    return tf.nn.dropout(*args, **kwargs)
 
 
 @bind_binary_op
