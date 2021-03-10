@@ -792,20 +792,25 @@ def attention_layer(from_tensor,
   # FIXME
   context_layer = gemini.transpose(context_layer, [0, 2, 1, 3])
   # context_layer = tf.transpose(context_layer, [0, 2, 1, 3])
-  print(context_layer)
-  context_layer = gemini.all_reduce(context_layer)
-  assert 0, 'conguratulation \n' + str(context_layer)
 
   if do_return_2d_tensor:
     # `context_layer` = [B*F, N*H]
-    context_layer = tf.reshape(
+    # FIXME
+    # context_layer = tf.reshape(
+    context_layer = gemini.reshape(
         context_layer,
         [batch_size * from_seq_length, num_attention_heads * size_per_head])
+    # context_layer = gemini.all_reduce(context_layer)
+    # assert 0, 'conguratulation A \n' + str(context_layer)
   else:
     # `context_layer` = [B, F, N*H]
-    context_layer = tf.reshape(
+    # FIXME
+    # context_layer = tf.reshape(
+    context_layer = gemini.reshape(
         context_layer,
         [batch_size, from_seq_length, num_attention_heads * size_per_head])
+    # context_layer = gemini.all_reduce(context_layer)
+    # assert 0, 'conguratulation B \n' + str(context_layer)
 
   return context_layer
 
@@ -901,6 +906,7 @@ def transformer_model(input_tensor,
               batch_size=batch_size,
               from_seq_length=seq_length,
               to_seq_length=seq_length)
+          # context_layer = gemini.all_reduce(context_layer)
           attention_heads.append(attention_head)
 
         attention_output = None
@@ -914,11 +920,15 @@ def transformer_model(input_tensor,
         # Run a linear projection of `hidden_size` then add a residual
         # with `layer_input`.
         with tf.variable_scope("output"):
-          attention_output = tf.layers.dense(
+          # FIXME
+          # attention_output = tf.layers.dense(
+          attention_output = gemini.dense(
               attention_output,
               hidden_size,
               kernel_initializer=create_initializer(initializer_range))
           attention_output = dropout(attention_output, hidden_dropout_prob)
+          print(attention_output)
+          assert 0, 'happy'
           attention_output = layer_norm(attention_output + layer_input)
 
       # The activation is only applied to the "intermediate" hidden layer.
