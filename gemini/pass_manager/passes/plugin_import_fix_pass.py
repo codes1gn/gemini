@@ -49,7 +49,6 @@ class PluginImportFixPass(PassBase):
         ast.fix_missing_locations(_ast)
         return _ast
 
-
     def run_pass(self, _cnode):
         solver1 = self._solvers[0]()
 

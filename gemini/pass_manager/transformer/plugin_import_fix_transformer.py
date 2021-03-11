@@ -31,5 +31,3 @@ class PluginImportFixTransformer(NodeTransformerBase):
         # assert 0, 'debug'
         # ast.fix_missing_locations(node)
         return node
-
-

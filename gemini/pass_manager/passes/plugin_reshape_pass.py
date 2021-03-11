@@ -34,4 +34,5 @@ class PluginReshapePass(PassBase):
                 _sub_cnode.ast = solver1.visit(_sub_cnode.ast)
                 ast.fix_missing_locations(_sub_cnode.ast)
 
+        _cnode.dump(pretty=True, prefix='apply_reshape_pass')
         return _cnode

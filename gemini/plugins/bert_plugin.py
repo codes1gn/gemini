@@ -53,9 +53,11 @@ def layer_norm(*args, **kwargs):
 def dropout(*args, **kwargs):
     return tf.nn.dropout(*args, **kwargs)
 
+
 @bind_unary_op
 def gather(*args, **kwargs):
     return tf.gather(*args, **kwargs)
+
 
 @bind_binary_op
 def matmul(*args, **kwargs):
@@ -68,9 +70,11 @@ def all_reduce(*args, **kwargs):
         if _dense_sharding_switch \
         else tf.add(*args, **kwargs)
 
+
 def all_gather(*args, **kwargs):
     kwargs['axis'] = -1
     return tf.concat(*args, **kwargs)
+
 
 @bind_unary_op
 def reshape(*args, **kwargs):
