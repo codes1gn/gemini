@@ -33,6 +33,6 @@ class ShardingPassManager(PassManagerBase):
         self.add_pass(PluginMultiplyPass)
         self.add_pass(PluginGatherPass)
         self.add_pass(PluginSoftmaxPass)
-        # self.add_pass(PluginDensePass)
+        self.add_pass(PluginDensePass)
 
         return
