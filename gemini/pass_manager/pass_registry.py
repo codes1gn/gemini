@@ -29,6 +29,7 @@ class PassRegistry(object):
         register_pass(PluginLayerNormPass)
         register_pass(PluginGatherPass)
         register_pass(PluginMatmulPass)
+        register_pass(PluginMultiplyPass)
         register_pass(PluginSoftmaxPass)
         register_pass(PluginDensePass)
         # register_pass(PluginPass)

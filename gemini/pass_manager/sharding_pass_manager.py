@@ -9,6 +9,7 @@ from .passes.plugin_reshape_pass import PluginReshapePass
 from .passes.plugin_dropout_pass import PluginDropoutPass
 from .passes.plugin_layer_norm_pass import PluginLayerNormPass
 from .passes.plugin_matmul_pass import PluginMatmulPass
+from .passes.plugin_multiply_pass import PluginMultiplyPass
 from .passes.plugin_gather_pass import PluginGatherPass
 from .passes.plugin_softmax_pass import PluginSoftmaxPass
 from .passes.plugin_dense_pass import PluginDensePass
@@ -29,6 +30,7 @@ class ShardingPassManager(PassManagerBase):
         self.add_pass(PluginDropoutPass)
         # self.add_pass(PluginLayerNormPass)
         self.add_pass(PluginMatmulPass)
+        self.add_pass(PluginMultiplyPass)
         self.add_pass(PluginGatherPass)
         self.add_pass(PluginSoftmaxPass)
         # self.add_pass(PluginDensePass)

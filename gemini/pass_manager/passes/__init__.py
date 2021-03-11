@@ -6,6 +6,7 @@ from .plugin_reshape_pass import *
 from .plugin_dropout_pass import *
 from .plugin_layer_norm_pass import *
 from .plugin_matmul_pass import *
+from .plugin_multiply_pass import *
 from .plugin_gather_pass import *
 from .plugin_softmax_pass import *
 from .plugin_dense_pass import *
