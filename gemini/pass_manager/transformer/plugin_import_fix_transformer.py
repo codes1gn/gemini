@@ -17,11 +17,19 @@ class PluginImportFixTransformer(NodeTransformerBase):
     def __init__(self):
         super(self.__class__, self).__init__()
 
-    def visit_Assign(self, node):
-        parent_node = node.gemini_parent
+    def visit_Module(self, node):
+        # import_module_node = ast.Import(
+        #     names=ast.alias(
+        #         name=[
+        #             name='gemini.plugins.bert_plugin',
+        #             asname='gemini_plugin'
+        #         ]
+        #     )
+        # )
 
-        if isinstance(node.value, ast.Call) and hasattr(
-                node.value.func, 'attr') and node.value.func.attr == 'matmul':
-            pretty_dump(parent_node)
+        # pretty_dump(node)
+        # assert 0, 'debug'
+        # ast.fix_missing_locations(node)
+        return node
 
-        ast.fix_missing_locations(node)
+

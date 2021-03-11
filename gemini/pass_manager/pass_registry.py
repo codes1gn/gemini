@@ -25,12 +25,12 @@ class PassRegistry(object):
         register_pass(PluginImportFixPass)
         register_pass(PluginTransposePass)
         register_pass(PluginReshapePass)
-        # register_pass(PluginDropoutPass)
-        # register_pass(PluginLayerNormPass)
-        # register_pass(PluginGatherPass)
-        # register_pass(PluginMatmulPass)
-        # register_pass(PluginSoftmaxPass)
-        # register_pass(PluginDensePass)
+        register_pass(PluginDropoutPass)
+        register_pass(PluginLayerNormPass)
+        register_pass(PluginGatherPass)
+        register_pass(PluginMatmulPass)
+        register_pass(PluginSoftmaxPass)
+        register_pass(PluginDensePass)
         # register_pass(PluginPass)
 
         return _pass_table

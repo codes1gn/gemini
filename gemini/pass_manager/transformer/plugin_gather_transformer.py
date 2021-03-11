@@ -5,11 +5,11 @@ from gemini.utils import *
 from .node_transformer_base import NodeTransformerBase
 
 __all__ = [
-    'PluginImportFixTransformer',
+    'PluginGatherTransformer',
 ]
 
 
-class PluginImportFixTransformer(NodeTransformerBase):
+class PluginGatherTransformer(NodeTransformerBase):
 
     __slots__ = [
     ]

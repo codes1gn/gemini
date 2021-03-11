@@ -5,11 +5,11 @@ from gemini.utils import *
 from .node_transformer_base import NodeTransformerBase
 
 __all__ = [
-    'PluginImportFixTransformer',
+    'PluginSoftmaxTransformer',
 ]
 
 
-class PluginImportFixTransformer(NodeTransformerBase):
+class PluginSoftmaxTransformer(NodeTransformerBase):
 
     __slots__ = [
     ]

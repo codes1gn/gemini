@@ -3,15 +3,15 @@ import ast
 
 from gemini.utils import *
 
-from ..transformer.plugin_import_fix_transformer import PluginImportFixTransformer
+from ..transformer.plugin_dropout_transformer import PluginDropoutTransformer
 from .pass_base import PassBase
 
 __all__ = [
-    'PluginImportFixPass',
+    'PluginDropoutPass',
 ]
 
 
-class PluginImportFixPass(PassBase):
+class PluginDropoutPass(PassBase):
 
     __slots__ = [
         '_solvers',
@@ -19,9 +19,9 @@ class PluginImportFixPass(PassBase):
 
     def __init__(self):
         # type: (None) -> None
-        super(PluginImportFixPass, self).__init__()
+        super(PluginDropoutPass, self).__init__()
         self._solvers = []
-        self._solvers.append(PluginImportFixTransformer)
+        self._solvers.append(PluginDropoutTransformer)
 
     def run_pass(self, _cnode):
         solver1 = self._solvers[0]()

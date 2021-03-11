@@ -36,21 +36,8 @@ class GeminiCompiler:
         self._env_dummy = {}
 
     @property
-    def ast(self):
-        return self._code_node_entry.ast
-
-    @property
     def import_code_vector(self):
         return self._import_code_vector
-
-    @property
-    def src(self):
-        try:
-            self._code_node_entry.src = astunparse.unparse(
-                self._code_node_entry.ast)
-        except Exception:
-            assert 0, 'unparse ast_root failed, cannot update source_code'
-        return self._code_node_entry.src
 
     @property
     def inited(self):

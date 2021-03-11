@@ -74,11 +74,20 @@ class CodeNodeBase(object):
     # getter and setter of src
     @property
     def src(self):
-        if self._src is None and self._ast is None:
+        if self._ast is not None:
+            # FIXME No matter src have or not, if ast is not empty,
+            # src should always udpated by ast
+            try:
+                self._src = astunparse.unparse(self._ast)
+            except Exception:
+                import traceback
+                print('ast round-trip back to src - Failed')
+                traceback.print_exc()
+            return self._src
+        elif self._ast is None and self._src is not None:
+            return self._src
+        else:
             assert 0, 'CodeNode has no src and ast'
-        elif self._src is None and self._ast is not None:
-            self._src = astunparse.unparse(self._ast)
-        return self._src
 
     @src.setter
     def src(self, value):

@@ -34,7 +34,7 @@ def main(argv=sys.argv[1:]):
     config = {'mode': 'sharding', 'sharding_size': 2}
     compiler.apply_model_parallel(config)
     compiler.dump(pretty=True, prefix='apply_{}_passes'.format(config['mode']))
-    assert 1, 'step 3 apply sharding mode'
+    assert 0, 'step 3 apply sharding mode'
 
     use_ast = False
     # TODO(albert) have bug when not use_ast
