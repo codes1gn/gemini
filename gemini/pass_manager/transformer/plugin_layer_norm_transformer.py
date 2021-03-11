@@ -22,12 +22,22 @@ class PluginLayerNormTransformer(NodeTransformerBase):
 
         if isinstance(node, ast.Call) and \
                 hasattr(node.func, 'value') and \
-                hasattr(node.func.value, 'id') and \
-                node.func.value.id == 'tf' and \
+                hasattr(node.func.value, 'value') and \
+                hasattr(node.func.value.value, 'value') and \
+                hasattr(node.func.value.value.value, 'id') and \
+                node.func.value.value.value.id == 'tf' and \
+                hasattr(node.func.value.value, 'attr') and \
+                node.func.value.value.attr == 'contrib' and \
+                hasattr(node.func.value, 'attr') and \
+                node.func.value.attr == 'layers' and \
                 hasattr(node.func, 'attr') and \
-                node.func.attr == 'reshape':
+                node.func.attr == 'layer_norm':
             # print 'found a tf.transpose, convert it to gemini_plugin.transpose'
-            node.func.value.id = 'gemini_plugin'
+            _i_node = ast.Name(
+                id='gemini_plugin',
+                ctx=ast.Load()
+            )
+            node.func.value = _i_node
 
         ast.fix_missing_locations(node)
         return node
