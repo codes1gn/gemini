@@ -1050,7 +1050,10 @@ def reshape_to_matrix(input_tensor):
     return input_tensor
 
   width = input_tensor.shape[-1]
-  output_tensor = tf.reshape(input_tensor, [-1, width])
+  # FIXME, this part have to modify, if only 2d shape, need to guess first then shard second
+  first_dim = reduce(lambda x, y: x * y, input_tensor.shape[:-1])
+  output_tensor = gemini.reshape(input_tensor, [first_dim, width])
+  # output_tensor = tf.reshape(input_tensor, [-1, width])
   return output_tensor
 
 

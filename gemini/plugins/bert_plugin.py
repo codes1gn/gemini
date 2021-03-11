@@ -2,7 +2,7 @@ import tensorflow as tf
 from functools import reduce
 import copy
 
-from .api_wrapper import \
+from gemini.plugins.api_wrapper import \
     reduce_unary_op, \
     bind_unary_op, \
     bind_binary_op
@@ -76,14 +76,20 @@ def all_gather(*args, **kwargs):
     return tf.concat(*args, **kwargs)
 
 
-@bind_unary_op
-def reshape(*args, **kwargs):
+# TODO supporting -1 in shape
+def _infer_new_shape(_tensor, old_shape):
+    new_shape = copy.deepcopy(old_shape)
     # FIXME currently, assume only consider reshape parallel case with sharded
     # last dimension.
-    new_shape = copy.deepcopy(args[1])
-    # FIXME use -1 tmply
-    # new_shape[-1] = args[1][-1] // _sharding_size
+    # assuming given shape has no -1
+    # assert -1 not in old_shape, 'has unknown shape in gemini.reshape shape_infer'
     new_shape[-1] = -1
+    return new_shape
+
+
+@bind_unary_op
+def reshape(*args, **kwargs):
+    new_shape = _infer_new_shape(args[0], args[1])
     return tf.reshape(args[0], new_shape, *args[2:], **kwargs)
 
 
@@ -107,3 +113,18 @@ elif _dense_sharding_switch:
                 and isinstance(args[0][0], tf.Tensor):
             _tmp = monadic_dense(*args, **kwargs)
             return all_reduce(_tmp)
+
+if __name__ == '__main__':
+    # FIXME avoid both -1 in shapelist
+    data = tf.constant([[1.0, 2.0], [3.0, 4.0]])
+    # new_data = reshape(data, [-1, 4])
+    # new_datat = reshape(data, [4, -1])
+    # print(new_data)
+    # print(new_datat)
+    new_data2 = reshape([data, data, data, data], [-1, 4])
+    print(new_data2)
+    new_data3 = reshape([data, data, data, data], [4, -1])
+    print(new_data3)
+    new_data4 = reshape([data, data, data, data], [4, -1, 8])
+    print(new_data4)
+    assert 0

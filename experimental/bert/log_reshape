@@ -1,0 +1,20 @@
+<   flat_input_ids = gemini.reshape(input_ids, [-1])
+>   flat_input_ids = gemini_plugin.reshape(input_ids, [-1])
+<   output = gemini.reshape(output, input_shape[0:-1] + [input_shape[-1] * embedding_size])
+>   output = gemini_plugin.reshape(output, input_shape[0:-1] + [input_shape[-1] * embedding_size])
+<     flat_token_type_ids = gemini.reshape(token_type_ids, [-1])
+>     flat_token_type_ids = gemini_plugin.reshape(token_type_ids, [-1])
+<     token_type_embeddings = gemini.reshape(token_type_embeddings,
+>     token_type_embeddings = gemini_plugin.reshape(token_type_embeddings,
+<       position_embeddings = gemini.reshape(position_embeddings,
+>       position_embeddings = gemini_plugin.reshape(position_embeddings,
+<     output_tensor = gemini.reshape(
+>     output_tensor = gemini_plugin.reshape(
+<   value_layer = gemini.reshape(
+>   value_layer = gemini_plugin.reshape(
+<     context_layer = gemini.reshape(
+>     context_layer = gemini_plugin.reshape(
+<     context_layer = gemini.reshape(
+>     context_layer = gemini_plugin.reshape(
+<   return gemini.reshape(output_tensor, orig_dims + [width])
+>   return gemini_plugin.reshape(output_tensor, orig_dims + [width])

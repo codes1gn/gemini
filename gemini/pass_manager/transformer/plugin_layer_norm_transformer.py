@@ -31,4 +31,3 @@ class PluginLayerNormTransformer(NodeTransformerBase):
 
         ast.fix_missing_locations(node)
         return node
-
