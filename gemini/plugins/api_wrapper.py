@@ -25,6 +25,7 @@ def reduce_unary_op(f):
 #             return f(*args, **kwargs)
 #     return wrapper
 
+
 def bind_unary_op(f):
     @wraps(f)
     def wrapper(*args, **kwargs):

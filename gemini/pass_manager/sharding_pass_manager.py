@@ -26,7 +26,7 @@ class ShardingPassManager(PassManagerBase):
         self.add_pass(PluginImportFixPass)
         self.add_pass(PluginTransposePass)
         self.add_pass(PluginReshapePass)
-        # self.add_pass(PluginDropoutPass)
+        self.add_pass(PluginDropoutPass)
         # self.add_pass(PluginLayerNormPass)
         # self.add_pass(PluginMatmulPass)
         # self.add_pass(PluginGatherPass)
