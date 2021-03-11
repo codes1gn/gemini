@@ -29,7 +29,7 @@ class ShardingPassManager(PassManagerBase):
         self.add_pass(PluginDropoutPass)
         # self.add_pass(PluginLayerNormPass)
         # self.add_pass(PluginMatmulPass)
-        # self.add_pass(PluginGatherPass)
+        self.add_pass(PluginGatherPass)
         self.add_pass(PluginSoftmaxPass)
         # self.add_pass(PluginDensePass)
 
