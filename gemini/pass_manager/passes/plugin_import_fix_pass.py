@@ -32,7 +32,19 @@ class PluginImportFixPass(PassBase):
                 )
             ]
         )
-        _ast.body.insert(0, _node)
+        _node2 = ast.ImportFrom(
+            module='gemini.plugins.monad',
+            names=[
+                ast.alias(
+                    name='MonadicTensor',
+                    asname=None
+                )
+            ],
+            level=0
+        )
+        # FIXME can we do it more flexible
+        _ast.body.insert(5, _node)
+        _ast.body.insert(6, _node2)
 
         ast.fix_missing_locations(_ast)
         return _ast
