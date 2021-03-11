@@ -22,8 +22,8 @@ def main(argv=sys.argv[1:]):
     assert 1, 'step 1 parse src'
 
     # patch, fix import gemini
-    _plugin = importlib.import_module('gemini.plugins.bert_plugin')
-    sys.modules['gemini'] = _plugin
+    # _plugin = importlib.import_module('gemini.plugins.bert_plugin')
+    # sys.modules['gemini'] = _plugin
 
     # step 2, parse modules
     compiler.parse_modules()
@@ -31,9 +31,9 @@ def main(argv=sys.argv[1:]):
     assert 1, 'step 2 parse module'
 
     # TODO(albert) construct config, use dummy string instead
-    config = {'mode': 'sharding'}
+    config = {'mode': 'sharding', 'sharding_size': 2}
     compiler.apply_model_parallel(config)
-    compiler.dump(pretty=True, prefix='apply_{}_pass'.format(config['mode']))
+    compiler.dump(pretty=True, prefix='apply_{}_passes'.format(config['mode']))
     assert 1, 'step 3 apply sharding mode'
 
     use_ast = False

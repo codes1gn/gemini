@@ -1,12 +1,11 @@
 import inspect
-import os
 import textwrap
-import importlib
 import ast
 import astunparse
 import copy
 import sys
-
+from imp import new_module
+import traceback
 from typing import Callable
 
 from gemini.pass_manager import *
@@ -83,8 +82,13 @@ class GeminiCompiler:
         # print tf.flags.FLAGS
         # assert use_ast == False, "exec with ast is NotImplemented yet"
         if use_ast == False:
-            from imp import new_module
-            import traceback
+            _main_module = new_module('__main__')
+            sys.modules['__main__'] = _main_module
+            _entry_backup = self._env()['__name__']
+            self._env()['__name__'] = '__main__'
+            _sys_argv_backup = copy.deepcopy(sys.argv)
+
+            import inspect
             if self._code_node_entry._has_sub_nodes():
                 for _sub_node in self._code_node_entry.sub_code_nodes:
                     _module_name = _sub_node.get_module_name()
@@ -95,33 +99,39 @@ class GeminiCompiler:
                     # legacy codes, use types not imp
                     # _module = types.ModuleType(
                     #     _module_name, _module_name + " doc")
-                    _module = new_module(_module_name)
-                    _module.__dict__['gemini'] = sys.modules['gemini']
-                    print sys.modules['gemini']
+
+                    # FIXME handle plugin import
+                    import types
+                    # _bert_plugin = types.ModuleType('gemini.plugins.bert_plugin', 'dummy')
+                    # _bert_plugin = new_module('gemini.plugins.bert_plugin')
+                    # sys.modules['gemini_entry'] = _bert_plugin
+                    # FIXME, no attr reshape
+                    # _module.__dict__['gemini_entry'] = _bert_plugin
+
+                    # _module = new_module(_module_name)
+                    _module = types.ModuleType(
+                        _module_name, _module_name + " doc")
                     try:
                         exec(code_obj, _module.__dict__)
                     except Exception as e:
                         traceback.print_exc()
+                    # assert 0, inspect.getmembers(_module)
 
                     # self._env()[_module_name] = _module
                     sys.modules[_module_name] = _module
+                    _main_module.__dict__[_module_name] = _module
 
-            _entry_backup = self._env()['__name__']
-            self._env()['__name__'] = '__main__'
-            # TODO utils for backup envs
-            _sys_argv_backup = copy.deepcopy(sys.argv)
             sys.argv = sys.argv[1:]
             main_code_obj = compile(
                 self._code_node_entry.src,
                 filename=self._code_node_entry.src_file,
                 mode='exec'
             )
-            _main_module = new_module('__main__')
-            sys.modules['__main__'] = _main_module
+            print(_main_module.__dict__)
             exec(main_code_obj, _main_module.__dict__)
-            # exec(self._code_node_entry.src, self._env())
             sys.argv = copy.deepcopy(_sys_argv_backup)
             self._env()['__name__'] = _entry_backup
+            assert 0, 'debug'
         # TODO fix ast run bugs.
         # elif use_ast == True:
         #     assert isinstance(
