@@ -25,7 +25,7 @@ class PluginMatmulTransformer(NodeTransformerBase):
                 hasattr(node.func.value, 'id') and \
                 node.func.value.id == 'tf' and \
                 hasattr(node.func, 'attr') and \
-                node.func.attr == 'reshape':
+                node.func.attr == 'matmul':
             # print 'found a tf.transpose, convert it to gemini_plugin.transpose'
             node.func.value.id = 'gemini_plugin'
 
