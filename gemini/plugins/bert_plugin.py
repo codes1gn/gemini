@@ -6,11 +6,13 @@ from gemini.plugins.api_wrapper import \
     reduce_unary_op, \
     bind_unary_op, \
     bind_binary_op
+from gemini.utils import *
 
 
+config = Configuration()
 # define global configuration
-_sharding_size = 2
-_dense_sharding_switch = True
+_sharding_size = config.sharding_size
+_dense_sharding_switch = True if _sharding_size > 1 and config.mode is Mode.SHARDING else False
 
 # _sharding_size = 1
 # _dense_sharding_switch = False

@@ -75,6 +75,7 @@ class GeminiCompiler:
             sys.modules['__main__'] = _main_module
             _entry_backup = self._env()['__name__']
             self._env()['__name__'] = '__main__'
+            self._env()['gemini_config'] = self._global_config
             _sys_argv_backup = copy.deepcopy(sys.argv)
 
             import inspect
@@ -101,6 +102,7 @@ class GeminiCompiler:
                     _module = types.ModuleType(
                         _module_name, _module_name + " doc")
                     try:
+                        _module.__dict__['gemini_config'] = self._global_config
                         exec(code_obj, _module.__dict__)
                     except Exception as e:
                         traceback.print_exc()
@@ -117,7 +119,7 @@ class GeminiCompiler:
                 mode='exec'
             )
             _main_module.__dict__['gemini_config'] = self._global_config
-            print(_main_module.__dict__)
+            # print(_main_module.__dict__)
             exec(main_code_obj, _main_module.__dict__)
             sys.argv = copy.deepcopy(_sys_argv_backup)
             self._env()['__name__'] = _entry_backup
