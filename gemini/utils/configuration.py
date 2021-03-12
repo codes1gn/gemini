@@ -21,6 +21,7 @@ class Configuration(object):
         '_mode',
         '_sharding_size',
         '_sharding_axis',
+        '_device_mapping',
     ]
 
     def __init__(self, v_mode=Mode.SHARDING, v_sharding_size=4, v_sharding_axis=-1):
@@ -28,10 +29,25 @@ class Configuration(object):
         self._mode = v_mode
         self._sharding_size = v_sharding_size
         self._sharding_axis = v_sharding_axis
+        self._device_mapping = {}
+        self._device_mapping['shard_0'] = '/device:XLA_DTU:0'
+        self._device_mapping['shard_1'] = '/device:XLA_DTU:1'
+        self._device_mapping['shard_2'] = '/device:XLA_DTU:2'
+        self._device_mapping['shard_3'] = '/device:XLA_DTU:3'
 
     def load_config(self, config_file):
         # TODO
         assert 0, 'Not Implemented'
+
+    @property
+    def device_mapping(self):
+        # TODO check order
+        return {key:self._device_mapping[key] for key in sorted(self._device_mapping.keys())}
+
+    @device_mapping.setter
+    def device_mapping(self, value):
+        assert isinstance(value, dict), 'device mapping should be dict type, but got {}'.format(type(value))
+        self._device_mapping = value
 
     @property
     def mode(self):
@@ -63,10 +79,21 @@ class Configuration(object):
         self._sharding_axis = value
 
     def __str__(self):
+        def pretty(d, indent=0):
+            _s = ""
+            for key, value in d.items():
+                _s = _s + '\t' * indent + str(key)
+                if isinstance(value, dict):
+                    _s = _s + pretty(value, indent + 1)
+                else:
+                    _s = _s + '\t' * (indent + 1) + str(value) + '\n'
+            return _s
+
         _str = 'ModelParallelConfiguration\n' + \
             '---- mode = {}\n'.format(self.mode) + \
             '---- sharding_size = {}\n'.format(self.sharding_size) + \
-            '---- sharding_axis = {}\n'.format(self.sharding_axis)
+            '---- sharding_axis = {}\n'.format(self.sharding_axis) + \
+            '---- device_mapping = \n{}'.format(pretty(self.device_mapping))
         return _str
 
 
