@@ -1,4 +1,4 @@
-
+import tensorflow as tf
 from gemini.utils import *
 from .monad import MonadicTensor
 
@@ -35,7 +35,11 @@ def bind_unary_op(f):
             m_tensor = MonadicTensor(kwargs['inputs'])
             result = m_tensor.bind(f, *args, **kwargs)
         else:
-            m_tensor = MonadicTensor(args[0])
+            if isinstance(args[0], float):
+                _ = tf.constant(args[0])
+            else:
+                _ = args[0]
+            m_tensor = MonadicTensor(_)
             result = m_tensor.bind(f, *args[1:], **kwargs)
         return result.get()
     return wrapper
