@@ -118,7 +118,6 @@ class GeminiCompiler:
             exec(main_code_obj, _main_module.__dict__)
             sys.argv = copy.deepcopy(_sys_argv_backup)
             self._env()['__name__'] = _entry_backup
-            assert 0, 'debug'
         # TODO fix ast run bugs.
         # elif use_ast == True:
         #     assert isinstance(
