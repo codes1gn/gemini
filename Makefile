@@ -1,5 +1,7 @@
 init:
 	pip install -r requirements.txt
+	git submodule init
+	git submodule update
 
 lint:
 	./scripts/pep8_linter.sh
