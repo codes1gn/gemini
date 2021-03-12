@@ -1,7 +1,9 @@
 import tensorflow as tf
 from functools import reduce
 import operator
+from gemini.utils import *
 
+config = Configuration()
 
 class MonadicTensor:
 
@@ -102,11 +104,33 @@ class MonadicTensor:
                 for idx in range(len(self.value)):
                     _name_candidates.append(_name_base + str(idx))
                 # FIXME not containing kwargs handling inputs
-                result = list(
-                    map(lambda inp, _one_name: f(inp, *args[1:], name=_one_name, **kwargs), self.value, _name_candidates))
+                def _run_shard(idx, _one_name, _value):
+                    _key = 'shard_' + str(idx)
+                    _device_str = config.device_mapping[_key]
+                    with tf.device(_device_str):
+                        return f(_value, *args[1:], name=_one_name, **kwargs)
+
+                result = []
+                for idx in range(len(self.value)):
+                    result.append(_run_shard(idx, _name_candidates[idx], self.value[idx]))
+
+                # result = list(map(_run_shard, range(len(self.value)), _name_candidates, self.value))
+                # result = list(map(lambda idx, inp, _one_name: ( \
+                #     with tf.device(config.device_mapping['shard_' + str(idx)]):, \
+                #         f(inp, *args[1:], name=_one_name, **kwargs),
+                # ), range(len(self.value)), self.value, _name_candidates))
             else:
-                result = list(
-                    map(lambda inp: f(inp, *args[1:], **kwargs), self.value))
+                def _run_shard(idx):
+                    _key = 'shard_' + str(idx)
+                    _device_str = config.device_mapping[_key]
+                    with tf.device(_device_str):
+                        return f(self.value[idx], *args[1:], **kwargs)
+
+                result = []
+                for idx in range(len(self.value)):
+                    result.append(_run_shard(idx))
+                # result = list(map(_run_shard, range(len(self.value))))
+                # result = list(map(lambda _idx: f(self.value[_idx], *args[1:], **kwargs), range(len(self.value))))
             return self.__class__(result)
         else:
             assert 0, 'got undefined type'

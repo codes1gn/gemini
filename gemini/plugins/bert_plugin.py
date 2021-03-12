@@ -9,6 +9,7 @@ from gemini.plugins.api_wrapper import \
 from gemini.utils import *
 
 
+# TODO put at utils, turn it instance
 config = Configuration()
 # define global configuration
 _sharding_size = config.sharding_size
@@ -107,7 +108,9 @@ elif _dense_sharding_switch:
     def dense(*args, **kwargs):
         if isinstance(args[0], tf.Tensor):
             sharded_out_size = args[1] // _sharding_size
-            input_list = [args[0], args[0]]
+            input_list = []
+            for idx in range(_sharding_size):
+                input_list.append(args[0])
             return monadic_dense(
                 input_list, sharded_out_size, *args[2:], **kwargs)
 
