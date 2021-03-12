@@ -62,9 +62,17 @@ class Configuration(object):
         assert value in [0, -1], 'sharding_axis should be 0 or -1'
         self._sharding_axis = value
 
+    def __str__(self):
+        _str = 'ModelParallelConfiguration\n' + \
+            '---- mode = {}\n'.format(self.mode) + \
+            '---- sharding_size = {}\n'.format(self.sharding_size) + \
+            '---- sharding_axis = {}\n'.format(self.sharding_axis)
+        return _str
+
 
 
 if __name__ == '__main__':
     config = Configuration()
     print(config.sharding_axis)
+    print(config)
     config.sharding_axis=3

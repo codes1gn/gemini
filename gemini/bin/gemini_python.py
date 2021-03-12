@@ -31,9 +31,10 @@ def main(argv=sys.argv[1:]):
     assert 1, 'step 2 parse module'
 
     # TODO(albert) construct config, use dummy string instead
-    config = {'mode': 'sharding', 'sharding_size': 2}
+    config = Configuration()
+    print(config)
     compiler.apply_model_parallel(config)
-    compiler.dump(pretty=True, prefix='apply_{}_passes'.format(config['mode']))
+    compiler.dump(pretty=True, prefix='apply_{}_passes'.format(config.mode))
     assert 1, 'step 3 apply sharding mode'
 
     use_ast = False

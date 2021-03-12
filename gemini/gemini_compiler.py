@@ -24,6 +24,7 @@ class GeminiCompiler:
         '_pass_manager',
         '_import_code_vector',
         '_code_node_entry',
+        '_global_config',
         '_env',
     ]
 
@@ -32,8 +33,8 @@ class GeminiCompiler:
         self._model_code_path = None
         self._import_code_vector = []
         self._code_node_entry = CodeNodeRoot()
+        self._global_config = None
         self._env = globals
-        self._env_dummy = {}
 
     @property
     def import_code_vector(self):
@@ -50,7 +51,8 @@ class GeminiCompiler:
     # method to apply MP patterns
     def apply_model_parallel(self, config):
         # TODO(albert) add config class
-        if config['mode'] == "sharding":
+        self._global_config = config
+        if self._global_config.mode == Mode.SHARDING:
             self._pass_manager = ShardingPassManager()
             self._pass_manager.register_passes()
             self._pass_manager.run(self._code_node_entry)
@@ -114,6 +116,7 @@ class GeminiCompiler:
                 filename=self._code_node_entry.src_file,
                 mode='exec'
             )
+            _main_module.__dict__['gemini_config'] = self._global_config
             print(_main_module.__dict__)
             exec(main_code_obj, _main_module.__dict__)
             sys.argv = copy.deepcopy(_sys_argv_backup)
