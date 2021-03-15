@@ -30,10 +30,63 @@ class Configuration(object):
         self._sharding_size = v_sharding_size
         self._sharding_axis = v_sharding_axis
         self._device_mapping = {}
-        self._device_mapping['shard_0'] = '/device:XLA_DTU:0'
-        self._device_mapping['shard_1'] = '/device:XLA_DTU:5'
-        self._device_mapping['shard_2'] = '/device:XLA_DTU:10'
-        self._device_mapping['shard_3'] = '/device:XLA_DTU:15'
+        self._device_mapping['stage_0'] = {}
+        self._device_mapping['stage_1'] = {}
+        self._device_mapping['stage_2'] = {}
+        self._device_mapping['stage_3'] = {}
+        self._device_mapping['stage_4'] = {}
+        self._device_mapping['stage_5'] = {}
+        self._device_mapping['stage_6'] = {}
+        self._device_mapping['stage_7'] = {}
+
+        # stage 0
+        self._device_mapping['stage_0']['shard_0'] = '/device:XLA_DTU:0'
+        self._device_mapping['stage_0']['shard_1'] = '/device:XLA_DTU:1'
+        self._device_mapping['stage_0']['shard_2'] = '/device:XLA_DTU:2'
+        self._device_mapping['stage_0']['shard_3'] = '/device:XLA_DTU:3'
+
+        # stage 1
+        self._device_mapping['stage_1']['shard_0'] = '/device:XLA_DTU:5'
+        self._device_mapping['stage_1']['shard_1'] = '/device:XLA_DTU:6'
+        self._device_mapping['stage_1']['shard_2'] = '/device:XLA_DTU:7'
+        self._device_mapping['stage_1']['shard_3'] = '/device:XLA_DTU:8'
+
+        # stage 2
+        self._device_mapping['stage_2']['shard_0'] = '/device:XLA_DTU:10'
+        self._device_mapping['stage_2']['shard_1'] = '/device:XLA_DTU:11'
+        self._device_mapping['stage_2']['shard_2'] = '/device:XLA_DTU:12'
+        self._device_mapping['stage_2']['shard_3'] = '/device:XLA_DTU:13'
+
+        # stage 3
+        self._device_mapping['stage_3']['shard_0'] = '/device:XLA_DTU:15'
+        self._device_mapping['stage_3']['shard_1'] = '/device:XLA_DTU:16'
+        self._device_mapping['stage_3']['shard_2'] = '/device:XLA_DTU:17'
+        self._device_mapping['stage_3']['shard_3'] = '/device:XLA_DTU:18'
+
+        # stage 4
+        self._device_mapping['stage_4']['shard_0'] = '/device:XLA_DTU:20'
+        self._device_mapping['stage_4']['shard_1'] = '/device:XLA_DTU:21'
+        self._device_mapping['stage_4']['shard_2'] = '/device:XLA_DTU:22'
+        self._device_mapping['stage_4']['shard_3'] = '/device:XLA_DTU:23'
+
+        # stage 5
+        self._device_mapping['stage_5']['shard_0'] = '/device:XLA_DTU:25'
+        self._device_mapping['stage_5']['shard_1'] = '/device:XLA_DTU:26'
+        self._device_mapping['stage_5']['shard_2'] = '/device:XLA_DTU:27'
+        self._device_mapping['stage_5']['shard_3'] = '/device:XLA_DTU:28'
+
+        # stage 6
+        self._device_mapping['stage_6']['shard_0'] = '/device:XLA_DTU:30'
+        self._device_mapping['stage_6']['shard_1'] = '/device:XLA_DTU:31'
+        self._device_mapping['stage_6']['shard_2'] = '/device:XLA_DTU:32'
+        self._device_mapping['stage_6']['shard_3'] = '/device:XLA_DTU:33'
+
+        # stage 7
+        self._device_mapping['stage_7']['shard_0'] = '/device:XLA_DTU:35'
+        self._device_mapping['stage_7']['shard_1'] = '/device:XLA_DTU:36'
+        self._device_mapping['stage_7']['shard_2'] = '/device:XLA_DTU:37'
+        self._device_mapping['stage_7']['shard_3'] = '/device:XLA_DTU:38'
+
 
     def load_config(self, config_file):
         # TODO

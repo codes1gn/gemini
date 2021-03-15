@@ -99,6 +99,8 @@ class MonadicTensor:
             # legacy code, use lambda function
             if kwargs.__contains__('name'):
                 # avoid REUSE of vars, need to updates tensor/var/op name
+                print(kwargs['name'])
+                assert 0, 'debug a'
                 _name_base = kwargs.pop('name') + "_shard_"
                 _name_candidates = []
                 for idx in range(len(self.value)):
@@ -121,6 +123,8 @@ class MonadicTensor:
                 # ), range(len(self.value)), self.value, _name_candidates))
             else:
                 def _run_shard(idx):
+                    print(self.value[idx])
+                    assert 0, 'debug b'
                     _key = 'shard_' + str(idx)
                     _device_str = config.device_mapping[_key]
                     with tf.device(_device_str):
