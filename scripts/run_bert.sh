@@ -58,7 +58,7 @@ FILE_HASH="3619df03637b027f41f4bf6d3ea21d4f162129dd57b6cc223939a320046a1ec5"
 download_file $FILE $FILE_HASH
 FILE2=uncased_L-12_H-768_A-12.zip
 FILE_PATH2=$bert_dir"/pretrained_models"$FILE2
-FILE_HASH2="d15224e1e7d950fb9a8b29497ce962201dff7d27b379f5bfb4638b4a73540a04"
+FILE_HASH2="acae5418a2f9c301fc5ac327e75de05d1bd57c5f17667faa270555318963526c"
 download_file $FILE2 $FILE_HASH2
 
 # unzip
@@ -76,8 +76,9 @@ if [ -d "${FILE2%.zip}" ]; then
   # check checksum
 else
   echo "not found dir ${FILE2%.zip}, do unzip"
-  mkdir -p uncased_L-12_H-768_A-12 && cd uncased_L-12_H-768_A-12/
-  unzip ../$FILE2
+  unzip $FILE2
+  # mkdir -p uncased_L-12_H-768_A-12 && cd uncased_L-12_H-768_A-12/
+  # unzip ../$FILE2
 fi
 
 cd -
@@ -187,7 +188,7 @@ else
     --max_seq_length=128 \
     --train_batch_size=1 \
     --learning_rate=2e-5 \
-    --num_train_epochs=0.03 \
+    --num_train_epochs=0.01 \
     --output_dir=${OUT_DIR} \
     > $top_dir_realpath/log 2>&1
     # --init_checkpoint=${BERT_CKPT_DIR}/bert_model.ckpt \

@@ -31,9 +31,9 @@ class Configuration(object):
         self._sharding_axis = v_sharding_axis
         self._device_mapping = {}
         self._device_mapping['shard_0'] = '/device:XLA_DTU:0'
-        self._device_mapping['shard_1'] = '/device:XLA_DTU:1'
-        self._device_mapping['shard_2'] = '/device:XLA_DTU:2'
-        self._device_mapping['shard_3'] = '/device:XLA_DTU:3'
+        self._device_mapping['shard_1'] = '/device:XLA_DTU:5'
+        self._device_mapping['shard_2'] = '/device:XLA_DTU:10'
+        self._device_mapping['shard_3'] = '/device:XLA_DTU:15'
 
     def load_config(self, config_file):
         # TODO
