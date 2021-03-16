@@ -4,7 +4,37 @@ from enum import Enum
 __all__ = [
     'Configuration',
     'Mode',
+    # 'get_stage_by_tensor_name',
 ]
+
+_layers_to_stage = {
+    0:'0',
+    1:'1',
+    2:'2',
+    3:'3',
+    4:'3',
+    5:'4',
+    6:'4',
+    7:'5',
+    8:'5',
+    9:'6',
+    10:'6',
+    11:'7',
+}
+
+def _get_stage_by_tensor_name(_name):
+    # TODO design better logics
+
+    if 'embedding' in _name:
+        return "stage_0"
+    elif 'bert/encoder' in _name and 'layer' not in _name:
+        return "stage_0"
+    elif 'bert/encoder/layer' in _name:
+        _layer = int(_name.split('/')[2].split('_')[-1])
+        _stage = "stage_" + _layers_to_stage[_layer]
+        return _stage
+    else:
+        return 'fail'
 
 
 class Mode(Enum):
@@ -87,6 +117,13 @@ class Configuration(object):
         self._device_mapping['stage_7']['shard_2'] = '/device:XLA_DTU:37'
         self._device_mapping['stage_7']['shard_3'] = '/device:XLA_DTU:38'
 
+    def get_device_by_tensor(self, _tensor, shard_idx=0):
+        _stage = _get_stage_by_tensor_name(_tensor.name)
+        if 'stage' not in _stage:
+            return 'CPU:0' 
+        _device_str = self.device_mapping[_stage]['shard_{}'.format(str(shard_idx))]
+        print('debugoo', _tensor.name, _device_str)
+        return _device_str
 
     def load_config(self, config_file):
         # TODO
@@ -152,7 +189,12 @@ class Configuration(object):
 
 
 if __name__ == '__main__':
-    config = Configuration()
-    print(config.sharding_axis)
-    print(config)
-    config.sharding_axis=3
+    # # test config
+    # config = Configuration()
+    # print(config.sharding_axis)
+    # print(config)
+    # config.sharding_axis=3
+
+    # test stage_func
+    assert "stage_0" == get_stage_by_tensor_name("bert/embeddings/split:0"), 'fail'
+    print('pass all')
