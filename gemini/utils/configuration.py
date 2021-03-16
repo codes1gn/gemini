@@ -27,10 +27,12 @@ def _get_stage_by_tensor_name(_name):
 
     if 'embedding' in _name:
         return "stage_0"
-    elif 'bert/encoder' in _name and 'layer' not in _name:
-        return "stage_0"
-    elif 'bert/encoder/layer' in _name:
-        _layer = int(_name.split('/')[2].split('_')[-1])
+    elif 'layer_' in _name:
+        # FIXME more generic
+        if 'bert/encoder' in _name:
+            _layer = int(_name.split('/')[2].split('_')[-1])
+        else:
+            _layer = int(_name.split('_')[-1])
         _stage = "stage_" + _layers_to_stage[_layer]
         return _stage
     else:
@@ -120,9 +122,17 @@ class Configuration(object):
     def get_device_by_tensor(self, _tensor, shard_idx=0):
         _stage = _get_stage_by_tensor_name(_tensor.name)
         if 'stage' not in _stage:
-            return 'CPU:0' 
+            return 'CPU:0'
         _device_str = self.device_mapping[_stage]['shard_{}'.format(str(shard_idx))]
         print('debugoo', _tensor.name, _device_str)
+        return _device_str
+
+    def get_device_by_tensor_name(self, _tensor_name, shard_idx=0):
+        _stage = _get_stage_by_tensor_name(_tensor_name)
+        if 'stage' not in _stage:
+            return 'CPU:0'
+        _device_str = self.device_mapping[_stage]['shard_{}'.format(str(shard_idx))]
+        print('debugoo', _tensor_name, _device_str)
         return _device_str
 
     def load_config(self, config_file):
@@ -196,5 +206,10 @@ if __name__ == '__main__':
     # config.sharding_axis=3
 
     # test stage_func
-    assert "stage_0" == get_stage_by_tensor_name("bert/embeddings/split:0"), 'fail'
-    print('pass all')
+    # assert "stage_0" == get_stage_by_tensor_name("bert/embeddings/split:0"), 'fail'
+    # print('pass all')
+    # test new
+    config = Configuration()
+    print(config.get_device_by_tensor_name('embeddings'))
+    print(config.get_device_by_tensor_name('layer_11'))
+    print(config.get_device_by_tensor_name('bert/encoder/layer_7/haha'))

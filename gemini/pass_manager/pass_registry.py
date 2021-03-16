@@ -32,6 +32,6 @@ class PassRegistry(object):
         register_pass(PluginMultiplyPass)
         register_pass(PluginSoftmaxPass)
         register_pass(PluginDensePass)
-        # register_pass(PluginPass)
+        register_pass(PipelineDeviceStagePass)
 
         return _pass_table

@@ -10,3 +10,4 @@ from .plugin_multiply_pass import *
 from .plugin_gather_pass import *
 from .plugin_softmax_pass import *
 from .plugin_dense_pass import *
+from .pipeline_device_stage_pass import *

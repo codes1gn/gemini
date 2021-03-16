@@ -57,6 +57,12 @@ class GeminiCompiler:
             self._pass_manager.register_passes()
             self._pass_manager.run(self._code_node_entry)
 
+        self._pass_manager = PipelinePassManager()
+        self._pass_manager.register_passes()
+        self._pass_manager.run(self._code_node_entry)
+        assert 0, 'finish pipeline pass'
+        # add pipeline mode as default
+
     def compile_and_run(self, use_ast=False):
         # print('global keys have\n')
         # print(globals().keys())
