@@ -15,6 +15,9 @@ uninstall:
 tests:
 	./scripts/run_unittest.sh
 
+communicate:
+	./scripts/run_communicate.sh
+
 samples/dump_ast:
 	./scripts/run_dump_ast_sample.sh
 
