@@ -77,6 +77,38 @@ class Configuration(object):
         self._device_mapping['stage_0']['shard_2'] = '/device:XLA_DTU:2'
         self._device_mapping['stage_0']['shard_3'] = '/device:XLA_DTU:3'
 
+        # uncomment it and comment follows if on 1 dtu machine
+        # self._device_mapping['stage_1']['shard_0'] = '/device:XLA_DTU:0'
+        # self._device_mapping['stage_1']['shard_1'] = '/device:XLA_DTU:1'
+        # self._device_mapping['stage_1']['shard_2'] = '/device:XLA_DTU:2'
+        # self._device_mapping['stage_1']['shard_3'] = '/device:XLA_DTU:3'
+        # self._device_mapping['stage_2']['shard_0'] = '/device:XLA_DTU:0'
+        # self._device_mapping['stage_2']['shard_1'] = '/device:XLA_DTU:1'
+        # self._device_mapping['stage_2']['shard_2'] = '/device:XLA_DTU:2'
+        # self._device_mapping['stage_2']['shard_3'] = '/device:XLA_DTU:3'
+        # self._device_mapping['stage_3']['shard_0'] = '/device:XLA_DTU:0'
+        # self._device_mapping['stage_3']['shard_1'] = '/device:XLA_DTU:1'
+        # self._device_mapping['stage_3']['shard_2'] = '/device:XLA_DTU:2'
+        # self._device_mapping['stage_3']['shard_3'] = '/device:XLA_DTU:3'
+        # self._device_mapping['stage_4']['shard_0'] = '/device:XLA_DTU:0'
+        # self._device_mapping['stage_4']['shard_1'] = '/device:XLA_DTU:1'
+        # self._device_mapping['stage_4']['shard_2'] = '/device:XLA_DTU:2'
+        # self._device_mapping['stage_4']['shard_3'] = '/device:XLA_DTU:3'
+        # self._device_mapping['stage_5']['shard_0'] = '/device:XLA_DTU:0'
+        # self._device_mapping['stage_5']['shard_1'] = '/device:XLA_DTU:1'
+        # self._device_mapping['stage_5']['shard_2'] = '/device:XLA_DTU:2'
+        # self._device_mapping['stage_5']['shard_3'] = '/device:XLA_DTU:3'
+        # self._device_mapping['stage_6']['shard_0'] = '/device:XLA_DTU:0'
+        # self._device_mapping['stage_6']['shard_1'] = '/device:XLA_DTU:1'
+        # self._device_mapping['stage_6']['shard_2'] = '/device:XLA_DTU:2'
+        # self._device_mapping['stage_6']['shard_3'] = '/device:XLA_DTU:3'
+        # self._device_mapping['stage_7']['shard_0'] = '/device:XLA_DTU:0'
+        # self._device_mapping['stage_7']['shard_1'] = '/device:XLA_DTU:1'
+        # self._device_mapping['stage_7']['shard_2'] = '/device:XLA_DTU:2'
+        # self._device_mapping['stage_7']['shard_3'] = '/device:XLA_DTU:3'
+
+
+        # uncomment followings and comment above if on 8x dtu server
         # stage 1
         self._device_mapping['stage_1']['shard_0'] = '/device:XLA_DTU:5'
         self._device_mapping['stage_1']['shard_1'] = '/device:XLA_DTU:6'
