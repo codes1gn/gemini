@@ -823,7 +823,8 @@ def main(_):
       else:
           return '/device:CPU:0'
   if FLAGS.device.lower() in ['dtu', 'xla_dtu']:
-      device_fn = _device_fn
+      device_fn = None
+      # device_fn = _device_fn
   else:
       device_fn = _device_fn
   if FLAGS.horovod:
