@@ -6,6 +6,7 @@ from __future__ import print_function
 import collections
 import gemini.plugins.bert_plugin as gemini_plugin
 from gemini.plugins.monad import MonadicTensor
+from gemini.utils.configuration import Configuration
 import copy
 import json
 import math
@@ -13,6 +14,8 @@ import re
 import numpy as np
 import six
 import tensorflow as tf
+
+gemini_config = Configuration()
 
 class BertConfig(object, ):
     'Configuration for `BertModel`.'
@@ -58,31 +61,40 @@ class BertConfig(object, ):
 class BertModel(object, ):
     'BERT model ("Bidirectional Encoder Representations from Transformers").\n\n  Example usage:\n\n  ```python\n  # Already been converted into WordPiece token ids\n  input_ids = tf.constant([[31, 51, 99], [15, 5, 0]])\n  input_mask = tf.constant([[1, 1, 1], [1, 1, 0]])\n  token_type_ids = tf.constant([[0, 0, 1], [0, 2, 0]])\n\n  config = modeling.BertConfig(vocab_size=32000, hidden_size=512,\n    num_hidden_layers=8, num_attention_heads=6, intermediate_size=1024)\n\n  model = modeling.BertModel(config=config, is_training=True,\n    input_ids=input_ids, input_mask=input_mask, token_type_ids=token_type_ids)\n\n  label_embeddings = tf.get_variable(...)\n  pooled_output = model.get_pooled_output()\n  logits = tf.matmul(pooled_output, label_embeddings)\n  ...\n  ```\n  '
 
+    # FIXME
+    # def __init__(self, config, is_training, input_ids_list, input_mask=None, token_type_ids=None, use_one_hot_embeddings=False, scope=None):
     def __init__(self, config, is_training, input_ids, input_mask=None, token_type_ids=None, use_one_hot_embeddings=False, scope=None):
         'Constructor for BertModel.\n\n    Args:\n      config: `BertConfig` instance.\n      is_training: bool. true for training model, false for eval model. Controls\n        whether dropout will be applied.\n      input_ids: int32 Tensor of shape [batch_size, seq_length].\n      input_mask: (optional) int32 Tensor of shape [batch_size, seq_length].\n      token_type_ids: (optional) int32 Tensor of shape [batch_size, seq_length].\n      use_one_hot_embeddings: (optional) bool. Whether to use one-hot word\n        embeddings or tf.embedding_lookup() for the word embeddings.\n      scope: (optional) variable scope. Defaults to "bert".\n\n    Raises:\n      ValueError: The config is invalid or one of the input tensor shapes\n        is invalid.\n    '
-        config = copy.deepcopy(config)
-        if (not is_training):
-            config.hidden_dropout_prob = 0.0
-            config.attention_probs_dropout_prob = 0.0
-        input_shape = get_shape_list(input_ids, expected_rank=2)
-        batch_size = input_shape[0]
-        seq_length = input_shape[1]
-        if (input_mask is None):
-            input_mask = tf.ones(shape=[batch_size, seq_length], dtype=tf.int32)
-        if (token_type_ids is None):
-            token_type_ids = tf.zeros(shape=[batch_size, seq_length], dtype=tf.int32)
-        with tf.variable_scope(scope, default_name='bert'):
-            with tf.variable_scope('embeddings'):
-                with tf.device('/device:XLA_DTU:0'):
-                    (self.embedding_output, self.embedding_table) = embedding_lookup(input_ids=input_ids, vocab_size=config.vocab_size, embedding_size=config.hidden_size, initializer_range=config.initializer_range, word_embedding_name='word_embeddings', use_one_hot_embeddings=use_one_hot_embeddings)
-                    self.embedding_output = embedding_postprocessor(input_tensor=self.embedding_output, use_token_type=True, token_type_ids=token_type_ids, token_type_vocab_size=config.type_vocab_size, token_type_embedding_name='token_type_embeddings', use_position_embeddings=True, position_embedding_name='position_embeddings', initializer_range=config.initializer_range, max_position_embeddings=config.max_position_embeddings, dropout_prob=config.hidden_dropout_prob)
-            with tf.variable_scope('encoder'):
-                attention_mask = create_attention_mask_from_input_mask(input_ids, input_mask)
-                self.all_encoder_layers = transformer_model(input_tensor=self.embedding_output, attention_mask=attention_mask, hidden_size=config.hidden_size, num_hidden_layers=config.num_hidden_layers, num_attention_heads=config.num_attention_heads, intermediate_size=config.intermediate_size, intermediate_act_fn=get_activation(config.hidden_act), hidden_dropout_prob=config.hidden_dropout_prob, attention_probs_dropout_prob=config.attention_probs_dropout_prob, initializer_range=config.initializer_range, do_return_all_layers=True)
-            self.sequence_output = self.all_encoder_layers[(-1)]
-            with tf.variable_scope('pooler'):
-                first_token_tensor = tf.squeeze(self.sequence_output[:, 0:1, :], axis=1)
-                self.pooled_output = tf.layers.dense(first_token_tensor, config.hidden_size, activation=tf.tanh, kernel_initializer=create_initializer(config.initializer_range))
+        self.pooled_output = 0.0
+        self.sequence_output = 0.0
+        print(input_ids)
+        for idx in range(gemini_config.accum_degree):
+            config = copy.deepcopy(config)
+            if (not is_training):
+                config.hidden_dropout_prob = 0.0
+                config.attention_probs_dropout_prob = 0.0
+            input_shape = get_shape_list(input_ids, expected_rank=2)
+            batch_size = input_shape[0]
+            seq_length = input_shape[1]
+            if (input_mask is None):
+                input_mask = tf.ones(shape=[batch_size, seq_length], dtype=tf.int32)
+            if (token_type_ids is None):
+                token_type_ids = tf.zeros(shape=[batch_size, seq_length], dtype=tf.int32)
+            with tf.variable_scope(scope, default_name='bert'):
+                with tf.variable_scope('embeddings'):
+                    with tf.device('/device:XLA_DTU:0'):
+                        (self.embedding_output, self.embedding_table) = embedding_lookup(input_ids=input_ids, vocab_size=config.vocab_size, embedding_size=config.hidden_size, initializer_range=config.initializer_range, word_embedding_name='word_embeddings', use_one_hot_embeddings=use_one_hot_embeddings)
+                        self.embedding_output = embedding_postprocessor(input_tensor=self.embedding_output, use_token_type=True, token_type_ids=token_type_ids, token_type_vocab_size=config.type_vocab_size, token_type_embedding_name='token_type_embeddings', use_position_embeddings=True, position_embedding_name='position_embeddings', initializer_range=config.initializer_range, max_position_embeddings=config.max_position_embeddings, dropout_prob=config.hidden_dropout_prob)
+                with tf.variable_scope('encoder'):
+                    attention_mask = create_attention_mask_from_input_mask(input_ids, input_mask)
+                    self.all_encoder_layers = transformer_model(input_tensor=self.embedding_output, attention_mask=attention_mask, hidden_size=config.hidden_size, num_hidden_layers=config.num_hidden_layers, num_attention_heads=config.num_attention_heads, intermediate_size=config.intermediate_size, intermediate_act_fn=get_activation(config.hidden_act), hidden_dropout_prob=config.hidden_dropout_prob, attention_probs_dropout_prob=config.attention_probs_dropout_prob, initializer_range=config.initializer_range, do_return_all_layers=True)
+                # FIXME, sumup sequence_output and pooled_output, but keep all encoder layers as local vars.
+                self.sequence_output += self.all_encoder_layers[(-1)]
+                # self.sequence_output = self.all_encoder_layers[(-1)]
+                with tf.variable_scope('pooler'):
+                    first_token_tensor = tf.squeeze(self.sequence_output[:, 0:1, :], axis=1)
+                    self.pooled_output += tf.layers.dense(first_token_tensor, config.hidden_size, activation=tf.tanh, kernel_initializer=create_initializer(config.initializer_range))
+                    # self.pooled_output = tf.layers.dense(first_token_tensor, config.hidden_size, activation=tf.tanh, kernel_initializer=create_initializer(config.initializer_range))
 
     def get_pooled_output(self):
         return self.pooled_output
@@ -92,10 +104,12 @@ class BertModel(object, ):
         return self.sequence_output
 
     def get_all_encoder_layers(self):
+        assert 0
         return self.all_encoder_layers
 
     def get_embedding_output(self):
         'Gets output of the embedding lookup (i.e., input to the transformer).\n\n    Returns:\n      float Tensor of shape [batch_size, seq_length, hidden_size] corresponding\n      to the output of the embedding layer, after summing the word\n      embeddings with the positional embeddings and the token type embeddings,\n      then performing layer normalization. This is the input to the transformer.\n    '
+        assert 0
         return self.embedding_output
 
     def get_embedding_table(self):
@@ -174,7 +188,7 @@ def embedding_lookup(input_ids, vocab_size, embedding_size=128, initializer_rang
     if (input_ids.shape.ndims == 2):
         input_ids = tf.expand_dims(input_ids, axis=[(-1)])
     embedding_table = tf.get_variable(name=word_embedding_name, shape=[vocab_size, embedding_size], initializer=create_initializer(initializer_range))
-    embedding_tables = tf.split(embedding_table, num_or_size_splits=4, axis=1)
+    embedding_tables = tf.split(embedding_table, num_or_size_splits=gemini_config.sharding_size, axis=1)
     flat_input_ids = gemini_plugin.reshape(input_ids, [(-1)])
     if use_one_hot_embeddings:
         one_hot_input_ids = tf.one_hot(flat_input_ids, depth=vocab_size)
@@ -289,29 +303,30 @@ def transformer_model(input_tensor, attention_mask=None, hidden_size=768, num_hi
     all_layer_outputs = []
     for layer_idx in range(num_hidden_layers):
         with tf.variable_scope(('layer_%d' % layer_idx)):
-            layer_input = prev_output
-            with tf.variable_scope('attention'):
-                attention_heads = []
-                with tf.variable_scope('self'):
-                    attention_head = attention_layer(from_tensor=layer_input, to_tensor=layer_input, attention_mask=attention_mask, num_attention_heads=num_attention_heads, size_per_head=attention_head_size, attention_probs_dropout_prob=attention_probs_dropout_prob, initializer_range=initializer_range, do_return_2d_tensor=True, batch_size=batch_size, from_seq_length=seq_length, to_seq_length=seq_length)
-                    attention_heads.append(attention_head)
-                attention_output = None
-                if (len(attention_heads) == 1):
-                    attention_output = attention_heads[0]
-                else:
-                    attention_output = tf.concat(attention_heads, axis=(-1))
+            with tf.device(gemini_config.get_device_by_tensor_name(('layer_%d' % layer_idx))):
+                layer_input = prev_output
+                with tf.variable_scope('attention'):
+                    attention_heads = []
+                    with tf.variable_scope('self'):
+                        attention_head = attention_layer(from_tensor=layer_input, to_tensor=layer_input, attention_mask=attention_mask, num_attention_heads=num_attention_heads, size_per_head=attention_head_size, attention_probs_dropout_prob=attention_probs_dropout_prob, initializer_range=initializer_range, do_return_2d_tensor=True, batch_size=batch_size, from_seq_length=seq_length, to_seq_length=seq_length)
+                        attention_heads.append(attention_head)
+                    attention_output = None
+                    if (len(attention_heads) == 1):
+                        attention_output = attention_heads[0]
+                    else:
+                        attention_output = tf.concat(attention_heads, axis=(-1))
+                    with tf.variable_scope('output'):
+                        attention_output = gemini_plugin.dense(attention_output, hidden_size, kernel_initializer=create_initializer(initializer_range))
+                        attention_output = dropout(attention_output, hidden_dropout_prob)
+                        attention_output = layer_norm((attention_output + layer_input))
+                with tf.variable_scope('intermediate'):
+                    intermediate_output = gemini_plugin.dense(attention_output, intermediate_size, activation=intermediate_act_fn, kernel_initializer=create_initializer(initializer_range))
                 with tf.variable_scope('output'):
-                    attention_output = gemini_plugin.dense(attention_output, hidden_size, kernel_initializer=create_initializer(initializer_range))
-                    attention_output = dropout(attention_output, hidden_dropout_prob)
-                    attention_output = layer_norm((attention_output + layer_input))
-            with tf.variable_scope('intermediate'):
-                intermediate_output = gemini_plugin.dense(attention_output, intermediate_size, activation=intermediate_act_fn, kernel_initializer=create_initializer(initializer_range))
-            with tf.variable_scope('output'):
-                layer_output = gemini_plugin.dense(intermediate_output, hidden_size, kernel_initializer=create_initializer(initializer_range))
-                layer_output = dropout(layer_output, hidden_dropout_prob)
-                layer_output = layer_norm((layer_output + attention_output))
-                prev_output = layer_output
-                all_layer_outputs.append(layer_output)
+                    layer_output = gemini_plugin.dense(intermediate_output, hidden_size, kernel_initializer=create_initializer(initializer_range))
+                    layer_output = dropout(layer_output, hidden_dropout_prob)
+                    layer_output = layer_norm((layer_output + attention_output))
+                    prev_output = layer_output
+                    all_layer_outputs.append(layer_output)
     if do_return_all_layers:
         final_outputs = []
         for layer_output in all_layer_outputs:

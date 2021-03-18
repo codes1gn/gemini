@@ -29,9 +29,10 @@ def _get_stage_by_tensor_name(_name):
         return "stage_0"
     elif 'layer_' in _name:
         # FIXME more generic
-        if 'bert/encoder' in _name:
+        if '/encoder' in _name:
             _layer = int(_name.split('/')[2].split('_')[-1])
         else:
+            print('anchor', _name)
             _layer = int(_name.split('_')[-1])
         _stage = "stage_" + _layers_to_stage[_layer]
         return _stage
@@ -54,13 +55,15 @@ class Configuration(object):
         '_sharding_size',
         '_sharding_axis',
         '_device_mapping',
+        '_accum_degree',
     ]
 
-    def __init__(self, v_mode=Mode.SHARDING, v_sharding_size=4, v_sharding_axis=-1):
+    def __init__(self, v_mode=Mode.SHARDING, v_sharding_size=4, v_sharding_axis=-1, v_accum_degree=8):
         # default behaviour, follow megatron setting
         self._mode = v_mode
         self._sharding_size = v_sharding_size
         self._sharding_axis = v_sharding_axis
+        self._accum_degree = v_accum_degree
         self._device_mapping = {}
         self._device_mapping['stage_0'] = {}
         self._device_mapping['stage_1'] = {}
@@ -201,6 +204,16 @@ class Configuration(object):
         self._sharding_size = value
 
     @property
+    def accum_degree(self):
+        return self._accum_degree
+
+    @accum_degree.setter
+    def accum_degree(self, value):
+        # TODO requires sanity check
+        assert value in [1, 2, 4, 8, 16, 32], 'sharding_axis should be 1, 2 or 4'
+        self._accum_degree = value
+
+    @property
     def sharding_axis(self):
         return self._sharding_axis
 
@@ -244,4 +257,4 @@ if __name__ == '__main__':
     config = Configuration()
     print(config.get_device_by_tensor_name('embeddings'))
     print(config.get_device_by_tensor_name('layer_11'))
-    print(config.get_device_by_tensor_name('bert/encoder/layer_7/haha'))
+    print(config.get_device_by_tensor_name('bert_2/encoder/layer_7/haha'))
