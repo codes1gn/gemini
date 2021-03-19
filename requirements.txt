@@ -7,6 +7,7 @@ graphviz>=0.16
 astunparse==1.6.3
 autopep8>=1.5.0
 functools32
+sphinx
 
 # not used yet
 asttokens==2.0.4
