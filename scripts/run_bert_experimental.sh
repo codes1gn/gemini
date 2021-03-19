@@ -29,7 +29,9 @@ cd $top_dir_realpath"/external/TopsModels/common/"
 cd $top_dir_realpath
 
 export ENABLE_INIT_ON_CPU=1
-BERT_CKPT_DIR=$BERT_BASE
+export DTU_UMD_FLAGS='ib_pool_size=134217728'
+BERT_CKPT_DIR=$BERT_LARGE
+# BERT_CKPT_DIR=$BERT_BASE
 
 
 rm -rf $bert_dir/mrpc_output
@@ -43,8 +45,8 @@ python $bert_dir/run_classifier.py \
   --data_dir=${GLUE_DIR}\
   --vocab_file=${BERT_CKPT_DIR}/vocab.txt \
   --bert_config_file=${BERT_CKPT_DIR}/bert_config.json \
-  --max_seq_length=128 \
-  --train_batch_size=1 \
+  --max_seq_length=384 \
+  --train_batch_size=4 \
   --learning_rate=2e-5 \
   --num_train_epochs=0.03 \
   --output_dir=${OUT_DIR} \

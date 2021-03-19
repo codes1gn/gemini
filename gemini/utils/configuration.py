@@ -10,16 +10,28 @@ __all__ = [
 _layers_to_stage = {
     0:'0',
     1:'1',
-    2:'2',
-    3:'3',
-    4:'3',
-    5:'4',
-    6:'4',
-    7:'5',
-    8:'5',
-    9:'6',
-    10:'6',
-    11:'7',
+    2:'1',
+    3:'2',
+    4:'2',
+    5:'3',
+    6:'3',
+    7:'3',
+    8:'4',
+    9:'4',
+    10:'4',
+    11:'5',
+    12:'5',
+    13:'5',
+    14:'5',
+    15:'6',
+    16:'6',
+    17:'6',
+    18:'6',
+    19:'7',
+    20:'7',
+    21:'7',
+    22:'7',
+    23:'7',
 }
 
 def _get_stage_by_tensor_name(_name):
@@ -58,7 +70,7 @@ class Configuration(object):
         '_accum_degree',
     ]
 
-    def __init__(self, v_mode=Mode.SHARDING, v_sharding_size=4, v_sharding_axis=-1, v_accum_degree=8):
+    def __init__(self, v_mode=Mode.SHARDING, v_sharding_size=4, v_sharding_axis=-1, v_accum_degree=1):
         # default behaviour, follow megatron setting
         self._mode = v_mode
         self._sharding_size = v_sharding_size
