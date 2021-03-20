@@ -115,7 +115,7 @@ cd $top_dir_realpath
 # do running
 export PYTHONPATH="${PYTHONPATH}:${top_dir_realpath}:${bert_dir}"
 export DEBUG_MODE=false
-export BERT_LARGE=$bert_dir"/pretrained_models/uncased_L-24_H-1024_A-16"
+export BERT_LARGE=$bert_dir"/pretrained_models/wwm_uncased_L-24_H-1024_A-16"
 export BERT_BASE=$bert_dir"/pretrained_models/uncased_L-12_H-768_A-12"
 cd $top_dir_realpath"/external/TopsModels/common/"
 python setup.py install

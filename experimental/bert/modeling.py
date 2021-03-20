@@ -67,7 +67,6 @@ class BertModel(object, ):
         'Constructor for BertModel.\n\n    Args:\n      config: `BertConfig` instance.\n      is_training: bool. true for training model, false for eval model. Controls\n        whether dropout will be applied.\n      input_ids: int32 Tensor of shape [batch_size, seq_length].\n      input_mask: (optional) int32 Tensor of shape [batch_size, seq_length].\n      token_type_ids: (optional) int32 Tensor of shape [batch_size, seq_length].\n      use_one_hot_embeddings: (optional) bool. Whether to use one-hot word\n        embeddings or tf.embedding_lookup() for the word embeddings.\n      scope: (optional) variable scope. Defaults to "bert".\n\n    Raises:\n      ValueError: The config is invalid or one of the input tensor shapes\n        is invalid.\n    '
         self.pooled_output = 0.0
         self.sequence_output = 0.0
-        print(input_ids)
         for idx in range(gemini_config.accum_degree):
             config = copy.deepcopy(config)
             if (not is_training):

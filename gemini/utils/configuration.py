@@ -36,13 +36,14 @@ _layers_to_stage = {
 
 def _get_stage_by_tensor_name(_name):
     # TODO design better logics
+    # FIXME hardcode logics to result the 'stage_?' from tensor names
 
     if 'embedding' in _name:
         return "stage_0"
     elif 'layer_' in _name:
         # FIXME more generic
         if '/encoder' in _name:
-            _layer = int(_name.split('/')[2].split('_')[-1])
+            _layer = int(_name.split('/')[3].split('_')[-1])
         else:
             print('anchor', _name)
             _layer = int(_name.split('_')[-1])
@@ -269,4 +270,4 @@ if __name__ == '__main__':
     config = Configuration()
     print(config.get_device_by_tensor_name('embeddings'))
     print(config.get_device_by_tensor_name('layer_11'))
-    print(config.get_device_by_tensor_name('bert_2/encoder/layer_7/haha'))
+    print(config.get_device_by_tensor_name('gemini/bert/encoder/layer_7/haha'))

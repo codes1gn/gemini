@@ -8,6 +8,8 @@ config = Configuration()
 class MonadicTensor:
 
     def __init__(self, value):
+        print(type(value))
+        print((value))
         if isinstance(value, list) or isinstance(value, tf.Tensor):
             self.value = value
         elif isinstance(value, self.__class__):
