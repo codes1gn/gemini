@@ -2,3 +2,6 @@
 	path = external/TopsModels
 	url = git@git.enflame.cn:heng.shi/TopsModels.git
   ignore = dirty
+[submodule "gemini_docs"]
+	path = docs
+	url = git@github.com:albertsh10/gemini_docs.git
