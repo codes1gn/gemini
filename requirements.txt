@@ -7,7 +7,12 @@ graphviz>=0.16
 astunparse==1.6.3
 autopep8>=1.5.0
 functools32
+watchdog==0.10.6
 sphinx
+sphinx-autobuild
+sphinx_rtd_theme
+recommonmark
+sphinx_markdown_tables
 
 # not used yet
 asttokens==2.0.4

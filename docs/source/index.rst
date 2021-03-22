@@ -1,9 +1,9 @@
 .. gemini documentation master file, created by
-   sphinx-quickstart on Fri Mar 19 14:49:44 2021.
+   sphinx-quickstart on Mon Mar 22 13:26:36 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to gemini's documentation!
+Welcome to Gemini's documentation!
 ==================================
 
 .. toctree::
