@@ -19,6 +19,13 @@ __all__ = [
 
 
 class GeminiCompiler:
+    """Compiler Class that compiles the target source code into python AST.
+    Then apply model parallel passes onto the AST. The well-transformed AST will
+    then be executed on the python interpreter with supervision.
+
+    Returns:
+        GeminiCompiler: returns the instance of this class
+    """
 
     __slots__ = [
         '_pass_manager',
