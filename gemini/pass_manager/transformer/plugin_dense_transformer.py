@@ -32,15 +32,16 @@ class PluginDenseTransformer(NodeTransformerBase):
             # print 'found a tf.transpose, convert it to gemini_plugin.transpose'
             def _check_parent(_node):
                 # check if my parent is pooler context
-                # if parent is None, parent cannot be pooler context, return False
+                # if parent is None, parent cannot be pooler context, return
+                # False
                 if not hasattr(_node, 'gemini_parent'):
                     return False
 
                 _pnode = _node.gemini_parent
                 if isinstance(_pnode, ast.With) and \
-                    isinstance(_pnode.context_expr, ast.Call) and \
-                    isinstance(_pnode.context_expr.args[0], ast.Str) and \
-                    _pnode.context_expr.args[0].s == 'pooler':
+                        isinstance(_pnode.context_expr, ast.Call) and \
+                        isinstance(_pnode.context_expr.args[0], ast.Str) and \
+                        _pnode.context_expr.args[0].s == 'pooler':
                     # _pnode is pooler context
                     return True
                 else:

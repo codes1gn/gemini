@@ -8,31 +8,32 @@ __all__ = [
 ]
 
 _layers_to_stage = {
-    0:'0',
-    1:'1',
-    2:'1',
-    3:'2',
-    4:'2',
-    5:'3',
-    6:'3',
-    7:'3',
-    8:'4',
-    9:'4',
-    10:'4',
-    11:'5',
-    12:'5',
-    13:'5',
-    14:'5',
-    15:'6',
-    16:'6',
-    17:'6',
-    18:'6',
-    19:'7',
-    20:'7',
-    21:'7',
-    22:'7',
-    23:'7',
+    0: '0',
+    1: '1',
+    2: '1',
+    3: '2',
+    4: '2',
+    5: '3',
+    6: '3',
+    7: '3',
+    8: '4',
+    9: '4',
+    10: '4',
+    11: '5',
+    12: '5',
+    13: '5',
+    14: '5',
+    15: '6',
+    16: '6',
+    17: '6',
+    18: '6',
+    19: '7',
+    20: '7',
+    21: '7',
+    22: '7',
+    23: '7',
 }
+
 
 def _get_stage_by_tensor_name(_name):
     # TODO design better logics
@@ -71,7 +72,8 @@ class Configuration(object):
         '_accum_degree',
     ]
 
-    def __init__(self, v_mode=Mode.SHARDING, v_sharding_size=4, v_sharding_axis=-1, v_accum_degree=1):
+    def __init__(self, v_mode=Mode.SHARDING, v_sharding_size=4,
+                 v_sharding_axis=-1, v_accum_degree=1):
         # default behaviour, follow megatron setting
         self._mode = v_mode
         self._sharding_size = v_sharding_size
@@ -123,7 +125,6 @@ class Configuration(object):
         # self._device_mapping['stage_7']['shard_2'] = '/device:XLA_DTU:2'
         # self._device_mapping['stage_7']['shard_3'] = '/device:XLA_DTU:3'
 
-
         # uncomment followings and comment above if on 8x dtu server
         # stage 1
         self._device_mapping['stage_1']['shard_0'] = '/device:XLA_DTU:5'
@@ -171,7 +172,8 @@ class Configuration(object):
         _stage = _get_stage_by_tensor_name(_tensor.name)
         if 'stage' not in _stage:
             return 'CPU:0'
-        _device_str = self.device_mapping[_stage]['shard_{}'.format(str(shard_idx))]
+        _device_str = self.device_mapping[_stage]['shard_{}'.format(
+            str(shard_idx))]
         print('debugoo', _tensor.name, _device_str)
         return _device_str
 
@@ -179,7 +181,8 @@ class Configuration(object):
         _stage = _get_stage_by_tensor_name(_tensor_name)
         if 'stage' not in _stage:
             return 'CPU:0'
-        _device_str = self.device_mapping[_stage]['shard_{}'.format(str(shard_idx))]
+        _device_str = self.device_mapping[_stage]['shard_{}'.format(
+            str(shard_idx))]
         print('debugoo', _tensor_name, _device_str)
         return _device_str
 
@@ -190,11 +193,14 @@ class Configuration(object):
     @property
     def device_mapping(self):
         # TODO check order
-        return {key:self._device_mapping[key] for key in sorted(self._device_mapping.keys())}
+        return {key: self._device_mapping[key]
+                for key in sorted(self._device_mapping.keys())}
 
     @device_mapping.setter
     def device_mapping(self, value):
-        assert isinstance(value, dict), 'device mapping should be dict type, but got {}'.format(type(value))
+        assert isinstance(
+            value, dict), 'device mapping should be dict type, but got {}'.format(
+            type(value))
         self._device_mapping = value
 
     @property
@@ -203,7 +209,8 @@ class Configuration(object):
 
     @mode.setter
     def mode(self, value):
-        assert value in Mode, 'mode should select in {}'.format(str(list(Mode)))
+        assert value in Mode, 'mode should select in {}'.format(
+            str(list(Mode)))
         self._mode = value
 
     @property
@@ -223,7 +230,8 @@ class Configuration(object):
     @accum_degree.setter
     def accum_degree(self, value):
         # TODO requires sanity check
-        assert value in [1, 2, 4, 8, 16, 32], 'sharding_axis should be 1, 2 or 4'
+        assert value in [1, 2, 4, 8, 16,
+                         32], 'sharding_axis should be 1, 2 or 4'
         self._accum_degree = value
 
     @property
@@ -253,7 +261,6 @@ class Configuration(object):
             '---- sharding_axis = {}\n'.format(self.sharding_axis) + \
             '---- device_mapping = \n{}'.format(pretty(self.device_mapping))
         return _str
-
 
 
 if __name__ == '__main__':

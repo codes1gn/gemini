@@ -5,6 +5,7 @@ from gemini.utils import *
 
 config = Configuration()
 
+
 class MonadicTensor:
 
     def __init__(self, value):
@@ -17,7 +18,6 @@ class MonadicTensor:
         else:
             assert 0, 'got undefined type {}'.format(type(value))
 
-        
     def get(self):
         return self.value
 
@@ -42,13 +42,14 @@ class MonadicTensor:
                     and (isinstance(rhs.get(), list) or isinstance(rhs.get(), tuple)):
                 assert len(self.value) == len(rhs.get()), 'MonadicTensor.__add__ error, with case 1' + \
                     'self.value:MonadicTensor and rhs:MonadicTensor has mismatch length'
+
                 def _run_dev(idx, _lhs, _rhs):
                     _device_str = config.get_device_by_tensor(_lhs, idx)
                     with tf.device(_device_str):
                         return _lhs + _rhs
-                return self.__class__(list(map(lambda idx, l, r: _run_dev(idx, l, r), \
-                                               range(len(self.value)), \
-                                               self.value, \
+                return self.__class__(list(map(lambda idx, l, r: _run_dev(idx, l, r),
+                                               range(len(self.value)),
+                                               self.value,
                                                rhs.get())))
 
             elif (isinstance(self.value, list) or isinstance(self.value, tuple)) \
@@ -58,8 +59,8 @@ class MonadicTensor:
                     with tf.device(_device_str):
                         return _lhs + rhs.get()
                 return self.__class__(
-                    list(map(lambda idx, l: _run_dev(idx, l), \
-                             range(len(self.value)), \
+                    list(map(lambda idx, l: _run_dev(idx, l),
+                             range(len(self.value)),
                              self.value)))
 
             elif (isinstance(rhs.get(), list) or isinstance(rhs.get(), tuple)) \
@@ -75,8 +76,8 @@ class MonadicTensor:
                     with tf.device(_device_str):
                         return self.value + _rhs
                 return self.__class__(
-                    list(map(lambda idx, r: _run_dev(idx, r), \
-                             range(len(rhs.get())), \
+                    list(map(lambda idx, r: _run_dev(idx, r),
+                             range(len(rhs.get())),
                              rhs.get())))
 
             else:
@@ -88,13 +89,14 @@ class MonadicTensor:
                 # _key = 'shard_' + str(idx)
                 # _device_str = config.device_mapping[_stage][_key]
                 # with tf.device(_device_str):
-                #     return self.__class__(list(map(lambda r: self.value + r, rhs)))
+                # return self.__class__(list(map(lambda r: self.value + r,
+                # rhs)))
                 def _run_dev(idx, _rhs):
                     _device_str = config.get_device_by_tensor(_rhs, idx)
                     with tf.device(_device_str):
                         return self.value + _rhs
-                return self.__class__(list(map(lambda idx, r: _run_dev(idx, r), \
-                                               range(len(rhs)), \
+                return self.__class__(list(map(lambda idx, r: _run_dev(idx, r),
+                                               range(len(rhs)),
                                                rhs)))
 
             elif isinstance(self.value, list) or isinstance(self.value, tuple):
@@ -106,14 +108,15 @@ class MonadicTensor:
                 # with tf.device(_device_str):
                 #     return self.__class__(
                 #         list(map(lambda l, r: l + r, self.value, rhs)))
+
                 def _run_dev(idx, _lhs, _rhs):
                     _device_str = config.get_device_by_tensor(_lhs, idx)
                     with tf.device(_device_str):
                         return _lhs + _rhs
                 return self.__class__(
-                    list(map(lambda idx, l, r: _run_dev(idx, l, r), \
-                             range(len(self.value)), \
-                             self.value, \
+                    list(map(lambda idx, l, r: _run_dev(idx, l, r),
+                             range(len(self.value)),
+                             self.value,
                              rhs)))
 
             else:
@@ -128,7 +131,7 @@ class MonadicTensor:
             #         return self.value + rhs
 
             #     elif isinstance(self.value, list) or isinstance(self.value, tuple):
-            #         return self.__class__(list(map(lambda l: l + rhs, self.value)))
+            # return self.__class__(list(map(lambda l: l + rhs, self.value)))
 
             #     else:
             #         assert 0, 'MonadicTensor.__add__ error, with case 5'
@@ -183,16 +186,17 @@ class MonadicTensor:
                 for idx in range(len(self.value)):
                     _name_candidates.append(_name_base + str(idx))
                 # FIXME not containing kwargs handling inputs
+
                 def _run_dev(idx, _value, _one_name):
                     # _device_str = config.device_mapping[get_stage_by_tensor_name(_value.name)]['shard_' + str(idx)]
                     _device_str = config.get_device_by_tensor(_value, idx)
                     with tf.device(_device_str):
                         return f(_value, *args[1:], name=_one_name, **kwargs)
-	        result = list(map(
-                    lambda idx, inp, _one_name: \
-                    _run_dev(idx, inp, _one_name), \
-                    range(len(self.value)), \
-                    self.value, \
+                result = list(map(
+                    lambda idx, inp, _one_name:
+                    _run_dev(idx, inp, _one_name),
+                    range(len(self.value)),
+                    self.value,
                     _name_candidates))
             else:
                 def _run_dev(idx, _value):
@@ -201,9 +205,9 @@ class MonadicTensor:
                     with tf.device(_device_str):
                         return f(_value, *args[1:], **kwargs)
                 result = list(map(
-                    lambda idx, inp: \
-                    _run_dev(idx, inp), \
-                    range(len(self.value)), \
+                    lambda idx, inp:
+                    _run_dev(idx, inp),
+                    range(len(self.value)),
                     self.value))
             return self.__class__(result)
         else:
@@ -229,9 +233,9 @@ class MonadicTensor:
                 _device_str = config.get_device_by_tensor(lhs, idx)
                 with tf.device(_device_str):
                     return f(lhs, rhs, *args[2:], **kwargs)
-                
-            result = list(map(lambda idx, lhs, rhs: _run_device(idx, lhs, rhs), range(len(self.value)), self.value, rhs_operand.get()))
+
+            result = list(map(lambda idx, lhs, rhs: _run_device(idx, lhs, rhs), range(
+                len(self.value)), self.value, rhs_operand.get()))
             return self.__class__(result)
         else:
             assert 0, 'got undefined type'
-
