@@ -122,7 +122,8 @@ python setup.py install
 cd $top_dir_realpath
 
 export ENABLE_INIT_ON_CPU=1
-BERT_CKPT_DIR=$BERT_BASE
+export DTU_UMD_FLAGS='ib_pool_size=134217728'
+BERT_CKPT_DIR=$BERT_LARGE
 
 # run squad ----------------------------------
 # rm -rf squad_output
@@ -165,7 +166,7 @@ then
     --data_dir=${GLUE_DIR}\
     --vocab_file=${BERT_CKPT_DIR}/vocab.txt \
     --bert_config_file=${BERT_CKPT_DIR}/bert_config.json \
-    --max_seq_length=128 \
+    --max_seq_length=384 \
     --train_batch_size=1 \
     --learning_rate=2e-5 \
     --num_train_epochs=0.03 \
@@ -185,10 +186,10 @@ else
     --data_dir=${GLUE_DIR}\
     --vocab_file=${BERT_CKPT_DIR}/vocab.txt \
     --bert_config_file=${BERT_CKPT_DIR}/bert_config.json \
-    --max_seq_length=128 \
+    --max_seq_length=384 \
     --train_batch_size=1 \
     --learning_rate=2e-5 \
-    --num_train_epochs=0.01 \
+    --num_train_epochs=0.03 \
     --output_dir=${OUT_DIR} \
     > $top_dir_realpath/log 2>&1
     # --init_checkpoint=${BERT_CKPT_DIR}/bert_model.ckpt \
