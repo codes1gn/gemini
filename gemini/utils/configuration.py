@@ -41,6 +41,8 @@ def _get_stage_by_tensor_name(_name):
 
     if 'embedding' in _name:
         return "stage_0"
+    if 'encoder' in _name and 'layer_' not in _name:
+        return "stage_0"
     elif 'layer_' in _name:
         # FIXME more generic
         if '/encoder' in _name:
@@ -50,6 +52,10 @@ def _get_stage_by_tensor_name(_name):
             _layer = int(_name.split('_')[-1])
         _stage = "stage_" + _layers_to_stage[_layer]
         return _stage
+    elif 'pooler' in _name:
+        return 'stage_7'
+    elif 'loss' in _name:
+        return 'stage_7'
     else:
         return 'fail'
 
